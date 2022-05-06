@@ -1,0 +1,40 @@
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:maven_rules.bzl", "maven_jar")
+
+# -------------------------
+# Kotlin toolchain
+# -------------------------
+
+rules_kotlin_version = "v1.5.0"
+rules_kotlin_sha = "12d22a3d9cbcf00f2e2d8f0683ba87d3823cb8c7f6837568dd7e48846e023307"
+
+http_archive(
+    name = "io_bazel_rules_kotlin",
+    sha256 = rules_kotlin_sha,
+    urls = [
+        "https://github.com/bazelbuild/rules_kotlin/releases/download/%s/rules_kotlin_release.tgz" % rules_kotlin_version,
+    ],
+)
+
+load("@io_bazel_rules_kotlin//kotlin:dependencies.bzl", "kt_download_local_dev_dependencies")
+kt_download_local_dev_dependencies()
+
+load("@io_bazel_rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories")
+kotlin_repositories()
+
+load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_register_toolchains")
+kt_register_toolchains()
+
+# -------------------------
+# Third-party libaries
+# -------------------------
+
+maven_jar(
+    name = "commons-lang3",
+    artifact = "org.apache.commons:commons-lang3:3.6",
+)
+
+bind(
+    name = "commons-lang3-jar",
+    actual = "@commons-lang3//jar",
+)
