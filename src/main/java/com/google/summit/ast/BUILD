@@ -9,6 +9,6 @@ kt_jvm_library(
         "*/*.kt",
     ]),
     deps = [
-      "//external:commons-lang3-jar"
+      "@commons-lang3//jar",
     ],
 )

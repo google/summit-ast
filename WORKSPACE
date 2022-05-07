@@ -1,5 +1,6 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:maven_rules.bzl", "maven_jar")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 # -------------------------
 # Kotlin toolchain
@@ -32,9 +33,4 @@ kt_register_toolchains()
 maven_jar(
     name = "commons-lang3",
     artifact = "org.apache.commons:commons-lang3:3.6",
-)
-
-bind(
-    name = "commons-lang3-jar",
-    actual = "@commons-lang3//jar",
 )
