@@ -1,0 +1,11 @@
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "apex_parser",
+    srcs = glob([
+        "jvm/src/main/java/com/nawforce/apexparser/*.java",
+    ]),
+    deps = [
+        "@antlr4-runtime//jar",
+    ],
+)

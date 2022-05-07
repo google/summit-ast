@@ -34,3 +34,21 @@ maven_jar(
     name = "commons-lang3",
     artifact = "org.apache.commons:commons-lang3:3.6",
 )
+
+maven_jar(
+    name = "antlr4",
+    artifact = "org.antlr:antlr4:4.10.1",
+)
+
+maven_jar(
+    name = "antlr4-runtime",
+    artifact = "org.antlr:antlr4-runtime:4.10.1",
+)
+
+http_archive(
+  name = "apex_parser",
+  urls = ["https://github.com/nawforce/apex-parser/archive/v2.13.0.tar.gz"],
+  sha256 = "c239a2176067269e926d8944502a817aca7344029fde305c68b3a8e50889d7c0",
+  build_file = "BUILD.apex_parser",
+  strip_prefix = "apex-parser-2.13.0",
+)
