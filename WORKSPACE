@@ -45,6 +45,16 @@ maven_jar(
     artifact = "org.antlr:antlr4-runtime:4.10.1",
 )
 
+maven_jar(
+    name = "antlr-runtime",
+    artifact = "org.antlr:antlr-runtime:3.5.3",
+)
+
+maven_jar(
+    name = "antlr-st4",
+    artifact = "org.antlr:ST4:4.3.3",
+)
+
 http_archive(
   name = "apex_parser",
   urls = ["https://github.com/nawforce/apex-parser/archive/v2.13.0.tar.gz"],

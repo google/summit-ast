@@ -1,11 +1,76 @@
-package(default_visibility = ["//visibility:public"])
+package(default_visibility = ["//visibility:private"])
+
+java_binary(
+    name = "antlr4_tool",
+    main_class = "org.antlr.v4.Tool",
+    runtime_deps = [
+        "@antlr4//jar",
+        "@antlr4-runtime//jar",
+        "@antlr-runtime//jar",
+        "@antlr-st4//jar",
+    ],
+)
+
+filegroup(
+    name = "antlr_grammars",
+    srcs = [
+      "antlr/ApexLexer.g4",
+      "antlr/ApexParser.g4",
+    ],
+)
+
+genrule(
+    name = "apex_lexer_gensrc",
+    srcs = [":antlr_grammars"],
+    outs = [
+        "ApexLexer.java",
+        "ApexLexer.tokens",
+    ],
+    cmd = (
+        "cp $(locations :antlr_grammars) $(@D); " +
+        "$(location :antlr4_tool) $(@D)/ApexLexer.g4" +
+            " -package com.nawforce.apexparser -Werror"
+    ),
+    heuristic_label_expansion = 0,
+    tools = [
+        ":antlr4_tool",
+    ],
+)
+
+genrule(
+    name = "apex_parser_gensrc",
+    srcs = [
+        ":antlr_grammars",
+        ":apex_lexer_gensrc",
+    ],
+    outs = [
+        "ApexParser.java",
+        "ApexParserBaseVisitor.java",
+        "ApexParserVisitor.java",
+        "ApexParserBaseListener.java",
+        "ApexParserListener.java",
+    ],
+    cmd = (
+        "cp $(locations :antlr_grammars) $(@D); " +
+        "$(location :antlr4_tool) $(@D)/ApexParser.g4" +
+            " -visitor -package com.nawforce.apexparser"
+    ),
+    heuristic_label_expansion = 0,
+    tools = [
+        ":antlr4_tool",
+    ],
+)
 
 java_library(
     name = "apex_parser",
     srcs = glob([
         "jvm/src/main/java/com/nawforce/apexparser/*.java",
-    ]),
+    ]) + [
+        ":apex_lexer_gensrc",
+        ":apex_parser_gensrc",
+    ],
     deps = [
         "@antlr4-runtime//jar",
     ],
+    visibility = ["//visibility:public"],
 )
