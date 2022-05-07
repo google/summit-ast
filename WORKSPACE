@@ -55,6 +55,11 @@ maven_jar(
     artifact = "org.antlr:ST4:4.3.3",
 )
 
+maven_jar(
+    name = "flogger",
+    artifact = "com.google.flogger:flogger:0.7.4",
+)
+
 http_archive(
   name = "apex_parser",
   urls = ["https://github.com/nawforce/apex-parser/archive/v2.13.0.tar.gz"],
