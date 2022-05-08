@@ -65,6 +65,16 @@ maven_jar(
     artifact = "com.google.flogger:flogger-system-backend:0.7.4",
 )
 
+maven_jar(
+    name = "junit",
+    artifact = "junit:junit:4.13.2",
+)
+
+maven_jar(
+    name = "truth",
+    artifact = "com.google.truth:truth:1.1.3",
+)
+
 http_archive(
   name = "apex_parser",
   urls = ["https://github.com/nawforce/apex-parser/archive/v2.13.0.tar.gz"],

@@ -1,0 +1,61 @@
+package com.google.summit.translation
+
+import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import com.google.summit.ast.declaration.ClassDeclaration
+import com.google.summit.ast.declaration.EnumDeclaration
+import com.google.summit.ast.declaration.InterfaceDeclaration
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+
+@RunWith(JUnit4::class)
+class CompilationUnitTest {
+
+  @Test
+  fun class_translation_hasClassDeclaration() {
+    val cu = TranslateHelpers.parseAndTranslate("class Test { }")
+
+    assertThat(cu.typeDeclaration).isInstanceOf(ClassDeclaration::class.java)
+    val classDecl = cu.typeDeclaration as ClassDeclaration
+    assertWithMessage("Class should have no super class").that(classDecl.extendsType).isNull()
+    assertWithMessage("Class should have no implemented interfaces")
+      .that(classDecl.implementsTypes)
+      .isEmpty()
+  }
+
+  @Test
+  fun class_translation_includesInheritance() {
+    val cu = TranslateHelpers.parseAndTranslate("class Test extends Base implements I1, I2 { }")
+    val classDecl = cu.typeDeclaration as ClassDeclaration
+
+    assertThat(classDecl.extendsType?.asCodeString()).isEqualTo("Base")
+    assertThat(classDecl.implementsTypes.map { it.asCodeString() }).containsExactly("I1", "I2")
+  }
+
+  @Test
+  fun interface_translation_hasClassDeclaration() {
+    val cu = TranslateHelpers.parseAndTranslate("interface Test { }")
+
+    assertThat(cu.typeDeclaration).isInstanceOf(InterfaceDeclaration::class.java)
+    val interfaceDecl = cu.typeDeclaration as InterfaceDeclaration
+    assertWithMessage("Interface should have no super interfaces")
+      .that(interfaceDecl.extendsTypes)
+      .isEmpty()
+  }
+
+  @Test
+  fun interface_translation_includesInheritance() {
+    val cu = TranslateHelpers.parseAndTranslate("interface Test extends I1, I2 { }")
+    val interfaceDecl = cu.typeDeclaration as InterfaceDeclaration
+
+    assertThat(interfaceDecl.extendsTypes.map { it.asCodeString() }).containsExactly("I1", "I2")
+  }
+
+  @Test
+  fun enum_translation_hasClassDeclaration() {
+    val cu = TranslateHelpers.parseAndTranslate("enum Test { }")
+
+    assertThat(cu.typeDeclaration).isInstanceOf(EnumDeclaration::class.java)
+  }
+}
