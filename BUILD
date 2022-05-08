@@ -1,9 +1,10 @@
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary")
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
-
-kt_jvm_library(
-    name = "summit-ast-lib",
-    exports = [
-      "//src/main/java/com/google/summit/ast"
-    ],
+# SummitTool is a binary to simply parse and translate Apex source files.
+#
+# Pass it a list of file paths or directories to walk. It will read any files
+# with the .cls extension.
+#
+# $ bazel run :SummitTool -- <list of files or directory paths>
+alias(
+    name = "SummitTool",
+    actual = "//src/main/java/com/google/summit:SummitTool",
 )
