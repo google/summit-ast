@@ -81,8 +81,8 @@ object TranslateHelpers {
       return parseAndTranslateWithExceptions(input)
     } catch (e: Translate.TranslationException) {
       assertWithMessage("Translation failed on %s because %s", e.ctx.text, e.message).fail()
-      // Deviation from http://go/java-practices/exceptions#log_rethrow for
-      // syntactic purposes, to avoid returning optional type by exiting with exception.
+      // Exception to log-and-rethrow anti-pattern for syntactic purposes:
+      // want to avoid returning optional type by exiting with exception.
       throw e
     }
   }
@@ -106,8 +106,8 @@ object TranslateHelpers {
       return findFirstNodeOfType<T>(root)
     } catch (e: Translate.TranslationException) {
       assertWithMessage("Translation failed on %s because %s", e.ctx.text, e.message).fail()
-      // Deviation from http://go/java-practices/exceptions#log_rethrow for
-      // syntactic purposes, to avoid returning optional type by exiting with exception.
+      // Exception to log-and-rethrow anti-pattern for syntactic purposes:
+      // want to avoid returning optional type by exiting with exception.
       throw e
     }
   }
