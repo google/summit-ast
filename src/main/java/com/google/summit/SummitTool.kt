@@ -50,7 +50,7 @@ object SummitTool {
       line: Int,
       charPositionInLine: Int,
       msg: String,
-      e: RecognitionException
+      e: RecognitionException?
     ) {
       this.numErrors += 1
       logger.atInfo().log("Syntax error at %d:%d: %s", line, charPositionInLine, msg)
