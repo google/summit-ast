@@ -18,20 +18,61 @@ package com.google.summit.ast.modifier
 
 import com.google.summit.ast.Identifier
 import com.google.summit.ast.Node
+import com.google.summit.ast.NodeWithSourceLocation
 import com.google.summit.ast.SourceLocation
+import com.google.summit.ast.expression.Expression
 
 /**
  * An annotation modifier.
  *
- * The name suffix avoids conflict with the [java.lang.Annotation] class.
+ * The name suffix avoids conflict with the [java.lang.annotation.Annotation] class.
  */
-class AnnotationModifier(val name: Identifier, loc: SourceLocation) : Modifier(loc) {
-  // TODO(b/215202709): Translate annotation parameters and values
+class AnnotationModifier(
+  val name: Identifier,
+  val args: List<ElementArgument>,
+  loc: SourceLocation
+) : Modifier(loc) {
+  override fun getChildren(): List<Node> = listOf(name) + args
+}
 
-  /**
-   * Returns the list of children of this node.
-   *
-   * The children include the name identifier and (eventually) any parameters and values.
-   */
-  override fun getChildren(): List<Node> = listOf(name)
+/**
+ * An argument to an annotation element, consisting of the [name] of the element and its [value]. In
+ * unnamed arguments, the [name] is implicitly set to `value`.
+ */
+class ElementArgument
+private constructor(
+  val name: Identifier,
+  val value: ElementValue,
+  val isNameImplicit: Boolean,
+  loc: SourceLocation,
+) : NodeWithSourceLocation(loc) {
+  companion object {
+    private fun implicitName(): Identifier = Identifier("value", SourceLocation.UNKNOWN)
+
+    fun named(name: Identifier, value: ElementValue, loc: SourceLocation): ElementArgument =
+      ElementArgument(name, value, isNameImplicit = false, loc)
+
+    fun unnamed(value: ElementValue, loc: SourceLocation): ElementArgument =
+      ElementArgument(implicitName(), value, isNameImplicit = true, loc)
+  }
+
+  override fun getChildren(): List<Node> = listOf(name, value)
+}
+
+/** A value that can be assigned to an annotation element. */
+sealed class ElementValue(loc: SourceLocation) : NodeWithSourceLocation(loc) {
+  /** An element value that is an [Expression]. */
+  class ExpressionValue(val value: Expression, loc: SourceLocation) : ElementValue(loc) {
+    override fun getChildren(): List<Node> = listOf(value)
+  }
+
+  /** An element value that is an [AnnotationModifier]. */
+  class AnnotationValue(val value: AnnotationModifier, loc: SourceLocation) : ElementValue(loc) {
+    override fun getChildren(): List<Node> = listOf(value)
+  }
+
+  /** An element value that is an array of [ElementValue]s. */
+  class ArrayValue(val values: List<ElementValue>, loc: SourceLocation) : ElementValue(loc) {
+    override fun getChildren(): List<Node> = values
+  }
 }

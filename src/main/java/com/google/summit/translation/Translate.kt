@@ -54,6 +54,8 @@ import com.google.summit.ast.initializer.MapInitializer
 import com.google.summit.ast.initializer.SizedArrayInitializer
 import com.google.summit.ast.initializer.ValuesInitializer
 import com.google.summit.ast.modifier.AnnotationModifier
+import com.google.summit.ast.modifier.ElementArgument
+import com.google.summit.ast.modifier.ElementValue
 import com.google.summit.ast.modifier.KeywordModifier
 import com.google.summit.ast.modifier.Modifier
 import com.google.summit.ast.statement.BreakStatement
@@ -205,11 +207,76 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     }
   }
 
-  /** Translates the 'annotation' grammar rule and returns an AST [Annotation]. */
+  /** Translates the 'annotation' grammar rule and returns an AST [AnnotationModifier]. */
   override fun visitAnnotation(ctx: ApexParser.AnnotationContext): AnnotationModifier {
-    // TODO(b/215202709): Translate annotation parameters and values
-    return AnnotationModifier(visitQualifiedName(ctx.qualifiedName()), toSourceLocation(ctx))
+    if (ctx.elementValuePairs() != null && ctx.elementValue() != null) {
+      throw TranslationException(ctx, "At most one value should be present")
+    }
+
+    return AnnotationModifier(
+      visitQualifiedName(ctx.qualifiedName()),
+      args =
+        when {
+          // Named arguments
+          ctx.elementValuePairs() != null -> visitElementValuePairs(ctx.elementValuePairs())
+          // Single unnamed argument
+          ctx.elementValue() != null -> listOf(unnamedArgument(ctx.elementValue()))
+          // No arguments
+          else -> emptyList()
+        },
+      toSourceLocation(ctx)
+    )
   }
+
+  /** Translates the 'elementValuePairs' grammar rule and returns an AST [ElementArgument] list. */
+  override fun visitElementValuePairs(
+    ctx: ApexParser.ElementValuePairsContext
+  ): List<ElementArgument> = ctx.elementValuePair().map { visitElementValuePair(it) }
+
+  /** Translates the 'elementValuePair' grammar rule and returns an AST [ElementArgument]. */
+  override fun visitElementValuePair(ctx: ApexParser.ElementValuePairContext): ElementArgument =
+    ElementArgument.named(
+      visitId(ctx.id()),
+      visitElementValue(ctx.elementValue()),
+      toSourceLocation(ctx)
+    )
+
+  /** Translates an 'elementValue' into an unnamed argument. */
+  private fun unnamedArgument(ctx: ApexParser.ElementValueContext): ElementArgument =
+    ElementArgument.unnamed(visitElementValue(ctx), toSourceLocation(ctx))
+
+  /** Translates the 'elementValue' grammar rule and returns an AST [ElementValue]. */
+  override fun visitElementValue(ctx: ApexParser.ElementValueContext): ElementValue {
+    throwUnlessExactlyOneNotNull(
+      ruleBeingChecked = ctx,
+      ctx.expression(),
+      ctx.annotation(),
+      ctx.elementValueArrayInitializer()
+    )
+
+    val loc = toSourceLocation(ctx)
+
+    return when {
+      ctx.expression() != null ->
+        ElementValue.ExpressionValue(visitExpression(ctx.expression()), loc)
+      ctx.annotation() != null ->
+        ElementValue.AnnotationValue(visitAnnotation(ctx.annotation()), loc)
+      ctx.elementValueArrayInitializer() != null ->
+        ElementValue.ArrayValue(
+          visitElementValueArrayInitializer(ctx.elementValueArrayInitializer()),
+          loc
+        )
+      else -> throw TranslationException(ctx, "Unreachable case reached")
+    }
+  }
+
+  /**
+   * Translates the 'elementValueArrayInitializer' grammar rule and returns an AST [ElementValue]
+   * list.
+   */
+  override fun visitElementValueArrayInitializer(
+    ctx: ApexParser.ElementValueArrayInitializerContext
+  ): List<ElementValue> = ctx.elementValue().map { visitElementValue(it) }
 
   /** Translates the 'qualifiedName' grammar rule and returns an AST [Identifier]. */
   override fun visitQualifiedName(ctx: ApexParser.QualifiedNameContext): Identifier =

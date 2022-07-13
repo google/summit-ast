@@ -19,6 +19,7 @@ package com.google.summit.translation
 import com.google.common.truth.Truth.assertThat
 import com.google.summit.ast.CompilationUnit
 import com.google.summit.ast.modifier.AnnotationModifier
+import com.google.summit.ast.modifier.ElementValue
 import com.google.summit.ast.modifier.Modifier
 import com.google.summit.ast.traversal.DfsWalker
 import org.junit.Test
@@ -27,6 +28,11 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class ModifierTest {
+
+  private fun findAnnotationOnClass(cu: CompilationUnit, name: String): AnnotationModifier? =
+    cu.typeDeclaration.modifiers.filterIsInstance<AnnotationModifier>().find {
+      it.name.asCodeString() == name
+    }
 
   private fun classHasAnnotationNamed(cu: CompilationUnit, name: String): Boolean {
     return cu.typeDeclaration
@@ -46,9 +52,9 @@ class ModifierTest {
         """
       )
 
-    assertThat(classHasAnnotationNamed(cu, "isTest")).isTrue()
-    assertThat(classHasAnnotationNamed(cu, "JsonAccess")).isTrue()
-    assertThat(classHasAnnotationNamed(cu, "serializable")).isFalse()
+    assertThat(findAnnotationOnClass(cu, "isTest")).isNotNull()
+    assertThat(findAnnotationOnClass(cu, "JsonAccess")).isNotNull()
+    assertThat(findAnnotationOnClass(cu, "serializable")).isNull()
   }
 
   @Test
@@ -92,5 +98,80 @@ class ModifierTest {
       )
 
     assertThat(DfsWalker(cu).stream().filter { it is Modifier }.count()).isEqualTo(2)
+  }
+
+  @Test
+  fun annotation_arguments_areCorrectlyIdentified() {
+    val cu =
+      TranslateHelpers.parseAndTranslate(
+        """
+          @A(label='X' description='Y' category='Z')
+          @B(false)
+          @C({1, 2, 3})
+          @D(cacheable=true)
+          public class Test { }
+        """
+      )
+
+    val annotationA = findAnnotationOnClass(cu, "A")!!
+    val annotationB = findAnnotationOnClass(cu, "B")!!
+    val annotationC = findAnnotationOnClass(cu, "C")!!
+    val annotationD = findAnnotationOnClass(cu, "D")!!
+
+    assertThat(annotationA.args).hasSize(3)
+    assertThat(annotationA.args.none { it.isNameImplicit }).isTrue()
+
+    assertThat(annotationB.args).hasSize(1)
+    assertThat(annotationB.args[0].isNameImplicit).isTrue()
+
+    assertThat(annotationC.args).hasSize(1)
+    assertThat(annotationC.args[0].isNameImplicit).isTrue()
+
+    assertThat(annotationD.args).hasSize(1)
+    assertThat(annotationD.args[0].isNameImplicit).isFalse()
+  }
+
+  @Test
+  fun annotation_arguments_areCorrectlyParsed() {
+    val cu =
+      TranslateHelpers.parseAndTranslate(
+        """
+          @A(@X)
+          @B({@Y, @Z})
+          @C(a = false, b = {1, 2, 3}, c = @d)
+          @D
+          @E()
+          public class Test { }
+        """
+      )
+
+    val annotationA = findAnnotationOnClass(cu, "A")!!
+    val annotationB = findAnnotationOnClass(cu, "B")!!
+    val annotationC = findAnnotationOnClass(cu, "C")!!
+    val annotationD = findAnnotationOnClass(cu, "D")!!
+    val annotationE = findAnnotationOnClass(cu, "E")!!
+
+    assertThat(annotationA.args).hasSize(1)
+    assertThat(annotationA.args[0].value).isInstanceOf(ElementValue.AnnotationValue::class.java)
+
+    assertThat(annotationB.args).hasSize(1)
+    assertThat(annotationB.args[0].value).isInstanceOf(ElementValue.ArrayValue::class.java)
+    val annotationB_array = annotationB.args[0].value as ElementValue.ArrayValue
+    assertThat(annotationB_array.values).hasSize(2)
+    annotationB_array.values.forEach {
+      assertThat(it).isInstanceOf(ElementValue.AnnotationValue::class.java)
+    }
+
+    assertThat(annotationC.args).hasSize(3)
+    assertThat(annotationC.args[0].name.asCodeString()).isEqualTo("a")
+    assertThat(annotationC.args[0].value).isInstanceOf(ElementValue.ExpressionValue::class.java)
+    assertThat(annotationC.args[1].name.asCodeString()).isEqualTo("b")
+    assertThat(annotationC.args[1].value).isInstanceOf(ElementValue.ArrayValue::class.java)
+    assertThat(annotationC.args[2].name.asCodeString()).isEqualTo("c")
+    assertThat(annotationC.args[2].value).isInstanceOf(ElementValue.AnnotationValue::class.java)
+
+    assertThat(annotationD.args).isEmpty()
+
+    assertThat(annotationE.args).isEmpty()
   }
 }
