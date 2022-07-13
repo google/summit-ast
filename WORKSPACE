@@ -61,6 +61,11 @@ maven_jar(
 )
 
 maven_jar(
+    name = "guava",
+    artifact = "com.google.guava:guava:31.1-jre",
+)
+
+maven_jar(
     name = "flogger-system-backend",
     artifact = "com.google.flogger:flogger-system-backend:0.7.4",
 )

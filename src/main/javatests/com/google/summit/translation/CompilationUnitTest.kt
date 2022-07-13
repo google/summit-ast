@@ -19,6 +19,7 @@ package com.google.summit.translation
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.summit.ast.declaration.EnumDeclaration
+import com.google.summit.ast.declaration.TriggerDeclaration
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -44,5 +45,24 @@ class CompilationUnitTest {
     assertWithMessage("CompilationUnits are the root of the AST and should have no parent")
       .that(cu.parent)
       .isNull()
+  }
+
+  @Test
+  fun trigger_translatesTo_expectedTree() {
+    val cu =
+      TranslateHelpers.parseAndTranslate(
+        "trigger MyTrigger on MyObject(before update, after delete) { }"
+      )
+
+    val triggerDecl = cu.typeDeclaration as TriggerDeclaration
+
+    assertThat(cu.getChildren()).containsExactly(triggerDecl)
+    assertThat(triggerDecl.id.asCodeString()).isEqualTo("MyTrigger")
+    assertThat(triggerDecl.target.asCodeString()).isEqualTo("MyObject")
+    assertThat(triggerDecl.cases)
+      .containsExactly(
+        TriggerDeclaration.TriggerCase.TRIGGER_BEFORE_UPDATE,
+        TriggerDeclaration.TriggerCase.TRIGGER_AFTER_DELETE
+      )
   }
 }

@@ -13,6 +13,7 @@ kt_jvm_binary(
        "//src/main/java/com/google/summit/translation",
        "@apex_parser//:apex_parser",
        "@flogger//jar",
+       "@guava//jar",
     ],
     runtime_deps = [
        "@flogger-system-backend//jar",
