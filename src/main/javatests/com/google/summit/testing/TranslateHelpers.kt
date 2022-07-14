@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.summit.translation
+package com.google.summit.testing
 
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.summit.ast.CompilationUnit
 import com.google.summit.ast.Node
 import com.google.summit.ast.Untranslated
 import com.google.summit.ast.traversal.DfsWalker
+import com.google.summit.translation.Translate
 import com.nawforce.apexparser.ApexLexer
 import com.nawforce.apexparser.ApexParser
 import com.nawforce.apexparser.CaseInsensitiveInputStream
@@ -132,8 +133,7 @@ object TranslateHelpers {
       .stream()
       .filter { it is T }
       .findFirst()
-      .orElse(null) as
-      T?
+      .orElse(null) as T?
 
   /**
    * Asserts that the AST has no node of the given type.

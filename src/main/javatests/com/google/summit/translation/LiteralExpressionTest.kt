@@ -19,6 +19,7 @@ package com.google.summit.translation
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.summit.ast.expression.LiteralExpression
+import com.google.summit.testing.TranslateHelpers
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import org.junit.Test

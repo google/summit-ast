@@ -23,6 +23,7 @@ import com.google.summit.ast.initializer.ConstructorInitializer
 import com.google.summit.ast.initializer.MapInitializer
 import com.google.summit.ast.initializer.SizedArrayInitializer
 import com.google.summit.ast.initializer.ValuesInitializer
+import com.google.summit.testing.TranslateHelpers
 import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith

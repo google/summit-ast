@@ -20,6 +20,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.summit.ast.declaration.EnumDeclaration
 import com.google.summit.ast.declaration.TriggerDeclaration
+import com.google.summit.testing.TranslateHelpers
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

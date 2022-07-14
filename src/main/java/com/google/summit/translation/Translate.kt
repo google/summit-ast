@@ -114,7 +114,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
         else -> throw IllegalArgumentException("Unexpected parse tree")
       }
     val newNodeCount = Node.totalCount - prevNodeCount
-    val reachableNodeCount = setNodeParents(cu)
+    val reachableNodeCount = Node.setNodeParents(cu)
     if (reachableNodeCount != newNodeCount) {
       throw TranslationException(
         tree,
@@ -1563,21 +1563,6 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
       tokens.get(endToken).line,
       tokens.get(endToken).charPositionInLine
     )
-  }
-
-  /** Sets parent properties by recursing with [Node.getChildren] and returns count. */
-  private fun setNodeParents(node: Node): Int {
-    var reachableCount = 1
-    for (child in node.getChildren()) {
-      if (child.parent != null) {
-        throw Exception(
-          "Nodes should have a unique parent, but $child has ${child.parent} and $node"
-        )
-      }
-      child.parent = node
-      reachableCount += setNodeParents(child) // recurse
-    }
-    return reachableCount
   }
 
   private companion object {

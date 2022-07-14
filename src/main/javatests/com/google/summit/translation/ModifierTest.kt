@@ -22,6 +22,7 @@ import com.google.summit.ast.modifier.AnnotationModifier
 import com.google.summit.ast.modifier.ElementValue
 import com.google.summit.ast.modifier.Modifier
 import com.google.summit.ast.traversal.DfsWalker
+import com.google.summit.testing.TranslateHelpers
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

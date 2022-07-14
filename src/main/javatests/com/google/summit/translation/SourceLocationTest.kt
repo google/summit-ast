@@ -18,6 +18,7 @@ package com.google.summit.translation
 
 import com.google.common.truth.Truth.assertThat
 import com.google.summit.ast.SourceLocation
+import com.google.summit.testing.TranslateHelpers
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4

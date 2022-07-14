@@ -26,6 +26,7 @@ import com.google.summit.ast.declaration.MethodDeclaration
 import com.google.summit.ast.declaration.PropertyDeclaration
 import com.google.summit.ast.modifier.KeywordModifier
 import com.google.summit.ast.traversal.DfsWalker
+import com.google.summit.testing.TranslateHelpers
 import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith

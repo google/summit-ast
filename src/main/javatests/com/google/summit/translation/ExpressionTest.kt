@@ -37,6 +37,7 @@ import com.google.summit.ast.expression.UnaryExpression
 import com.google.summit.ast.expression.UntranslatedExpression
 import com.google.summit.ast.expression.VariableExpression
 import com.google.summit.ast.traversal.DfsWalker
+import com.google.summit.testing.TranslateHelpers
 import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
