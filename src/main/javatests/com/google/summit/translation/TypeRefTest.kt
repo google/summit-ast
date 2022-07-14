@@ -18,6 +18,7 @@ package com.google.summit.translation
 
 import com.google.common.truth.Truth.assertThat
 import com.google.summit.ast.TypeRef
+import com.google.summit.testing.TranslateHelpers
 import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith

@@ -20,6 +20,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.summit.ast.declaration.MethodDeclaration
 import com.google.summit.ast.modifier.KeywordModifier
+import com.google.summit.testing.TranslateHelpers
 import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith

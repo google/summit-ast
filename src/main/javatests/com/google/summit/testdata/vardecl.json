@@ -1,0 +1,216 @@
+{
+  "variableDeclarations": [
+    {
+      "type": {
+        "components": [
+          {
+            "id": {
+              "string": "Map",
+              "sourceLocation": {
+                "startLine": 19,
+                "startColumn": 6,
+                "endLine": 19,
+                "endColumn": 9
+              }
+            },
+            "args": [
+              {
+                "components": [
+                  {
+                    "id": {
+                      "string": "String",
+                      "sourceLocation": {
+                        "startLine": 19,
+                        "startColumn": 10,
+                        "endLine": 19,
+                        "endColumn": 16
+                      }
+                    },
+                    "args": []
+                  }
+                ],
+                "arrayNesting": 0
+              },
+              {
+                "components": [
+                  {
+                    "id": {
+                      "string": "String",
+                      "sourceLocation": {
+                        "startLine": 19,
+                        "startColumn": 18,
+                        "endLine": 19,
+                        "endColumn": 24
+                      }
+                    },
+                    "args": []
+                  }
+                ],
+                "arrayNesting": 0
+              }
+            ]
+          }
+        ],
+        "arrayNesting": 0
+      },
+      "initializer": {
+        "@type": "NewExpression",
+        "initializer": {
+          "@type": "MapInitializer",
+          "pairs": [
+            {
+              "first": {
+                "@type": "StringVal",
+                "value": "a",
+                "sourceLocation": {
+                  "startLine": 19,
+                  "startColumn": 62,
+                  "endLine": 19,
+                  "endColumn": 65
+                }
+              },
+              "second": {
+                "@type": "StringVal",
+                "value": "b",
+                "sourceLocation": {
+                  "startLine": 19,
+                  "startColumn": 69,
+                  "endLine": 19,
+                  "endColumn": 72
+                }
+              }
+            },
+            {
+              "first": {
+                "@type": "StringVal",
+                "value": "c",
+                "sourceLocation": {
+                  "startLine": 19,
+                  "startColumn": 74,
+                  "endLine": 19,
+                  "endColumn": 77
+                }
+              },
+              "second": {
+                "@type": "CallExpression",
+                "receiver": {
+                  "@type": "StringVal",
+                  "value": "d",
+                  "sourceLocation": {
+                    "startLine": 19,
+                    "startColumn": 81,
+                    "endLine": 19,
+                    "endColumn": 84
+                  }
+                },
+                "id": {
+                  "string": "toUpperCase",
+                  "sourceLocation": {
+                    "startLine": 19,
+                    "startColumn": 85,
+                    "endLine": 19,
+                    "endColumn": 96
+                  }
+                },
+                "args": [],
+                "isSafe": false,
+                "sourceLocation": {
+                  "startLine": 19,
+                  "startColumn": 81,
+                  "endLine": 19,
+                  "endColumn": 98
+                }
+              }
+            }
+          ],
+          "type": {
+            "components": [
+              {
+                "id": {
+                  "string": "Map",
+                  "sourceLocation": {
+                    "startLine": 19,
+                    "startColumn": 42,
+                    "endLine": 19,
+                    "endColumn": 45
+                  }
+                },
+                "args": [
+                  {
+                    "components": [
+                      {
+                        "id": {
+                          "string": "String",
+                          "sourceLocation": {
+                            "startLine": 19,
+                            "startColumn": 46,
+                            "endLine": 19,
+                            "endColumn": 52
+                          }
+                        },
+                        "args": []
+                      }
+                    ],
+                    "arrayNesting": 0
+                  },
+                  {
+                    "components": [
+                      {
+                        "id": {
+                          "string": "String",
+                          "sourceLocation": {
+                            "startLine": 19,
+                            "startColumn": 54,
+                            "endLine": 19,
+                            "endColumn": 60
+                          }
+                        },
+                        "args": []
+                      }
+                    ],
+                    "arrayNesting": 0
+                  }
+                ]
+              }
+            ],
+            "arrayNesting": 0
+          },
+          "sourceLocation": {
+            "startLine": 19,
+            "startColumn": 42,
+            "endLine": 19,
+            "endColumn": 99
+          }
+        },
+        "sourceLocation": {
+          "startLine": 19,
+          "startColumn": 38,
+          "endLine": 19,
+          "endColumn": 99
+        }
+      },
+      "id": {
+        "string": "MyStrings",
+        "sourceLocation": {
+          "startLine": 19,
+          "startColumn": 26,
+          "endLine": 19,
+          "endColumn": 35
+        }
+      },
+      "modifiers": [],
+      "sourceLocation": {
+        "startLine": 19,
+        "startColumn": 6,
+        "endLine": 19,
+        "endColumn": 99
+      }
+    }
+  ],
+  "sourceLocation": {
+    "startLine": 19,
+    "startColumn": 6,
+    "endLine": 19,
+    "endColumn": 100
+  }
+}
