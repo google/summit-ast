@@ -1,6 +1,4 @@
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library")
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_test")
-load("@io_bazel_rules_kotlin//kotlin:core.bzl", "kt_kotlinc_options")
+load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library", "kt_jvm_test")
 
 kt_jvm_library(
     name = "tests",
