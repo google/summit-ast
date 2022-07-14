@@ -30,6 +30,7 @@ import com.google.summit.ast.declaration.InterfaceDeclaration
 import com.google.summit.ast.declaration.MethodDeclaration
 import com.google.summit.ast.declaration.ParameterDeclaration
 import com.google.summit.ast.declaration.PropertyDeclaration
+import com.google.summit.ast.declaration.TriggerDeclaration
 import com.google.summit.ast.declaration.TypeDeclaration
 import com.google.summit.ast.declaration.VariableDeclaration
 import com.google.summit.ast.expression.ArrayExpression
@@ -77,6 +78,7 @@ import com.google.summit.ast.statement.VariableDeclarationStatement
 import com.google.summit.ast.statement.WhileLoopStatement
 import com.nawforce.apexparser.ApexParser
 import com.nawforce.apexparser.ApexParserBaseVisitor
+import kotlin.math.min
 import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.TokenStream
 import org.antlr.v4.runtime.tree.SyntaxTree
@@ -102,10 +104,15 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
    * @throws TranslationException on unexpected errors
    */
   @Throws(TranslationException::class)
-  fun translate(tree: ApexParser.CompilationUnitContext): CompilationUnit {
+  fun translate(tree: ParserRuleContext): CompilationUnit {
     logger.atInfo().log("Translating %s", file)
     val prevNodeCount = Node.totalCount
-    val cu = visitCompilationUnit(tree)
+    val cu =
+      when (tree) {
+        is ApexParser.CompilationUnitContext -> visitCompilationUnit(tree)
+        is ApexParser.TriggerUnitContext -> visitTriggerUnit(tree)
+        else -> throw IllegalArgumentException("Unexpected parse tree")
+      }
     val newNodeCount = Node.totalCount - prevNodeCount
     val reachableNodeCount = setNodeParents(cu)
     if (reachableNodeCount != newNodeCount) {
@@ -134,16 +141,60 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     Identifier(ctx.text, toSourceLocation(ctx))
 
   /** Translates the 'compilationUnit' grammar rule and returns an AST [CompilationUnit]. */
-  override fun visitCompilationUnit(ctx: ApexParser.CompilationUnitContext): CompilationUnit {
-    val interval = ctx.sourceInterval
-    val wholeFile =
-      SourceLocation(
-        tokens.get(interval.a).line,
-        tokens.get(interval.a).charPositionInLine,
-        tokens.get(interval.b).line,
-        tokens.get(interval.b).charPositionInLine
-      )
-    return CompilationUnit(visitTypeDeclaration(ctx.typeDeclaration()), file, wholeFile)
+  override fun visitCompilationUnit(ctx: ApexParser.CompilationUnitContext): CompilationUnit =
+    CompilationUnit(visitTypeDeclaration(ctx.typeDeclaration()), file, toSourceLocation(ctx))
+
+  /** Translates the 'triggerUnit' grammar rule and returns an AST [CompilationUnit]. */
+  override fun visitTriggerUnit(ctx: ApexParser.TriggerUnitContext): CompilationUnit {
+    if (ctx.id().size != 2) {
+      throw TranslationException(ctx, "TriggerUnit rule should include 2 identifiers")
+    }
+
+    val loc = toSourceLocation(ctx)
+    return CompilationUnit(
+      TriggerDeclaration(
+        id = visitId(ctx.id().get(0)),
+        target = visitId(ctx.id().get(1)),
+        cases = ctx.triggerCase().map { visitTriggerCase(it) },
+        body = visitBlock(ctx.block()),
+        loc = loc
+      ),
+      file,
+      loc
+    )
+  }
+
+  /**
+   * Translates the 'triggerCase' grammar rule and returns an AST [TriggerDeclaration.TriggerCase].
+   */
+  override fun visitTriggerCase(
+    ctx: ApexParser.TriggerCaseContext
+  ): TriggerDeclaration.TriggerCase {
+    throwUnlessExactlyOneNotNull(ruleBeingChecked = ctx, ctx.BEFORE(), ctx.AFTER())
+    throwUnlessExactlyOneNotNull(
+      ruleBeingChecked = ctx,
+      ctx.INSERT(),
+      ctx.UPDATE(),
+      ctx.DELETE(),
+      ctx.UNDELETE()
+    )
+    return if (ctx.BEFORE() != null) {
+      when {
+        ctx.INSERT() != null -> TriggerDeclaration.TriggerCase.TRIGGER_BEFORE_INSERT
+        ctx.UPDATE() != null -> TriggerDeclaration.TriggerCase.TRIGGER_BEFORE_UPDATE
+        ctx.DELETE() != null -> TriggerDeclaration.TriggerCase.TRIGGER_BEFORE_DELETE
+        ctx.UNDELETE() != null -> TriggerDeclaration.TriggerCase.TRIGGER_BEFORE_UNDELETE
+        else -> throw TranslationException(ctx, "Unreachable case reached")
+      }
+    } else {
+      when {
+        ctx.INSERT() != null -> TriggerDeclaration.TriggerCase.TRIGGER_AFTER_INSERT
+        ctx.UPDATE() != null -> TriggerDeclaration.TriggerCase.TRIGGER_AFTER_UPDATE
+        ctx.DELETE() != null -> TriggerDeclaration.TriggerCase.TRIGGER_AFTER_DELETE
+        ctx.UNDELETE() != null -> TriggerDeclaration.TriggerCase.TRIGGER_AFTER_UNDELETE
+        else -> throw TranslationException(ctx, "Unreachable case reached")
+      }
+    }
   }
 
   /** Translates the 'classDeclaration' grammar rule and returns an AST [ClassDeclaration]. */
@@ -1434,9 +1485,9 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   /** Translates the 'mergeStatement' grammar rule and returns an AST [Statement]. */
   override fun visitMergeStatement(ctx: ApexParser.MergeStatementContext): Statement =
     DmlStatement.Merge(
-      visitExpression(ctx.expression().first()),
-      visitExpression(ctx.expression().last()) /*from*/,
-      toSourceLocation(ctx)
+      value = visitExpression(ctx.expression().first()),
+      from = visitExpression(ctx.expression().last()),
+      loc = toSourceLocation(ctx)
     )
 
   /** Translates the 'runAsStatement' grammar rule and returns an AST [Statement]. */
@@ -1503,11 +1554,14 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   /** Gets a source location for any grammar rule. */
   private fun toSourceLocation(tree: SyntaxTree): SourceLocation {
     val interval = tree.sourceInterval
+    // The end of the last token in the interval is the start of the next token--
+    // except for the EOF token which has no next token.
+    val endToken = min(interval.b + 1, tokens.size() - 1)
     return SourceLocation(
       tokens.get(interval.a).line,
       tokens.get(interval.a).charPositionInLine,
-      tokens.get(interval.b + 1).line,
-      tokens.get(interval.b + 1).charPositionInLine
+      tokens.get(endToken).line,
+      tokens.get(endToken).charPositionInLine
     )
   }
 

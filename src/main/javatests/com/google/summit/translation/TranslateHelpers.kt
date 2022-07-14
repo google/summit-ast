@@ -52,6 +52,9 @@ object TranslateHelpers {
    * This helper is missing the extra exception logging (in the methods below) which also records
    * the problematic input text.
    *
+   * Input strings that begin with `trigger *` will be parsed as if from a *.trigger file. Otherwise
+   * it will be passed as from a *.cls file.
+   *
    * @param input the source code to parse and translate
    * @return the translated AST for the compilation unit
    * @throw Translate.TranslationException when translation fails
@@ -62,8 +65,11 @@ object TranslateHelpers {
     val tokens = CommonTokenStream(lexer)
     val parser = ApexParser(tokens)
     parser.addErrorListener(FailOnErrorListener)
-    val tree = parser.compilationUnit()
-    return Translate("<input>", tokens).translate(tree)
+    if (input.startsWith("trigger ")) {
+      return Translate("<trigger input>", tokens).translate(parser.triggerUnit())
+    } else {
+      return Translate("<cls input>", tokens).translate(parser.compilationUnit())
+    }
   }
 
   /**

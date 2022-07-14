@@ -37,4 +37,4 @@ $ bazel run src/main/java/com/google/summit/SummitTool [files | directories ...]
 ```
 
 Any directories will be recursively walked. The tool attempts to compile
-any files with the extension `.cls`.
+any files with the extension `.cls` or '.trigger'.

@@ -16,6 +16,7 @@
 
 package com.google.summit
 
+import com.google.common.base.Ascii
 import com.google.common.flogger.FluentLogger
 import com.google.summit.translation.Translate
 import com.nawforce.apexparser.ApexLexer
@@ -29,6 +30,7 @@ import java.util.stream.Stream
 import org.antlr.v4.runtime.BaseErrorListener
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
+import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
 
@@ -71,7 +73,11 @@ object SummitTool {
     parser.addErrorListener(errorCounter)
 
     // Do parse as complete compilation unit
-    val tree = parser.compilationUnit()
+    val tree = when {
+      isApexClassFile(path) -> parser.compilationUnit()
+      isApexTriggerFile(path) -> parser.triggerUnit()
+      else -> throw IllegalArgumentException("Unexpected file type")
+    }
 
     if (errorCounter.numErrors > 0) {
       logger.atWarning().log("Failed to parse %s", path)
@@ -89,8 +95,23 @@ object SummitTool {
     return true
   }
 
+  /**
+   * Returns true if the path is an Apex class file. These are regular files with the
+   * (case-insensitive) suffix ".cls".
+   */
+  private fun isApexClassFile(path: Path): Boolean =
+    Files.isRegularFile(path) && Ascii.toLowerCase(path.toString()).endsWith(".cls")
+
+  /**
+   * Returns true if the path is an Apex trigger file. These are regular files with the
+   * (case-insensitive) suffix ".trigger".
+   */
+  private fun isApexTriggerFile(path: Path): Boolean =
+    Files.isRegularFile(path) && Ascii.toLowerCase(path.toString()).endsWith(".trigger")
+
+  /** Returns true if the path is an Apex source file: either a class or a trigger. */
   private fun isApexSourceFile(path: Path): Boolean =
-    Files.isRegularFile(path) && path.toString().lowercase().endsWith(".cls")
+    isApexClassFile(path) || isApexTriggerFile(path)
 
   @JvmStatic
   fun main(args: Array<String>) {
