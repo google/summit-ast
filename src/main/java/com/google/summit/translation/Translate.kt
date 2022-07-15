@@ -226,7 +226,6 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'typeDeclaration' grammar rule and returns an AST [TypeDeclaration]. */
   override fun visitTypeDeclaration(ctx: ApexParser.TypeDeclarationContext): TypeDeclaration {
-    // Check mutual exclusivity in grammar
     matchExactlyOne(
       ruleBeingChecked = ctx,
       ctx.classDeclaration(),
@@ -373,7 +372,6 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitClassBodyDeclaration(
     ctx: ApexParser.ClassBodyDeclarationContext
   ): List<Declaration> {
-    // Check mutual exclusivity in grammar
     matchExactlyOne(ruleBeingChecked = ctx, ctx.memberDeclaration(), ctx.block(), ctx.SEMI())
 
     return when {
@@ -401,7 +399,6 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'memberDeclaration' grammar rule and returns an AST [Declaration] list. */
   override fun visitMemberDeclaration(ctx: ApexParser.MemberDeclarationContext): List<Declaration> {
-    // Check mutual exclusivity in grammar
     matchExactlyOne(
       ruleBeingChecked = ctx,
       ctx.methodDeclaration(),
@@ -988,7 +985,6 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'expression#arth1Expression' grammar rule and returns an AST [Expression]. */
   override fun visitArth1Expression(ctx: ApexParser.Arth1ExpressionContext): Expression {
-    // Check mutual exclusivity
     val matchedTerminal = matchExactlyOne(ruleBeingChecked = ctx, ctx.MUL(), ctx.DIV(), ctx.MOD())
 
     return BinaryExpression(
@@ -1099,7 +1095,6 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'expression#arth2Expression' grammar rule and returns an AST [Expression]. */
   override fun visitArth2Expression(ctx: ApexParser.Arth2ExpressionContext): Expression {
-    // Check mutual exclusivity
     val matchedTerminal = matchExactlyOne(ruleBeingChecked = ctx, ctx.ADD(), ctx.SUB())
 
     return BinaryExpression(
