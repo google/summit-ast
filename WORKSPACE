@@ -87,3 +87,13 @@ http_archive(
   build_file = "BUILD.apex_parser",
   strip_prefix = "apex-parser-2.13.0",
 )
+
+maven_jar(
+    name = "gson",
+    artifact = "com.google.code.gson:gson:2.9.0",
+)
+
+maven_jar(
+    name = "kotlin-reflect",
+    artifact = "org.jetbrains.kotlin:kotlin-reflect:1.7.0",
+)

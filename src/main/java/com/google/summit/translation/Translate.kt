@@ -114,7 +114,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
         else -> throw IllegalArgumentException("Unexpected parse tree")
       }
     val newNodeCount = Node.totalCount - prevNodeCount
-    val reachableNodeCount = setNodeParents(cu)
+    val reachableNodeCount = Node.setNodeParents(cu)
     if (reachableNodeCount != newNodeCount) {
       throw TranslationException(
         tree,
@@ -170,8 +170,8 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitTriggerCase(
     ctx: ApexParser.TriggerCaseContext
   ): TriggerDeclaration.TriggerCase {
-    throwUnlessExactlyOneNotNull(ruleBeingChecked = ctx, ctx.BEFORE(), ctx.AFTER())
-    throwUnlessExactlyOneNotNull(
+    matchExactlyOne(ruleBeingChecked = ctx, ctx.BEFORE(), ctx.AFTER())
+    matchExactlyOne(
       ruleBeingChecked = ctx,
       ctx.INSERT(),
       ctx.UPDATE(),
@@ -226,8 +226,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'typeDeclaration' grammar rule and returns an AST [TypeDeclaration]. */
   override fun visitTypeDeclaration(ctx: ApexParser.TypeDeclarationContext): TypeDeclaration {
-    // Check mutual exclusivity in grammar
-    throwUnlessExactlyOneNotNull(
+    matchExactlyOne(
       ruleBeingChecked = ctx,
       ctx.classDeclaration(),
       ctx.interfaceDeclaration(),
@@ -298,7 +297,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'elementValue' grammar rule and returns an AST [ElementValue]. */
   override fun visitElementValue(ctx: ApexParser.ElementValueContext): ElementValue {
-    throwUnlessExactlyOneNotNull(
+    matchExactlyOne(
       ruleBeingChecked = ctx,
       ctx.expression(),
       ctx.annotation(),
@@ -373,13 +372,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitClassBodyDeclaration(
     ctx: ApexParser.ClassBodyDeclarationContext
   ): List<Declaration> {
-    // Check mutual exclusivity in grammar
-    throwUnlessExactlyOneNotNull(
-      ruleBeingChecked = ctx,
-      ctx.memberDeclaration(),
-      ctx.block(),
-      ctx.SEMI()
-    )
+    matchExactlyOne(ruleBeingChecked = ctx, ctx.memberDeclaration(), ctx.block(), ctx.SEMI())
 
     return when {
       ctx.memberDeclaration() != null -> {
@@ -406,8 +399,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'memberDeclaration' grammar rule and returns an AST [Declaration] list. */
   override fun visitMemberDeclaration(ctx: ApexParser.MemberDeclarationContext): List<Declaration> {
-    // Check mutual exclusivity in grammar
-    throwUnlessExactlyOneNotNull(
+    matchExactlyOne(
       ruleBeingChecked = ctx,
       ctx.methodDeclaration(),
       ctx.fieldDeclaration(),
@@ -593,7 +585,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'propertyBlock' grammar rule and returns an AST [MethodDeclaration]. */
   override fun visitPropertyBlock(ctx: ApexParser.PropertyBlockContext): PropertyAccessor {
-    throwUnlessExactlyOneNotNull(ruleBeingChecked = ctx, ctx.getter(), ctx.setter())
+    matchExactlyOne(ruleBeingChecked = ctx, ctx.getter(), ctx.setter())
     return when {
       ctx.getter() != null -> visitGetter(ctx.getter())
       ctx.setter() != null -> visitSetter(ctx.setter())
@@ -662,7 +654,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'literal' grammar rule and returns an AST [LiteralExpression]. */
   override fun visitLiteral(ctx: ApexParser.LiteralContext): LiteralExpression {
-    throwUnlessExactlyOneNotNull(
+    matchExactlyOne(
       ruleBeingChecked = ctx,
       ctx.IntegerLiteral(),
       ctx.LongLiteral(),
@@ -789,7 +781,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   /** Translates the 'whenControl' grammar rule and returns an AST [SwitchStatement.When]. */
   override fun visitWhenControl(ctx: ApexParser.WhenControlContext): SwitchStatement.When {
     val whenValue = ctx.whenValue()
-    throwUnlessExactlyOneNotNull(
+    matchExactlyOne(
       ruleBeingChecked = whenValue,
       whenValue.ELSE(),
       whenValue.id().firstOrNull(),
@@ -841,7 +833,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'whenLiteral' grammar rule into an AST [Expression]. */
   override fun visitWhenLiteral(ctx: ApexParser.WhenLiteralContext): Expression {
-    throwUnlessExactlyOneNotNull(
+    matchExactlyOne(
       ruleBeingChecked = ctx,
       ctx.IntegerLiteral(),
       ctx.LongLiteral(),
@@ -878,7 +870,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'creator' grammar rule and returns an AST [Initializer]. */
   override fun visitCreator(ctx: ApexParser.CreatorContext): Initializer {
-    throwUnlessExactlyOneNotNull(
+    matchExactlyOne(
       ruleBeingChecked = ctx,
       ctx.noRest(),
       ctx.classCreatorRest(),
@@ -960,7 +952,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'methodCall' grammar rule and returns an AST [CallExpression]. */
   override fun visitMethodCall(ctx: ApexParser.MethodCallContext): CallExpression {
-    throwUnlessExactlyOneNotNull(ruleBeingChecked = ctx, ctx.THIS(), ctx.SUPER(), ctx.id())
+    matchExactlyOne(ruleBeingChecked = ctx, ctx.THIS(), ctx.SUPER(), ctx.id())
     return CallExpression(
       receiver = null,
       when {
@@ -993,15 +985,11 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'expression#arth1Expression' grammar rule and returns an AST [Expression]. */
   override fun visitArth1Expression(ctx: ApexParser.Arth1ExpressionContext): Expression {
-    val matchedTerminals = listOfNotNull(ctx.MUL(), ctx.DIV(), ctx.MOD())
-    // Check mutual exclusivity
-    if (matchedTerminals.size != 1) {
-      throw TranslationException(ctx, "${ctx.text} should match exactly one terminal")
-    }
+    val matchedTerminal = matchExactlyOne(ruleBeingChecked = ctx, ctx.MUL(), ctx.DIV(), ctx.MOD())
 
     return BinaryExpression(
       visitExpression(ctx.expression().first()),
-      opString = matchedTerminals.first().text,
+      opString = matchedTerminal.text,
       visitExpression(ctx.expression().last()),
       toSourceLocation(ctx)
     )
@@ -1052,7 +1040,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'expression#assignExpression' grammar rule and returns an AST [Expression]. */
   override fun visitAssignExpression(ctx: ApexParser.AssignExpressionContext): Expression {
-    throwUnlessExactlyOneNotNull(
+    matchExactlyOne(
       ruleBeingChecked = ctx,
       ctx.ASSIGN(),
       ctx.ADD_ASSIGN(),
@@ -1107,15 +1095,11 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'expression#arth2Expression' grammar rule and returns an AST [Expression]. */
   override fun visitArth2Expression(ctx: ApexParser.Arth2ExpressionContext): Expression {
-    val matchedTerminals = listOfNotNull(ctx.ADD(), ctx.SUB())
-    // Check mutual exclusivity
-    if (matchedTerminals.size != 1) {
-      throw TranslationException(ctx, "${ctx.text} should match exactly one terminal")
-    }
+    val matchedTerminal = matchExactlyOne(ruleBeingChecked = ctx, ctx.ADD(), ctx.SUB())
 
     return BinaryExpression(
       visitExpression(ctx.expression().first()),
-      opString = matchedTerminals.first().text,
+      opString = matchedTerminal.text,
       visitExpression(ctx.expression().last()),
       toSourceLocation(ctx)
     )
@@ -1187,22 +1171,19 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
    * Translates the 'expression#equalityExpression' grammar rule and returns an AST [Expression].
    */
   override fun visitEqualityExpression(ctx: ApexParser.EqualityExpressionContext): Expression {
-    val matchedTerminals =
-      listOfNotNull(
+    val matchedTerminal =
+      matchExactlyOne(
+        ruleBeingChecked = ctx,
         ctx.TRIPLEEQUAL(),
         ctx.TRIPLENOTEQUAL(),
         ctx.EQUAL(),
         ctx.NOTEQUAL(),
         ctx.LESSANDGREATER(),
       )
-    // Check mutual exclusivity
-    if (matchedTerminals.size != 1) {
-      throw TranslationException(ctx, "${ctx.text} should match exactly one terminal")
-    }
 
     return BinaryExpression(
       visitExpression(ctx.expression().first()),
-      opString = matchedTerminals.first().text,
+      opString = matchedTerminal.text,
       visitExpression(ctx.expression().last()),
       toSourceLocation(ctx)
     )
@@ -1210,7 +1191,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'expression#postOpExpression' grammar rule and returns an AST [Expression]. */
   override fun visitPostOpExpression(ctx: ApexParser.PostOpExpressionContext): Expression {
-    throwUnlessExactlyOneNotNull(ruleBeingChecked = ctx, ctx.INC(), ctx.DEC())
+    matchExactlyOne(ruleBeingChecked = ctx, ctx.INC(), ctx.DEC())
     val op =
       when {
         ctx.INC() != null -> UnaryExpression.Operator.POST_INCREMENT
@@ -1222,7 +1203,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'expression#negExpression' grammar rule and returns an AST [Expression]. */
   override fun visitNegExpression(ctx: ApexParser.NegExpressionContext): Expression {
-    throwUnlessExactlyOneNotNull(ruleBeingChecked = ctx, ctx.TILDE(), ctx.BANG())
+    matchExactlyOne(ruleBeingChecked = ctx, ctx.TILDE(), ctx.BANG())
     val op =
       when {
         ctx.TILDE() != null -> UnaryExpression.Operator.BITWISE_NOT
@@ -1234,7 +1215,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'expression#preOpExpression' grammar rule and returns an AST [Expression]. */
   override fun visitPreOpExpression(ctx: ApexParser.PreOpExpressionContext): Expression {
-    throwUnlessExactlyOneNotNull(ruleBeingChecked = ctx, ctx.ADD(), ctx.SUB(), ctx.INC(), ctx.DEC())
+    matchExactlyOne(ruleBeingChecked = ctx, ctx.ADD(), ctx.SUB(), ctx.INC(), ctx.DEC())
     val op =
       when {
         ctx.ADD() != null -> UnaryExpression.Operator.PLUS
@@ -1318,8 +1299,9 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'statement' grammar rule and returns an AST [Statement]. */
   override fun visitStatement(ctx: ApexParser.StatementContext): Statement {
-    val statementRules =
-      listOfNotNull(
+    val matched =
+      matchExactlyOne(
+        ruleBeingChecked = ctx,
         ctx.block(),
         ctx.ifStatement(),
         ctx.switchStatement(),
@@ -1341,15 +1323,6 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
         ctx.localVariableDeclarationStatement(),
         ctx.expressionStatement(),
       )
-
-    // Check mutual exclusivity
-    if (statementRules.size != 1) {
-      throw TranslationException(
-        ctx,
-        "Exactly one rule should match, but matched: ${statementRules.map{it::class}}"
-      )
-    }
-    val matched = statementRules.first()
 
     return visit(matched) as? Statement
       ?: throw TranslationException(matched, "Statement translation should return a Statement")
@@ -1515,14 +1488,22 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   // END STATEMENT
 
-  /** Throws a [TranslationException] unless exactly one of [trees] is non-null. */
-  private fun throwUnlessExactlyOneNotNull(
+  /**
+   * Matches one of [trees] and throws a [TranslationException] unless exactly one is non-null.
+   * @return the matched [SyntaxTree]
+   */
+  private fun <T : SyntaxTree> matchExactlyOne(
     ruleBeingChecked: ParserRuleContext,
-    vararg trees: SyntaxTree?
-  ) {
-    if (trees.filterNotNull().size != 1) {
-      throw TranslationException(ruleBeingChecked, "Mutual exclusion violation")
+    vararg trees: T?
+  ): T {
+    val nonNullTrees = trees.filterNotNull()
+    if (nonNullTrees.size != 1) {
+      throw TranslationException(
+        ruleBeingChecked,
+        "Exactly one rule should match, but found ${nonNullTrees.size}"
+      )
     }
+    return nonNullTrees.first()
   }
 
   /**
@@ -1563,21 +1544,6 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
       tokens.get(endToken).line,
       tokens.get(endToken).charPositionInLine
     )
-  }
-
-  /** Sets parent properties by recursing with [Node.getChildren] and returns count. */
-  private fun setNodeParents(node: Node): Int {
-    var reachableCount = 1
-    for (child in node.getChildren()) {
-      if (child.parent != null) {
-        throw Exception(
-          "Nodes should have a unique parent, but $child has ${child.parent} and $node"
-        )
-      }
-      child.parent = node
-      reachableCount += setNodeParents(child) // recurse
-    }
-    return reachableCount
   }
 
   private companion object {

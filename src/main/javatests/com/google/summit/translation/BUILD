@@ -6,6 +6,7 @@ kt_jvm_library(
     deps = [
         "//src/main/java/com/google/summit/ast",
         "//src/main/java/com/google/summit/translation",
+        "//src/main/javatests/com/google/summit/testing",
         "@junit//jar",
         "@truth//jar",
         "@com_github_jetbrains_kotlin//:kotlin-test",

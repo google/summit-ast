@@ -70,11 +70,9 @@ abstract class Node {
   /**
    * The parent of this node will return it in [getChildren].
    *
-   * These references are first set in one pass in
-   * [com.google.summit.translation.Translate.setNodeParents] at
-   * the end of translation.
+   * These references are first set in one pass in [setNodeParents] after the creation of the AST.
    */
-  var parent: Node? = null
+  @Transient var parent: Node? = null
 
   init {
     ++Node.totalCount
@@ -91,5 +89,23 @@ abstract class Node {
      */
     var totalCount: Int = 0
       private set
+
+    /**
+     * Sets [Node.parent] properties by recursing with [Node.getChildren] and returns the total
+     * number of nodes traversed.
+     */
+    fun setNodeParents(node: Node): Int {
+      var reachableCount = 1
+      for (child in node.getChildren()) {
+        if (child.parent != null) {
+          throw Exception(
+            "Nodes should have a unique parent, but $child has ${child.parent} and $node"
+          )
+        }
+        child.parent = node
+        reachableCount += setNodeParents(child) // recurse
+      }
+      return reachableCount
+    }
   }
 }

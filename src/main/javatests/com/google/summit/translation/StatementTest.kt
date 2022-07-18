@@ -40,6 +40,7 @@ import com.google.summit.ast.statement.UntranslatedStatement
 import com.google.summit.ast.statement.VariableDeclarationStatement
 import com.google.summit.ast.statement.WhileLoopStatement
 import com.google.summit.ast.traversal.DfsWalker
+import com.google.summit.testing.TranslateHelpers
 import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
