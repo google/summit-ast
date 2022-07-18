@@ -35,13 +35,6 @@ class ModifierTest {
       it.name.asCodeString() == name
     }
 
-  private fun classHasAnnotationNamed(cu: CompilationUnit, name: String): Boolean {
-    return cu.typeDeclaration
-      .modifiers
-      .filter { (it as? AnnotationModifier)?.name?.asCodeString() == name }
-      .isNotEmpty()
-  }
-
   @Test
   fun classDeclaration_translation_hasCorrectAnnotations() {
     val cu =
