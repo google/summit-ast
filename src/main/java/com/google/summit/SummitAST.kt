@@ -40,7 +40,7 @@ object SummitAST {
   private val logger = FluentLogger.forEnclosingClass()
 
   /** Listener for syntax errors that keeps a total count. */
-  class SyntaxErrorListener : BaseErrorListener() {
+  private class SyntaxErrorListener : BaseErrorListener() {
     var numErrors = 0
 
     override fun syntaxError(
@@ -79,6 +79,19 @@ object SummitAST {
     )
 
   /**
+   * Parses and translates the [string] and returns a [CompilationUnit] representing the AST if the
+   * operation was successful.
+   *
+   * The [compilation type][CompilationType] is determined by contents of [string].
+   */
+  fun parseAndTranslate(string: String) =
+    parseAndTranslate(
+      name = STRING_INPUT,
+      type = null,
+      charStream = CharStreams.fromString(string),
+    )
+
+  /**
    * Parses and translates the [string] as [type] and returns a [CompilationUnit] representing the
    * AST if the operation was successful.
    */
@@ -90,12 +103,14 @@ object SummitAST {
     )
 
   /**
-   * Parses and translates the [charStream] and returns a [CompilationUnit] representing the AST if
+   * Parses and translates the [charStream] as [type] and returns a [CompilationUnit] representing the AST if
    * the operation was successful.
+   *
+   * If [type] is not provided, the compilation type is determined by the contents of [charStream].
    */
   internal fun parseAndTranslate(
     name: String,
-    type: CompilationType,
+    type: CompilationType?,
     charStream: CharStream
   ): CompilationUnit? {
     // Apex is a case-insensitive language and the grammar is
@@ -110,7 +125,7 @@ object SummitAST {
 
     // Do parse as complete compilation unit
     val tree =
-      when (type) {
+      when (type ?: determineCompilationType(charStream)) {
         CompilationType.CLASS -> parser.compilationUnit()
         CompilationType.TRIGGER -> parser.triggerUnit()
       }
@@ -128,6 +143,40 @@ object SummitAST {
       logger.atWarning().withCause(e).log("Failed to translate %s", name)
       return null // failure
     }
+  }
+
+  /**
+   * Determines the [CompilationType] of [charStream].
+   *
+   * If `class` or `trigger` is found before the body of the top-level declaration, the
+   * corresponding [CompilationType] is returned. Otherwise, [CompilationType.CLASS] is returned by
+   * default.
+   */
+  private fun determineCompilationType(charStream: CharStream): CompilationType {
+    fun findType(): CompilationType? {
+      val lexer = ApexLexer(CaseInsensitiveInputStream(charStream))
+
+      // Discard tokens inside body of declaration
+      val tokens = lexer.allTokens.takeWhile { it.type != ApexLexer.LBRACE }
+
+      tokens.forEach { token ->
+        when (token.type) {
+          ApexLexer.CLASS -> return CompilationType.CLASS
+          ApexLexer.TRIGGER -> return CompilationType.TRIGGER
+        }
+      }
+
+      // Neither token found
+      return null
+    }
+
+    val type = findType()
+
+    // Reset `charStream`
+    charStream.seek(0)
+
+    // Interpret as class by default
+    return type ?: CompilationType.CLASS
   }
 
   /**
