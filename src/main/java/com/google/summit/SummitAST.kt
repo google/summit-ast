@@ -18,6 +18,7 @@ package com.google.summit
 
 import com.google.common.base.Ascii
 import com.google.common.flogger.FluentLogger
+import com.google.summit.ast.CompilationUnit
 import com.google.summit.translation.Translate
 import com.nawforce.apexparser.ApexLexer
 import com.nawforce.apexparser.ApexParser
@@ -51,8 +52,11 @@ object SummitAST {
     }
   }
 
-  /** Parses and translates a single Apex source file and returns success. */
-  fun parseAndTranslate(path: Path): Boolean {
+  /**
+   * Parses and translates a single Apex source file and returns a [CompilationUnit] if the
+   * operation was successful.
+   */
+  fun parseAndTranslate(path: Path): CompilationUnit? {
     // Apex is a case-insensitive language and the grammar is
     // defined to operate on fully lower-cased inputs.
     val lowerCasedStream = CaseInsensitiveInputStream(CharStreams.fromPath(path))
@@ -74,35 +78,33 @@ object SummitAST {
 
     if (errorCounter.numErrors > 0) {
       logger.atWarning().log("Failed to parse %s", path)
-      return false // failure
+      return null // failure
     }
 
     try {
       val translator = Translate(path.toString(), tokens)
-      translator.translate(tree)
+      val ast = translator.translate(tree)
+      return ast
     } catch (e: Translate.TranslationException) {
       logger.atWarning().withCause(e).log("Failed to translate %s", path)
-      return false // failure
+      return null // failure
     }
-
-    return true
   }
 
   /**
-   * Returns true if the path is an Apex class file. These are regular files with the
-   * (case-insensitive) suffix ".cls".
+   * Returns `true` if the path is an Apex class file. These are regular files with the
+   * (case-insensitive) suffix `.cls`.
    */
   private fun isApexClassFile(path: Path): Boolean =
     Files.isRegularFile(path) && Ascii.toLowerCase(path.toString()).endsWith(".cls")
 
   /**
-   * Returns true if the path is an Apex trigger file. These are regular files with the
-   * (case-insensitive) suffix ".trigger".
+   * Returns `true` if the path is an Apex trigger file. These are regular files with the
+   * (case-insensitive) suffix `.trigger`.
    */
   private fun isApexTriggerFile(path: Path): Boolean =
     Files.isRegularFile(path) && Ascii.toLowerCase(path.toString()).endsWith(".trigger")
 
-  /** Returns true if the path is an Apex source file: either a class or a trigger. */
-  fun isApexSourceFile(path: Path): Boolean =
-    isApexClassFile(path) || isApexTriggerFile(path)
+  /** Returns `true` if the path is an Apex source file: either a class or a trigger. */
+  fun isApexSourceFile(path: Path): Boolean = isApexClassFile(path) || isApexTriggerFile(path)
 }

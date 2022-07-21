@@ -26,8 +26,8 @@ import java.util.stream.Stream
 /**
  * This is a simple command line tool to parse and translate Apex source files.
  *
- * Pass arguments that are file paths or directories to search. All files with the *.cls extension
- * will be read.
+ * Pass arguments that are file paths or directories to search. All files with the `.cls` and
+ * `.trigger` extensions will be read.
  */
 object SummitTool {
   private val logger = FluentLogger.forEnclosingClass()
@@ -52,8 +52,8 @@ object SummitTool {
 
         stream.forEach { path ->
           numFiles++
-          val success = SummitAST.parseAndTranslate(path)
-          numFailures += if (success) 0 else 1
+          val ast = SummitAST.parseAndTranslate(path)
+          numFailures += if (ast != null) 0 else 1
         }
       } catch (e: IOException) {
         logger.atWarning().withCause(e).log("Invalid path %s", arg)
