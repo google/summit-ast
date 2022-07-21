@@ -26,6 +26,7 @@ import com.nawforce.apexparser.CaseInsensitiveInputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import org.antlr.v4.runtime.BaseErrorListener
+import org.antlr.v4.runtime.CharStream
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.RecognitionException
@@ -33,6 +34,9 @@ import org.antlr.v4.runtime.Recognizer
 
 /** Interface to the Summit AST library. */
 object SummitAST {
+  /** Name provided to [parseAndTranslate] for string inputs. */
+  private const val STRING_INPUT = "<str>"
+
   private val logger = FluentLogger.forEnclosingClass()
 
   /** Listener for syntax errors that keeps a total count. */
@@ -52,15 +56,51 @@ object SummitAST {
     }
   }
 
+  /** The type of top-level declaration in an input. */
+  enum class CompilationType {
+    CLASS,
+    TRIGGER
+  }
+
   /**
-   * Parses and translates a single Apex source file and returns a [CompilationUnit] if the
-   * operation was successful.
+   * Parses and translates the file at [path] and returns a [CompilationUnit] representing the AST
+   * if the operation was successful.
    */
-  fun parseAndTranslate(path: Path): CompilationUnit? {
+  fun parseAndTranslate(path: Path) =
+    parseAndTranslate(
+      name = path.toString(),
+      type =
+        when {
+          isApexClassFile(path) -> CompilationType.CLASS
+          isApexTriggerFile(path) -> CompilationType.TRIGGER
+          else -> throw IllegalArgumentException("Unexpected file type")
+        },
+      charStream = CharStreams.fromPath(path),
+    )
+
+  /**
+   * Parses and translates the [string] as [type] and returns a [CompilationUnit] representing the
+   * AST if the operation was successful.
+   */
+  fun parseAndTranslate(string: String, type: CompilationType) =
+    parseAndTranslate(
+      name = STRING_INPUT,
+      type = type,
+      charStream = CharStreams.fromString(string),
+    )
+
+  /**
+   * Parses and translates the [charStream] and returns a [CompilationUnit] representing the AST if
+   * the operation was successful.
+   */
+  internal fun parseAndTranslate(
+    name: String,
+    type: CompilationType,
+    charStream: CharStream
+  ): CompilationUnit? {
     // Apex is a case-insensitive language and the grammar is
     // defined to operate on fully lower-cased inputs.
-    val lowerCasedStream = CaseInsensitiveInputStream(CharStreams.fromPath(path))
-    val lexer = ApexLexer(lowerCasedStream)
+    val lexer = ApexLexer(CaseInsensitiveInputStream(charStream))
     val tokens = CommonTokenStream(lexer)
     val parser = ApexParser(tokens)
 
@@ -70,23 +110,22 @@ object SummitAST {
 
     // Do parse as complete compilation unit
     val tree =
-      when {
-        isApexClassFile(path) -> parser.compilationUnit()
-        isApexTriggerFile(path) -> parser.triggerUnit()
-        else -> throw IllegalArgumentException("Unexpected file type")
+      when (type) {
+        CompilationType.CLASS -> parser.compilationUnit()
+        CompilationType.TRIGGER -> parser.triggerUnit()
       }
 
     if (errorCounter.numErrors > 0) {
-      logger.atWarning().log("Failed to parse %s", path)
+      logger.atWarning().log("Failed to parse %s", name)
       return null // failure
     }
 
     try {
-      val translator = Translate(path.toString(), tokens)
+      val translator = Translate(name, tokens)
       val ast = translator.translate(tree)
       return ast
     } catch (e: Translate.TranslationException) {
-      logger.atWarning().withCause(e).log("Failed to translate %s", path)
+      logger.atWarning().withCause(e).log("Failed to translate %s", name)
       return null // failure
     }
   }
