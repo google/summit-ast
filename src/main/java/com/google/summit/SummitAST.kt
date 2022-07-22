@@ -34,7 +34,11 @@ import org.antlr.v4.runtime.Recognizer
 
 /** Interface to the Summit AST library. */
 object SummitAST {
-  /** Name provided to [parseAndTranslate] for string inputs. */
+  /**
+   * Name provided to [parseAndTranslate] for string inputs.
+   *
+   * This value becomes the `file` property of the resulting [CompilationUnit].
+   */
   private const val STRING_INPUT = "<str>"
 
   private val logger = FluentLogger.forEnclosingClass()
@@ -79,23 +83,12 @@ object SummitAST {
     )
 
   /**
-   * Parses and translates the [string] and returns a [CompilationUnit] representing the AST if the
-   * operation was successful.
-   *
-   * The [compilation type][CompilationType] is determined by contents of [string].
-   */
-  fun parseAndTranslate(string: String) =
-    parseAndTranslate(
-      name = STRING_INPUT,
-      type = null,
-      charStream = CharStreams.fromString(string),
-    )
-
-  /**
    * Parses and translates the [string] as [type] and returns a [CompilationUnit] representing the
    * AST if the operation was successful.
+   *
+   * If [type] is not provided, the compilation type is determined by the contents of the [string].
    */
-  fun parseAndTranslate(string: String, type: CompilationType) =
+  fun parseAndTranslate(string: String, type: CompilationType?) =
     parseAndTranslate(
       name = STRING_INPUT,
       type = type,
@@ -103,10 +96,11 @@ object SummitAST {
     )
 
   /**
-   * Parses and translates the [charStream] as [type] and returns a [CompilationUnit] representing the AST if
-   * the operation was successful.
+   * Parses and translates the [charStream] as [type] and returns a [CompilationUnit] representing
+   * the AST if the operation was successful.
    *
-   * If [type] is not provided, the compilation type is determined by the contents of [charStream].
+   * If [type] is not provided, the compilation type is determined by the contents of the
+   * [charStream].
    */
   internal fun parseAndTranslate(
     name: String,
@@ -151,17 +145,23 @@ object SummitAST {
    * If `class` or `trigger` is found before the body of the top-level declaration, the
    * corresponding [CompilationType] is returned. Otherwise, [CompilationType.CLASS] is returned by
    * default.
+   *
+   * After execution, the input cursor of the [charStream] is reset to index 0.
    */
   private fun determineCompilationType(charStream: CharStream): CompilationType {
     fun findType(): CompilationType? {
       val lexer = ApexLexer(CaseInsensitiveInputStream(charStream))
 
       // Discard tokens inside body of declaration
-      val tokens = lexer.allTokens.takeWhile { it.type != ApexLexer.LBRACE }
+      val tokens =
+        generateSequence { lexer.nextToken() }
+          .takeWhile { it.type != ApexLexer.LBRACE && it.type != ApexLexer.EOF }
 
       tokens.forEach { token ->
         when (token.type) {
-          ApexLexer.CLASS -> return CompilationType.CLASS
+          ApexLexer.CLASS,
+          ApexLexer.ENUM,
+          ApexLexer.INTERFACE -> return CompilationType.CLASS
           ApexLexer.TRIGGER -> return CompilationType.TRIGGER
         }
       }
@@ -170,9 +170,12 @@ object SummitAST {
       return null
     }
 
+    // Ensure `charStream` is at start
+    charStream.seek(0)
+
     val type = findType()
 
-    // Reset `charStream`
+    // Reset `charStream` back to start
     charStream.seek(0)
 
     // Interpret as class by default
