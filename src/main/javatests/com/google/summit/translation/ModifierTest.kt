@@ -18,11 +18,14 @@ package com.google.summit.translation
 
 import com.google.common.truth.Truth.assertThat
 import com.google.summit.ast.CompilationUnit
+import com.google.summit.ast.declaration.ClassDeclaration
 import com.google.summit.ast.modifier.AnnotationModifier
 import com.google.summit.ast.modifier.ElementValue
+import com.google.summit.ast.modifier.KeywordModifier
 import com.google.summit.ast.modifier.Modifier
 import com.google.summit.ast.traversal.DfsWalker
 import com.google.summit.testing.TranslateHelpers
+import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -167,5 +170,32 @@ class ModifierTest {
     assertThat(annotationD.args).isEmpty()
 
     assertThat(annotationE.args).isEmpty()
+  }
+
+  @Test
+  fun anonymousInitialization_hasCorrectModifiers() {
+    val input =
+      """
+        class Test {
+          {
+            print('init');
+          }
+          static {
+            print('more init');
+          }
+        }
+        """
+    val classDecl = TranslateHelpers.parseAndFindFirstNodeOfType<ClassDeclaration>(input)
+
+    assertNotNull(classDecl)
+    assertThat(classDecl.methodDeclarations).hasSize(2)
+
+    val normalInitializer = classDecl.methodDeclarations.first()
+    assertThat(normalInitializer.modifiers).isEmpty()
+
+    val staticInitializer = classDecl.methodDeclarations.last()
+    assertThat(staticInitializer.modifiers).hasSize(1)
+    assertThat((staticInitializer.modifiers.first() as? KeywordModifier)?.keyword)
+      .isEqualTo(KeywordModifier.Keyword.STATIC)
   }
 }

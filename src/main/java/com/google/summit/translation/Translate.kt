@@ -81,6 +81,7 @@ import com.nawforce.apexparser.ApexParserBaseVisitor
 import kotlin.math.min
 import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.TokenStream
+import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.SyntaxTree
 
 /**
@@ -129,7 +130,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   }
 
   /** Exception for any unexpected translation errors. */
-  class TranslationException(val ctx: ParserRuleContext, msg: String, cause: Throwable? = null) :
+  class TranslationException(val ctx: ParseTree, msg: String, cause: Throwable? = null) :
     Exception(msg, cause)
 
   /** Translates the 'id' grammar rule and returns an AST [Identifier]. */
@@ -248,14 +249,17 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitModifier(ctx: ApexParser.ModifierContext): Modifier {
     return when {
       ctx.annotation() != null -> visitAnnotation(ctx.annotation())
-      else ->
-        KeywordModifier(
-          KeywordModifier.keywordFromString(ctx.text)
-            ?: throw TranslationException(ctx, "Unexpected modifier keyword: " + ctx.text),
-          toSourceLocation(ctx)
-        )
+      else -> toKeywordModifier(ctx)
     }
   }
+
+  /** Creates a [KeywordModifier] from the text of a [ParseTree]. */
+  private fun toKeywordModifier(ctx: ParseTree) =
+    KeywordModifier(
+      keyword = KeywordModifier.keywordFromString(ctx.text)
+          ?: throw TranslationException(ctx, "Unexpected modifier keyword: " + ctx.text),
+      loc = toSourceLocation(ctx)
+    )
 
   /** Translates the 'annotation' grammar rule and returns an AST [AnnotationModifier]. */
   override fun visitAnnotation(ctx: ApexParser.AnnotationContext): AnnotationModifier {
@@ -382,7 +386,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
       }
       ctx.block() != null -> {
         // This is an anonymous initializer. Define a method with a special name.
-        listOf(
+        val methodDecl =
           MethodDeclaration(
             Identifier(MethodDeclaration.ANONYMOUS_INITIALIZER_NAME, SourceLocation.UNKNOWN),
             returnType = TypeRef.createVoid(),
@@ -390,7 +394,12 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
             visitBlock(ctx.block()),
             toSourceLocation(ctx)
           )
-        )
+
+        if (ctx.STATIC() != null) {
+          methodDecl.modifiers = listOf(toKeywordModifier(ctx.STATIC()))
+        }
+
+        listOf(methodDecl)
       }
       ctx.SEMI() != null -> emptyList()
       else -> throw TranslationException(ctx, "Unreachable case reached")
