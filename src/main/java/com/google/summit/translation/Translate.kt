@@ -130,7 +130,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   }
 
   /** Exception for any unexpected translation errors. */
-  class TranslationException(val ctx: ParseTree, msg: String, cause: Throwable? = null) :
+  class TranslationException(val tree: ParseTree, msg: String, cause: Throwable? = null) :
     Exception(msg, cause)
 
   /** Translates the 'id' grammar rule and returns an AST [Identifier]. */
