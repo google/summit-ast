@@ -104,8 +104,8 @@ class ClassDeclarationTest {
 
     assertNotNull(fieldDecl)
     assertThat(fieldDecl.qualifiedName).isEqualTo("Test.field")
-    assertThat(fieldDecl.modifiers.filterIsInstance<KeywordModifier>().map { it.keyword })
-      .containsExactly(KeywordModifier.Keyword.PUBLIC)
+    assertThat(fieldDecl.modifiers).hasSize(1)
+    assertThat(fieldDecl.hasKeyword(KeywordModifier.Keyword.PUBLIC)).isTrue()
     assertThat(fieldDecl.initializer).isNotNull()
   }
 

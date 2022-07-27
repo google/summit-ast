@@ -79,16 +79,14 @@ class MethodDeclarationTest {
 
     assertNotNull(methodDecl)
     assertWithMessage("Method should have 1 modifier").that(methodDecl.modifiers).hasSize(1)
-    val methodModifier = methodDecl.modifiers.first()
     assertWithMessage("Method should have 'public' modifier")
-      .that((methodModifier as? KeywordModifier)?.keyword)
-      .isEqualTo(KeywordModifier.Keyword.PUBLIC)
+      .that(methodDecl.hasKeyword(KeywordModifier.Keyword.PUBLIC))
+      .isTrue()
 
     val parameterDecl = methodDecl.parameterDeclarations.first()
     assertWithMessage("Parameter should have 1 modifier").that(parameterDecl.modifiers).hasSize(1)
-    val parameterModifier = parameterDecl.modifiers.first()
     assertWithMessage("Parameter should have 'final' modifier")
-      .that((parameterModifier as? KeywordModifier)?.keyword)
-      .isEqualTo(KeywordModifier.Keyword.FINAL)
+      .that(parameterDecl.hasKeyword(KeywordModifier.Keyword.FINAL))
+      .isTrue()
   }
 }

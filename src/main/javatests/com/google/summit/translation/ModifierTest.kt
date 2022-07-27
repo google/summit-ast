@@ -34,9 +34,7 @@ import org.junit.runners.JUnit4
 class ModifierTest {
 
   private fun findAnnotationOnClass(cu: CompilationUnit, name: String): AnnotationModifier? =
-    cu.typeDeclaration.modifiers.filterIsInstance<AnnotationModifier>().find {
-      it.name.asCodeString() == name
-    }
+    cu.typeDeclaration.annotationModifiers.find { it.name.asCodeString() == name }
 
   @Test
   fun classDeclaration_translation_hasCorrectAnnotations() {
@@ -195,7 +193,6 @@ class ModifierTest {
 
     val staticInitializer = classDecl.methodDeclarations.last()
     assertThat(staticInitializer.modifiers).hasSize(1)
-    assertThat((staticInitializer.modifiers.first() as? KeywordModifier)?.keyword)
-      .isEqualTo(KeywordModifier.Keyword.STATIC)
+    assertThat(staticInitializer.hasKeyword(KeywordModifier.Keyword.STATIC)).isTrue()
   }
 }

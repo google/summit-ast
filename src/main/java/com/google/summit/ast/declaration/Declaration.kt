@@ -19,6 +19,8 @@ package com.google.summit.ast.declaration
 import com.google.summit.ast.Identifier
 import com.google.summit.ast.NodeWithSourceLocation
 import com.google.summit.ast.SourceLocation
+import com.google.summit.ast.modifier.AnnotationModifier
+import com.google.summit.ast.modifier.KeywordModifier
 import com.google.summit.ast.modifier.Modifier
 
 /**
@@ -48,6 +50,14 @@ sealed class Declaration(val id: Identifier, loc: SourceLocation) : NodeWithSour
    */
   var modifiers: List<Modifier> = emptyList()
 
+  /** The subset of [modifiers] that are [annotations][AnnotationModifier]. */
+  val annotationModifiers
+    get() = modifiers.filterIsInstance<AnnotationModifier>()
+
+  /** The subset of [modifiers] that are [keywords][KeywordModifier]. */
+  val keywordModifiers
+    get() = modifiers.filterIsInstance<KeywordModifier>()
+
   /**
    * The qualified Name of the symbol includes any enclosing class(es) as prefixes, delimited by a
    * dot. For example: `OuterClass.InnerClass.innerMethod`
@@ -62,4 +72,7 @@ sealed class Declaration(val id: Identifier, loc: SourceLocation) : NodeWithSour
 
   /** Returns the enclosing type declaration. */
   fun getEnclosingType(): TypeDeclaration? = parent as? TypeDeclaration
+
+  /** Returns whether this declaration has a [KeywordModifier] that matches the given [keyword]. */
+  fun hasKeyword(keyword: KeywordModifier.Keyword) = keywordModifiers.any { it.keyword == keyword }
 }
