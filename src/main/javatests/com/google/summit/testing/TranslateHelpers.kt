@@ -87,7 +87,7 @@ object TranslateHelpers {
     try {
       return parseAndTranslateWithExceptions(input)
     } catch (e: Translate.TranslationException) {
-      assertWithMessage("Translation failed on %s because %s", e.ctx.text, e.message).fail()
+      assertWithMessage("Translation failed on %s because %s", e.tree.text, e.message).fail()
       // Exception to log-and-rethrow anti-pattern for syntactic purposes:
       // want to avoid returning optional type by exiting with exception.
       throw e
@@ -112,7 +112,7 @@ object TranslateHelpers {
       val root = parseAndTranslateWithExceptions(input)
       return findFirstNodeOfType<T>(root)
     } catch (e: Translate.TranslationException) {
-      assertWithMessage("Translation failed on %s because %s", e.ctx.text, e.message).fail()
+      assertWithMessage("Translation failed on %s because %s", e.tree.text, e.message).fail()
       // Exception to log-and-rethrow anti-pattern for syntactic purposes:
       // want to avoid returning optional type by exiting with exception.
       throw e
