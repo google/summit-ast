@@ -388,11 +388,12 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
         // This is an anonymous initializer. Define a method with a special name.
         val methodDecl =
           MethodDeclaration(
-            Identifier(MethodDeclaration.ANONYMOUS_INITIALIZER_NAME, SourceLocation.UNKNOWN),
+            id = Identifier(MethodDeclaration.ANONYMOUS_INITIALIZER_NAME, SourceLocation.UNKNOWN),
             returnType = TypeRef.createVoid(),
             parameterDeclarations = emptyList(),
-            visitBlock(ctx.block()),
-            toSourceLocation(ctx)
+            body = visitBlock(ctx.block()),
+            isConstructor = false,
+            loc = toSourceLocation(ctx)
           )
 
         if (ctx.STATIC() != null) {
@@ -459,21 +460,22 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   /** Translates the 'methodDeclaration' grammar rule and returns an AST [MethodDeclaration]. */
   override fun visitMethodDeclaration(ctx: ApexParser.MethodDeclarationContext): MethodDeclaration {
     return MethodDeclaration(
-      visitId(ctx.id()),
+      id = visitId(ctx.id()),
       returnType =
         when {
           ctx.VOID() != null -> TypeRef.createVoid()
           ctx.typeRef() != null -> visitTypeRef(ctx.typeRef())
           else -> throw TranslationException(ctx, "Method should return void or a type")
         },
-      visitFormalParameters(ctx.formalParameters()),
+      parameterDeclarations = visitFormalParameters(ctx.formalParameters()),
       body =
         when {
           ctx.block() != null -> visitBlock(ctx.block())
           ctx.SEMI() != null -> null
           else -> throw TranslationException(ctx, "Unreachable case reached")
         },
-      toSourceLocation(ctx)
+      isConstructor = false,
+      loc = toSourceLocation(ctx)
     )
   }
 
@@ -484,12 +486,13 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     ctx: ApexParser.ConstructorDeclarationContext
   ): MethodDeclaration =
     MethodDeclaration(
-      visitQualifiedName(ctx.qualifiedName()),
+      id = visitQualifiedName(ctx.qualifiedName()),
       // Although the `new` expression returns a value, the constructor initializer does not.
-      TypeRef.createVoid(),
-      visitFormalParameters(ctx.formalParameters()),
-      visitBlock(ctx.block()),
-      toSourceLocation(ctx)
+      returnType = TypeRef.createVoid(),
+      parameterDeclarations = visitFormalParameters(ctx.formalParameters()),
+      body = visitBlock(ctx.block()),
+      isConstructor = true,
+      loc = toSourceLocation(ctx)
     )
 
   /** Translates the 'interfaceBody' grammar rule and returns an AST [MethodDeclaration] list. */
@@ -504,15 +507,17 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     ctx: ApexParser.InterfaceMethodDeclarationContext
   ): MethodDeclaration {
     return MethodDeclaration(
-      visitId(ctx.id()),
-      when {
-        ctx.VOID() != null -> TypeRef.createVoid()
-        ctx.typeRef() != null -> visitTypeRef(ctx.typeRef())
-        else -> throw TranslationException(ctx, "Method should return void or a type")
-      },
-      visitFormalParameters(ctx.formalParameters()),
+      id = visitId(ctx.id()),
+      returnType =
+        when {
+          ctx.VOID() != null -> TypeRef.createVoid()
+          ctx.typeRef() != null -> visitTypeRef(ctx.typeRef())
+          else -> throw TranslationException(ctx, "Method should return void or a type")
+        },
+      parameterDeclarations = visitFormalParameters(ctx.formalParameters()),
       body = null,
-      toSourceLocation(ctx)
+      isConstructor = false,
+      loc = toSourceLocation(ctx)
     )
   }
 
@@ -566,7 +571,15 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     PropertyAccessor() {
 
     override fun toMethodDeclaration(type: TypeRef): MethodDeclaration {
-      return MethodDeclaration(id, type, emptyList(), body, loc).also { it.modifiers = modifiers }
+      return MethodDeclaration(
+          id,
+          returnType = type,
+          parameterDeclarations = emptyList(),
+          body,
+          isConstructor = false,
+          loc
+        )
+        .also { it.modifiers = modifiers }
     }
   }
 
@@ -577,15 +590,17 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     override fun toMethodDeclaration(type: TypeRef): MethodDeclaration {
       return MethodDeclaration(
           id,
-          TypeRef.createVoid(),
-          listOf(
-            ParameterDeclaration(
-              Identifier("value", SourceLocation.UNKNOWN),
-              type,
-              SourceLocation.UNKNOWN
-            )
-          ),
+          returnType = TypeRef.createVoid(),
+          parameterDeclarations =
+            listOf(
+              ParameterDeclaration(
+                Identifier("value", SourceLocation.UNKNOWN),
+                type,
+                SourceLocation.UNKNOWN
+              )
+            ),
           body,
+          isConstructor = false,
           loc
         )
         .also { it.modifiers = modifiers }

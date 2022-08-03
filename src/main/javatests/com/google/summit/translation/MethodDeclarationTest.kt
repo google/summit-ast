@@ -18,6 +18,7 @@ package com.google.summit.translation
 
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import com.google.summit.ast.declaration.ClassDeclaration
 import com.google.summit.ast.declaration.MethodDeclaration
 import com.google.summit.ast.modifier.KeywordModifier
 import com.google.summit.testing.TranslateHelpers
@@ -88,5 +89,27 @@ class MethodDeclarationTest {
     assertWithMessage("Parameter should have 'final' modifier")
       .that(parameterDecl.hasKeyword(KeywordModifier.Keyword.FINAL))
       .isTrue()
+  }
+
+  @Test
+  fun constructors_areCorrectlyIdentified() {
+    val input =
+      """
+        class Test {
+          void Test() { }
+          Test() { }
+        }
+        """
+
+    val classDecl = TranslateHelpers.parseAndFindFirstNodeOfType<ClassDeclaration>(input)
+
+    assertNotNull(classDecl)
+    assertThat(classDecl.methodDeclarations).hasSize(2)
+
+    val methodDecl = classDecl.methodDeclarations.first()
+    assertThat(methodDecl.isConstructor).isFalse()
+
+    val constructorDecl = classDecl.methodDeclarations.last()
+    assertThat(constructorDecl.isConstructor).isTrue()
   }
 }

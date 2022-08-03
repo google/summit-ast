@@ -34,6 +34,7 @@ import com.google.summit.ast.statement.CompoundStatement
  * @property returnType the static type of the returned value
  * @property parameterDeclarations a list of the static types of any formal parameters
  * @property body the method implementation, if defined
+ * @property isConstructor whether this is a constructor
  * @param loc the source location in the source file
  */
 class MethodDeclaration(
@@ -41,6 +42,7 @@ class MethodDeclaration(
   val returnType: TypeRef,
   val parameterDeclarations: List<ParameterDeclaration>,
   val body: CompoundStatement?,
+  val isConstructor: Boolean,
   loc: SourceLocation
 ) : Declaration(id, loc) {
   override fun getChildren(): List<Node> =
