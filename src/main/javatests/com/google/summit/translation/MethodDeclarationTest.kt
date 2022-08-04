@@ -49,7 +49,7 @@ class MethodDeclarationTest {
       .hasSize(1)
     val param = methodDecl.parameterDeclarations.first()
     assertWithMessage("Parameter should be named 'input'")
-      .that(param.name.asCodeString())
+      .that(param.id.asCodeString())
       .isEqualTo("input")
     assertWithMessage("Parameter should be a String array type")
       .that(param.type.asCodeString())
