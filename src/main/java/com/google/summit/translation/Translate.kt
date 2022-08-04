@@ -506,19 +506,22 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitInterfaceMethodDeclaration(
     ctx: ApexParser.InterfaceMethodDeclarationContext
   ): MethodDeclaration {
-    return MethodDeclaration(
-      id = visitId(ctx.id()),
-      returnType =
-        when {
-          ctx.VOID() != null -> TypeRef.createVoid()
-          ctx.typeRef() != null -> visitTypeRef(ctx.typeRef())
-          else -> throw TranslationException(ctx, "Method should return void or a type")
-        },
-      parameterDeclarations = visitFormalParameters(ctx.formalParameters()),
-      body = null,
-      isConstructor = false,
-      loc = toSourceLocation(ctx)
-    )
+    val decl =
+      MethodDeclaration(
+        id = visitId(ctx.id()),
+        returnType =
+          when {
+            ctx.VOID() != null -> TypeRef.createVoid()
+            ctx.typeRef() != null -> visitTypeRef(ctx.typeRef())
+            else -> throw TranslationException(ctx, "Method should return void or a type")
+          },
+        parameterDeclarations = visitFormalParameters(ctx.formalParameters()),
+        body = null,
+        isConstructor = false,
+        loc = toSourceLocation(ctx)
+      )
+    decl.modifiers = ctx.modifier().map { visitModifier(it) }
+    return decl
   }
 
   /** Translates the 'propertyDeclaration' grammar rule and returns an AST [PropertyDeclaration]. */
