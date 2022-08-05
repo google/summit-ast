@@ -57,6 +57,7 @@ import com.google.summit.ast.initializer.ValuesInitializer
 import com.google.summit.ast.modifier.AnnotationModifier
 import com.google.summit.ast.modifier.ElementArgument
 import com.google.summit.ast.modifier.ElementValue
+import com.google.summit.ast.modifier.HasModifiers
 import com.google.summit.ast.modifier.KeywordModifier
 import com.google.summit.ast.modifier.Modifier
 import com.google.summit.ast.statement.BreakStatement
@@ -381,7 +382,9 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     return when {
       ctx.memberDeclaration() != null -> {
         val members = visitMemberDeclaration(ctx.memberDeclaration())
-        members.forEach { member -> member.modifiers = ctx.modifier().map { visitModifier(it) } }
+        members.forEach { member ->
+          (member as HasModifiers).modifiers = ctx.modifier().map { visitModifier(it) }
+        }
         members
       }
       ctx.block() != null -> {

@@ -28,14 +28,14 @@ import com.google.summit.ast.expression.Expression
  * @param id the name of the field
  * @property type a reference to the type of the field
  * @property initializer an optional initializer expression
- * @param sourceLocation the location in the source file
+ * @param loc the location in the source file
  */
 class FieldDeclaration(
   id: Identifier,
   val type: TypeRef,
   val initializer: Expression?,
   loc: SourceLocation
-) : Declaration(id, loc) {
+) : DeclarationWithModifiers(id, loc) {
 
   override fun getChildren(): List<Node> = modifiers + listOfNotNull(id, type, initializer)
 }

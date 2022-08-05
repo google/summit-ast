@@ -44,7 +44,7 @@ class MethodDeclaration(
   val body: CompoundStatement?,
   val isConstructor: Boolean,
   loc: SourceLocation
-) : Declaration(id, loc) {
+) : DeclarationWithModifiers(id, loc) {
   override fun getChildren(): List<Node> =
     modifiers + listOfNotNull(id, returnType, body) + parameterDeclarations
 
