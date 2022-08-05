@@ -189,6 +189,7 @@
           "endColumn": 99
         }
       },
+      "modifiers": [],
       "id": {
         "string": "MyStrings",
         "sourceLocation": {
@@ -198,7 +199,6 @@
           "endColumn": 35
         }
       },
-      "modifiers": [],
       "sourceLocation": {
         "startLine": 19,
         "startColumn": 6,

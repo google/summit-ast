@@ -40,6 +40,7 @@
     "innerTypeDeclarations": [
       {
         "@type": "EnumDeclaration",
+        "modifiers": [],
         "id": {
           "string": "E",
           "sourceLocation": {
@@ -49,7 +50,6 @@
             "endColumn": 8
           }
         },
-        "modifiers": [],
         "sourceLocation": {
           "startLine": 5,
           "startColumn": 2,
@@ -86,6 +86,7 @@
             },
             "parameterDeclarations": [],
             "isConstructor": false,
+            "modifiers": [],
             "id": {
               "string": "foo",
               "sourceLocation": {
@@ -95,7 +96,6 @@
                 "endColumn": 12
               }
             },
-            "modifiers": [],
             "sourceLocation": {
               "startLine": 8,
               "startColumn": 4,
@@ -104,6 +104,7 @@
             }
           }
         ],
+        "modifiers": [],
         "id": {
           "string": "I",
           "sourceLocation": {
@@ -113,7 +114,6 @@
             "endColumn": 13
           }
         },
-        "modifiers": [],
         "sourceLocation": {
           "startLine": 7,
           "startColumn": 2,
@@ -141,6 +141,7 @@
           ],
           "arrayNesting": 0
         },
+        "modifiers": [],
         "id": {
           "string": "field",
           "sourceLocation": {
@@ -150,7 +151,6 @@
             "endColumn": 15
           }
         },
-        "modifiers": [],
         "sourceLocation": {
           "startLine": 6,
           "startColumn": 2,
@@ -184,6 +184,7 @@
               ],
               "arrayNesting": 0
             },
+            "modifiers": [],
             "id": {
               "string": "a",
               "sourceLocation": {
@@ -193,7 +194,6 @@
                 "endColumn": 20
               }
             },
-            "modifiers": [],
             "sourceLocation": {
               "startLine": 14,
               "startColumn": 11,
@@ -219,6 +219,7 @@
               ],
               "arrayNesting": 0
             },
+            "modifiers": [],
             "id": {
               "string": "b",
               "sourceLocation": {
@@ -228,7 +229,6 @@
                 "endColumn": 31
               }
             },
-            "modifiers": [],
             "sourceLocation": {
               "startLine": 14,
               "startColumn": 22,
@@ -256,6 +256,7 @@
                       ],
                       "arrayNesting": 0
                     },
+                    "modifiers": [],
                     "id": {
                       "string": "e",
                       "sourceLocation": {
@@ -265,7 +266,6 @@
                         "endColumn": 24
                       }
                     },
-                    "modifiers": [],
                     "sourceLocation": {
                       "startLine": 23,
                       "startColumn": 23,
@@ -477,6 +477,7 @@
                             "endColumn": 40
                           }
                         },
+                        "modifiers": [],
                         "id": {
                           "string": "sum",
                           "sourceLocation": {
@@ -486,7 +487,6 @@
                             "endColumn": 17
                           }
                         },
-                        "modifiers": [],
                         "sourceLocation": {
                           "startLine": 17,
                           "startColumn": 6,
@@ -596,6 +596,7 @@
                             "endColumn": 70
                           }
                         },
+                        "modifiers": [],
                         "id": {
                           "string": "i",
                           "sourceLocation": {
@@ -605,7 +606,6 @@
                             "endColumn": 15
                           }
                         },
-                        "modifiers": [],
                         "sourceLocation": {
                           "startLine": 18,
                           "startColumn": 6,
@@ -813,6 +813,7 @@
                             "endColumn": 99
                           }
                         },
+                        "modifiers": [],
                         "id": {
                           "string": "MyStrings",
                           "sourceLocation": {
@@ -822,7 +823,6 @@
                             "endColumn": 35
                           }
                         },
-                        "modifiers": [],
                         "sourceLocation": {
                           "startLine": 19,
                           "startColumn": 6,
@@ -1149,6 +1149,7 @@
           }
         },
         "isConstructor": false,
+        "modifiers": [],
         "id": {
           "string": "foo",
           "sourceLocation": {
@@ -1158,7 +1159,6 @@
             "endColumn": 10
           }
         },
-        "modifiers": [],
         "sourceLocation": {
           "startLine": 14,
           "startColumn": 2,
@@ -1244,6 +1244,7 @@
             }
           },
           "isConstructor": false,
+          "modifiers": [],
           "id": {
             "string": "get",
             "sourceLocation": {
@@ -1253,7 +1254,6 @@
               "endColumn": 7
             }
           },
-          "modifiers": [],
           "sourceLocation": {
             "startLine": 11,
             "startColumn": 4,
@@ -1285,11 +1285,11 @@
                 ],
                 "arrayNesting": 0
               },
+              "modifiers": [],
               "id": {
                 "string": "value",
                 "sourceLocation": {}
               },
-              "modifiers": [],
               "sourceLocation": {}
             }
           ],
@@ -1359,6 +1359,7 @@
             }
           },
           "isConstructor": false,
+          "modifiers": [],
           "id": {
             "string": "set",
             "sourceLocation": {
@@ -1368,7 +1369,6 @@
               "endColumn": 7
             }
           },
-          "modifiers": [],
           "sourceLocation": {
             "startLine": 12,
             "startColumn": 4,
@@ -1376,6 +1376,7 @@
             "endColumn": 29
           }
         },
+        "modifiers": [],
         "id": {
           "string": "property",
           "sourceLocation": {
@@ -1385,7 +1386,6 @@
             "endColumn": 17
           }
         },
-        "modifiers": [],
         "sourceLocation": {
           "startLine": 10,
           "startColumn": 2,
@@ -1394,15 +1394,6 @@
         }
       }
     ],
-    "id": {
-      "string": "Main",
-      "sourceLocation": {
-        "startLine": 4,
-        "startColumn": 13,
-        "endLine": 4,
-        "endColumn": 17
-      }
-    },
     "modifiers": [
       {
         "@type": "AnnotationModifier",
@@ -1584,6 +1575,15 @@
         }
       }
     ],
+    "id": {
+      "string": "Main",
+      "sourceLocation": {
+        "startLine": 4,
+        "startColumn": 13,
+        "endLine": 4,
+        "endColumn": 17
+      }
+    },
     "sourceLocation": {
       "startLine": 4,
       "startColumn": 7,

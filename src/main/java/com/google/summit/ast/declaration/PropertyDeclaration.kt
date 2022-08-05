@@ -28,7 +28,7 @@ import com.google.summit.ast.TypeRef
  * @property type a reference to the type of the field
  * @property getter an optional getter method implementation
  * @property getter an optional setter method implementation
- * @param sourceLocation the location in the source file
+ * @param loc the location in the source file
  */
 class PropertyDeclaration(
   id: Identifier,
@@ -36,7 +36,7 @@ class PropertyDeclaration(
   val getter: MethodDeclaration?,
   val setter: MethodDeclaration?,
   loc: SourceLocation
-) : Declaration(id, loc) {
+) : DeclarationWithModifiers(id, loc) {
 
   override fun getChildren(): List<Node> = modifiers + listOfNotNull(id, type, getter, setter)
 }

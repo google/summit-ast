@@ -25,4 +25,4 @@ import com.google.summit.ast.SourceLocation
  * @param id the unqualified name of the type
  * @param loc the location in the source file
  */
-sealed class TypeDeclaration(id: Identifier, loc: SourceLocation) : Declaration(id, loc)
+sealed class TypeDeclaration(id: Identifier, loc: SourceLocation) : DeclarationWithModifiers(id, loc)
