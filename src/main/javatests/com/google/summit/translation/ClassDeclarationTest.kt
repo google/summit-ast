@@ -243,7 +243,7 @@ class ClassDeclarationTest {
     assertThat(setterMethodDecl.parameterDeclarations).hasSize(1)
     val paramDecl = setterMethodDecl.parameterDeclarations.first()
     assertThat(paramDecl.type.asCodeString()).isEqualTo("String")
-    assertThat(paramDecl.name.asCodeString()).isEqualTo("value")
+    assertThat(paramDecl.id.asCodeString()).isEqualTo("value")
   }
 
   @Test

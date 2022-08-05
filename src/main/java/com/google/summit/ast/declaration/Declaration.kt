@@ -26,7 +26,7 @@ import com.google.summit.ast.modifier.Modifier
 /**
  * A symbol declaration.
  *
- * @property id the unqualified name of the class
+ * @property id the unqualified name of the declaration
  * @param loc the location in the source file
  */
 sealed class Declaration(val id: Identifier, loc: SourceLocation) : NodeWithSourceLocation(loc) {

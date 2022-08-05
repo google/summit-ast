@@ -28,8 +28,8 @@ import com.google.summit.ast.TypeRef
  * @property type the static type of the parameter
  * @param loc the location in the source file
  */
-class ParameterDeclaration(val name: Identifier, val type: TypeRef, loc: SourceLocation) :
-  Declaration(name, loc) {
+class ParameterDeclaration(id: Identifier, val type: TypeRef, loc: SourceLocation) :
+  Declaration(id, loc) {
 
-  override fun getChildren(): List<Node> = modifiers + listOf(type, name)
+  override fun getChildren(): List<Node> = modifiers + listOf(type, id)
 }

@@ -167,15 +167,6 @@
         },
         "parameterDeclarations": [
           {
-            "name": {
-              "string": "a",
-              "sourceLocation": {
-                "startLine": 14,
-                "startColumn": 19,
-                "endLine": 14,
-                "endColumn": 20
-              }
-            },
             "type": {
               "components": [
                 {
@@ -211,15 +202,6 @@
             }
           },
           {
-            "name": {
-              "string": "b",
-              "sourceLocation": {
-                "startLine": 14,
-                "startColumn": 30,
-                "endLine": 14,
-                "endColumn": 31
-              }
-            },
             "type": {
               "components": [
                 {
@@ -1286,10 +1268,6 @@
           },
           "parameterDeclarations": [
             {
-              "name": {
-                "string": "value",
-                "sourceLocation": {}
-              },
               "type": {
                 "components": [
                   {
