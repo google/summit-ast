@@ -20,12 +20,11 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.summit.ast.declaration.ClassDeclaration
 import com.google.summit.ast.declaration.EnumDeclaration
-import com.google.summit.ast.declaration.FieldDeclaration
+import com.google.summit.ast.declaration.FieldDeclarationGroup
 import com.google.summit.ast.declaration.InterfaceDeclaration
 import com.google.summit.ast.declaration.MethodDeclaration
 import com.google.summit.ast.declaration.PropertyDeclaration
 import com.google.summit.ast.modifier.KeywordModifier
-import com.google.summit.ast.traversal.DfsWalker
 import com.google.summit.testing.TranslateHelpers
 import kotlin.test.assertNotNull
 import org.junit.Test
@@ -68,8 +67,7 @@ class ClassDeclarationTest {
     }
     """
         )
-        .typeDeclaration as
-        ClassDeclaration
+        .typeDeclaration as ClassDeclaration
 
     assertThat(enclosingClassDecl.innerTypeDeclarations).hasSize(3)
     assertThat(enclosingClassDecl.getEnclosingType()).isNull()
@@ -100,9 +98,11 @@ class ClassDeclarationTest {
         }
         """
 
-    val fieldDecl = TranslateHelpers.parseAndFindFirstNodeOfType<FieldDeclaration>(input)
+    val fieldDeclGroup = TranslateHelpers.parseAndFindFirstNodeOfType<FieldDeclarationGroup>(input)
 
-    assertNotNull(fieldDecl)
+    assertNotNull(fieldDeclGroup)
+    assertThat(fieldDeclGroup.declarations).hasSize(1)
+    val fieldDecl = fieldDeclGroup.declarations.first()
     assertThat(fieldDecl.qualifiedName).isEqualTo("Test.field")
     assertThat(fieldDecl.modifiers).hasSize(1)
     assertThat(fieldDecl.hasKeyword(KeywordModifier.Keyword.PUBLIC)).isTrue()
@@ -110,22 +110,25 @@ class ClassDeclarationTest {
   }
 
   @Test
-  fun multipleFieldDeclarators_translates_toMultipleFieldDeclarations() {
+  fun multipleFieldDeclarators_translate_toFieldDeclarationGroups() {
     val input =
       """
         class Test {
           public Int field1 = 1, field2 = 2;
+          public Int field3 = 3;
         }
         """
 
-    val root = TranslateHelpers.parseAndTranslate(input)
-    val fieldDeclCount =
-      DfsWalker(root, DfsWalker.Ordering.PRE_ORDER)
-        .stream()
-        .filter { it is FieldDeclaration }
-        .count()
+    val classDecl = TranslateHelpers.parseAndFindFirstNodeOfType<ClassDeclaration>(input)
 
-    assertThat(fieldDeclCount).isEqualTo(2)
+    assertNotNull(classDecl)
+    assertThat(classDecl.fieldDeclarations).hasSize(2)
+
+    val group1 = classDecl.fieldDeclarations.first()
+    assertThat(group1.declarations).hasSize(2)
+
+    val group2 = classDecl.fieldDeclarations.last()
+    assertThat(group2.declarations).hasSize(1)
   }
 
   @Test

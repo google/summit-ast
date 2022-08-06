@@ -141,16 +141,26 @@
           ],
           "arrayNesting": 0
         },
-        "modifiers": [],
-        "id": {
-          "string": "field",
-          "sourceLocation": {
-            "startLine": 6,
-            "startColumn": 10,
-            "endLine": 6,
-            "endColumn": 15
+        "declarations": [
+          {
+            "id": {
+              "string": "field",
+              "sourceLocation": {
+                "startLine": 6,
+                "startColumn": 10,
+                "endLine": 6,
+                "endColumn": 15
+              }
+            },
+            "sourceLocation": {
+              "startLine": 6,
+              "startColumn": 10,
+              "endLine": 6,
+              "endColumn": 15
+            }
           }
-        },
+        ],
+        "modifiers": [],
         "sourceLocation": {
           "startLine": 6,
           "startColumn": 2,
