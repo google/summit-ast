@@ -42,7 +42,7 @@ sealed class Declaration(val id: Identifier, loc: SourceLocation) : NodeWithSour
       }
 
   /** Returns the enclosing type declaration. */
-  fun getEnclosingType(): TypeDeclaration? = parent as? TypeDeclaration
+  open fun getEnclosingType(): TypeDeclaration? = parent as? TypeDeclaration
 }
 
 /**

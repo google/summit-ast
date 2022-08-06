@@ -23,9 +23,9 @@ import com.google.summit.ast.Node
 import com.google.summit.ast.SourceLocation
 import com.google.summit.ast.TypeRef
 import com.google.summit.ast.declaration.ClassDeclaration
-import com.google.summit.ast.declaration.Declaration
 import com.google.summit.ast.declaration.EnumDeclaration
 import com.google.summit.ast.declaration.FieldDeclaration
+import com.google.summit.ast.declaration.FieldDeclarationGroup
 import com.google.summit.ast.declaration.InterfaceDeclaration
 import com.google.summit.ast.declaration.MethodDeclaration
 import com.google.summit.ast.declaration.ParameterDeclaration
@@ -367,16 +367,12 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitTypeList(ctx: ApexParser.TypeListContext): List<TypeRef> =
     ctx.typeRef().map { visitTypeRef(it) }
 
-  /** Translates the 'classBody' grammar rule and returns an AST [Declaration] list. */
-  override fun visitClassBody(ctx: ApexParser.ClassBodyContext): List<Declaration> =
+  /** Translates the 'classBody' grammar rule and returns an AST [Node] list. */
+  override fun visitClassBody(ctx: ApexParser.ClassBodyContext): List<Node> =
     ctx.classBodyDeclaration().flatMap { visitClassBodyDeclaration(it) }
 
-  /**
-   * Translates the 'classBodyDeclaration' grammar rule and returns an optional AST [Declaration].
-   */
-  override fun visitClassBodyDeclaration(
-    ctx: ApexParser.ClassBodyDeclarationContext
-  ): List<Declaration> {
+  /** Translates the 'classBodyDeclaration' grammar rule and returns an AST [Node] list. */
+  override fun visitClassBodyDeclaration(ctx: ApexParser.ClassBodyDeclarationContext): List<Node> {
     matchExactlyOne(ruleBeingChecked = ctx, ctx.memberDeclaration(), ctx.block(), ctx.SEMI())
 
     return when {
@@ -410,8 +406,8 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     }
   }
 
-  /** Translates the 'memberDeclaration' grammar rule and returns an AST [Declaration] list. */
-  override fun visitMemberDeclaration(ctx: ApexParser.MemberDeclarationContext): List<Declaration> {
+  /** Translates the 'memberDeclaration' grammar rule and returns an AST [Node] list. */
+  override fun visitMemberDeclaration(ctx: ApexParser.MemberDeclarationContext): List<Node> {
     matchExactlyOne(
       ruleBeingChecked = ctx,
       ctx.methodDeclaration(),
@@ -425,7 +421,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
     return when {
       ctx.methodDeclaration() != null -> listOf(visitMethodDeclaration(ctx.methodDeclaration()))
-      ctx.fieldDeclaration() != null -> visitFieldDeclaration(ctx.fieldDeclaration())
+      ctx.fieldDeclaration() != null -> listOf(visitFieldDeclaration(ctx.fieldDeclaration()))
       ctx.constructorDeclaration() != null ->
         listOf(visitConstructorDeclaration(ctx.constructorDeclaration()))
       ctx.classDeclaration() != null -> listOf(visitClassDeclaration(ctx.classDeclaration()))
@@ -439,26 +435,19 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   }
 
   /**
-   * Translates the 'fieldDeclaration' grammar rule and returns an AST [FieldDeclaration] list.
+   * Translates the 'fieldDeclaration' grammar rule and returns an AST [FieldDeclarationGroup].
    *
-   * This grammar rule can include multiple fields declarations separated by commas.
-   *
-   * The source locations of a FieldDeclaration may include declarators that declare other fields.
-   * Consider for example:
-   * ```
-   *    `Type variableA = 1, variableB = 2;`
-   * ```
-   * The (contiguous) source range for variableB should include the type, which will then span the
-   * unrelated variableA.
+   * This grammar rule can include multiple [FieldDeclaration]s separated by commas.
    */
-  override fun visitFieldDeclaration(
-    ctx: ApexParser.FieldDeclarationContext
-  ): List<FieldDeclaration> {
-    val loc = toSourceLocation(ctx) // declared outside of `map` so it gets reused
-    return visitVariableDeclarators(ctx.variableDeclarators()).map {
-      FieldDeclaration(it.id, visitTypeRef(ctx.typeRef()), it.initializer, loc)
-    }
-  }
+  override fun visitFieldDeclaration(ctx: ApexParser.FieldDeclarationContext) =
+    FieldDeclarationGroup(
+      type = visitTypeRef(ctx.typeRef()),
+      declarations =
+        visitVariableDeclarators(ctx.variableDeclarators()).map {
+          FieldDeclaration(it.id, it.initializer, it.loc)
+        },
+      loc = toSourceLocation(ctx)
+    )
 
   /** Translates the 'methodDeclaration' grammar rule and returns an AST [MethodDeclaration]. */
   override fun visitMethodDeclaration(ctx: ApexParser.MethodDeclarationContext): MethodDeclaration {
@@ -669,7 +658,11 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
    *
    * This is temporary translation data and does not persist in the resulting AST.
    */
-  data class VariableDeclarator(val id: Identifier, val initializer: Expression?)
+  data class VariableDeclarator(
+    val id: Identifier,
+    val initializer: Expression?,
+    val loc: SourceLocation
+  )
 
   /** Translates the 'variableDeclarators' grammar rule and returns a VariableDeclarator list. */
   override fun visitVariableDeclarators(
@@ -680,7 +673,11 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitVariableDeclarator(
     ctx: ApexParser.VariableDeclaratorContext
   ): VariableDeclarator =
-    VariableDeclarator(visitId(ctx.id()), translateOptional(ctx.expression(), ::visitExpression))
+    VariableDeclarator(
+      visitId(ctx.id()),
+      translateOptional(ctx.expression(), ::visitExpression),
+      toSourceLocation(ctx)
+    )
 
   /** Translates the 'literal' grammar rule and returns an AST [LiteralExpression]. */
   override fun visitLiteral(ctx: ApexParser.LiteralContext): LiteralExpression {

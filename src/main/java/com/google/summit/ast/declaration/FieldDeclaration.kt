@@ -18,24 +18,52 @@ package com.google.summit.ast.declaration
 
 import com.google.summit.ast.Identifier
 import com.google.summit.ast.Node
+import com.google.summit.ast.NodeWithSourceLocation
 import com.google.summit.ast.SourceLocation
 import com.google.summit.ast.TypeRef
 import com.google.summit.ast.expression.Expression
+import com.google.summit.ast.modifier.HasModifiers
+import com.google.summit.ast.modifier.Modifier
+
+/**
+ * A group of comma-separated [FieldDeclaration]s that share the same [type] and [modifiers].
+ *
+ * @property type a reference to the type of the field
+ * @property declarations the fields declared in this group
+ * @param loc the location in the source file
+ */
+class FieldDeclarationGroup(
+  val type: TypeRef,
+  var declarations: List<FieldDeclaration>,
+  loc: SourceLocation
+) : NodeWithSourceLocation(loc), HasModifiers {
+
+  override var modifiers: List<Modifier> = emptyList()
+
+  override fun getChildren(): List<Node> = modifiers + type + declarations
+}
 
 /**
  * A declaration for a field (a.k.a. class member).
  *
  * @param id the name of the field
- * @property type a reference to the type of the field
  * @property initializer an optional initializer expression
  * @param loc the location in the source file
  */
-class FieldDeclaration(
-  id: Identifier,
-  val type: TypeRef,
-  val initializer: Expression?,
-  loc: SourceLocation
-) : DeclarationWithModifiers(id, loc) {
+class FieldDeclaration(id: Identifier, val initializer: Expression?, loc: SourceLocation) :
+  Declaration(id, loc), HasModifiers {
 
-  override fun getChildren(): List<Node> = modifiers + listOfNotNull(id, type, initializer)
+  /** The [FieldDeclarationGroup] this declaration is contained in. */
+  private val group
+    get() = parent as FieldDeclarationGroup
+
+  override var modifiers: List<Modifier>
+    get() = group.modifiers
+    set(value) {
+      group.modifiers = value
+    }
+
+  override fun getChildren(): List<Node> = listOfNotNull(id, initializer)
+
+  override fun getEnclosingType(): TypeDeclaration? = group.parent as? TypeDeclaration
 }

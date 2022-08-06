@@ -34,14 +34,14 @@ class ClassDeclaration(
   id: Identifier,
   val extendsType: TypeRef?,
   val implementsTypes: List<TypeRef>,
-  bodyDeclarations: List<Declaration>,
+  bodyDeclarations: List<Node>,
   loc: SourceLocation
 ) : TypeDeclaration(id, loc) {
 
   /** The subset of body declarations that declare an inner type (class, enum, or interface). */
   val innerTypeDeclarations = bodyDeclarations.filterIsInstance<TypeDeclaration>()
   /** The field declarations include both static and instance members. */
-  val fieldDeclarations = bodyDeclarations.filterIsInstance<FieldDeclaration>()
+  val fieldDeclarations = bodyDeclarations.filterIsInstance<FieldDeclarationGroup>()
   /** The method declarations include both static and instance methods. */
   val methodDeclarations = bodyDeclarations.filterIsInstance<MethodDeclaration>()
   /** The property declarations include both static and instance properties. */
