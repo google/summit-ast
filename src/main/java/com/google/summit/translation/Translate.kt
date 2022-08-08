@@ -369,19 +369,17 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'classBody' grammar rule and returns an AST [Node] list. */
   override fun visitClassBody(ctx: ApexParser.ClassBodyContext): List<Node> =
-    ctx.classBodyDeclaration().flatMap { visitClassBodyDeclaration(it) }
+    ctx.classBodyDeclaration().mapNotNull { visitClassBodyDeclaration(it) }
 
-  /** Translates the 'classBodyDeclaration' grammar rule and returns an AST [Node] list. */
-  override fun visitClassBodyDeclaration(ctx: ApexParser.ClassBodyDeclarationContext): List<Node> {
+  /** Translates the 'classBodyDeclaration' grammar rule and optionally returns an AST [Node]. */
+  override fun visitClassBodyDeclaration(ctx: ApexParser.ClassBodyDeclarationContext): Node? {
     matchExactlyOne(ruleBeingChecked = ctx, ctx.memberDeclaration(), ctx.block(), ctx.SEMI())
 
     return when {
       ctx.memberDeclaration() != null -> {
-        val members = visitMemberDeclaration(ctx.memberDeclaration())
-        members.forEach { member ->
-          (member as HasModifiers).modifiers = ctx.modifier().map { visitModifier(it) }
-        }
-        members
+        val member = visitMemberDeclaration(ctx.memberDeclaration())
+        (member as HasModifiers).modifiers = ctx.modifier().map { visitModifier(it) }
+        member
       }
       ctx.block() != null -> {
         // This is an anonymous initializer. Define a method with a special name.
@@ -399,15 +397,15 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
           methodDecl.modifiers = listOf(toKeywordModifier(ctx.STATIC()))
         }
 
-        listOf(methodDecl)
+        methodDecl
       }
-      ctx.SEMI() != null -> emptyList()
+      ctx.SEMI() != null -> null
       else -> throw TranslationException(ctx, "Unreachable case reached")
     }
   }
 
-  /** Translates the 'memberDeclaration' grammar rule and returns an AST [Node] list. */
-  override fun visitMemberDeclaration(ctx: ApexParser.MemberDeclarationContext): List<Node> {
+  /** Translates the 'memberDeclaration' grammar rule and returns an AST [Node]. */
+  override fun visitMemberDeclaration(ctx: ApexParser.MemberDeclarationContext): Node {
     matchExactlyOne(
       ruleBeingChecked = ctx,
       ctx.methodDeclaration(),
@@ -420,16 +418,14 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     )
 
     return when {
-      ctx.methodDeclaration() != null -> listOf(visitMethodDeclaration(ctx.methodDeclaration()))
-      ctx.fieldDeclaration() != null -> listOf(visitFieldDeclaration(ctx.fieldDeclaration()))
+      ctx.methodDeclaration() != null -> visitMethodDeclaration(ctx.methodDeclaration())
+      ctx.fieldDeclaration() != null -> visitFieldDeclaration(ctx.fieldDeclaration())
       ctx.constructorDeclaration() != null ->
-        listOf(visitConstructorDeclaration(ctx.constructorDeclaration()))
-      ctx.classDeclaration() != null -> listOf(visitClassDeclaration(ctx.classDeclaration()))
-      ctx.interfaceDeclaration() != null ->
-        listOf(visitInterfaceDeclaration(ctx.interfaceDeclaration()))
-      ctx.enumDeclaration() != null -> listOf(visitEnumDeclaration(ctx.enumDeclaration()))
-      ctx.propertyDeclaration() != null ->
-        listOf(visitPropertyDeclaration(ctx.propertyDeclaration()))
+        visitConstructorDeclaration(ctx.constructorDeclaration())
+      ctx.classDeclaration() != null -> visitClassDeclaration(ctx.classDeclaration())
+      ctx.interfaceDeclaration() != null -> visitInterfaceDeclaration(ctx.interfaceDeclaration())
+      ctx.enumDeclaration() != null -> visitEnumDeclaration(ctx.enumDeclaration())
+      ctx.propertyDeclaration() != null -> visitPropertyDeclaration(ctx.propertyDeclaration())
       else -> throw TranslationException(ctx, "Unreachable case reached")
     }
   }
