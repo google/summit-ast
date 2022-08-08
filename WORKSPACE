@@ -1,6 +1,21 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@bazel_tools//tools/build_defs/repo:maven_rules.bzl", "maven_jar")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+# -------------------------
+# External rules
+# -------------------------
+
+RULES_JVM_EXTERNAL_TAG = "4.2"
+RULES_JVM_EXTERNAL_SHA = "cd1a77b7b02e8e008439ca76fd34f5b07aecb8c752961f9640dea15e9e5ba1ca"
+
+http_archive(
+    name = "rules_jvm_external",
+    strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
+    sha256 = RULES_JVM_EXTERNAL_SHA,
+    url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
+)
+
+load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 # -------------------------
 # Kotlin toolchain
@@ -30,56 +45,6 @@ kt_register_toolchains()
 # Third-party libaries
 # -------------------------
 
-maven_jar(
-    name = "commons-lang3",
-    artifact = "org.apache.commons:commons-lang3:3.6",
-)
-
-maven_jar(
-    name = "antlr4",
-    artifact = "org.antlr:antlr4:4.10.1",
-)
-
-maven_jar(
-    name = "antlr4-runtime",
-    artifact = "org.antlr:antlr4-runtime:4.10.1",
-)
-
-maven_jar(
-    name = "antlr-runtime",
-    artifact = "org.antlr:antlr-runtime:3.5.3",
-)
-
-maven_jar(
-    name = "antlr-st4",
-    artifact = "org.antlr:ST4:4.3.3",
-)
-
-maven_jar(
-    name = "flogger",
-    artifact = "com.google.flogger:flogger:0.7.4",
-)
-
-maven_jar(
-    name = "guava",
-    artifact = "com.google.guava:guava:31.1-jre",
-)
-
-maven_jar(
-    name = "flogger-system-backend",
-    artifact = "com.google.flogger:flogger-system-backend:0.7.4",
-)
-
-maven_jar(
-    name = "junit",
-    artifact = "junit:junit:4.13.2",
-)
-
-maven_jar(
-    name = "truth",
-    artifact = "com.google.truth:truth:1.1.3",
-)
-
 http_archive(
   name = "apex_parser",
   urls = ["https://github.com/nawforce/apex-parser/archive/v2.13.0.tar.gz"],
@@ -88,12 +53,23 @@ http_archive(
   strip_prefix = "apex-parser-2.13.0",
 )
 
-maven_jar(
-    name = "gson",
-    artifact = "com.google.code.gson:gson:2.9.0",
-)
-
-maven_jar(
-    name = "kotlin-reflect",
-    artifact = "org.jetbrains.kotlin:kotlin-reflect:1.7.0",
+maven_install(
+    artifacts = [
+        "org.apache.commons:commons-lang3:3.6",
+        "org.antlr:antlr4:4.10.1",
+        "org.antlr:antlr4-runtime:4.10.1",
+        "org.antlr:antlr-runtime:3.5.3",
+        "org.antlr:ST4:4.3.3",
+        "com.google.flogger:flogger:0.7.4",
+        "com.google.guava:guava:31.1-jre",
+        "com.google.flogger:flogger-system-backend:0.7.4",
+        "junit:junit:4.13.2",
+        "com.google.truth:truth:1.1.3",
+        "com.google.code.gson:gson:2.9.0",
+        "org.jetbrains.kotlin:kotlin-reflect:1.7.0",
+    ],
+    repositories = [
+        "https://repo1.maven.org/maven2",
+        "https://maven.google.com",
+    ]
 )

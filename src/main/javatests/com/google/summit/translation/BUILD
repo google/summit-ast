@@ -7,12 +7,12 @@ kt_jvm_library(
         "//src/main/java/com/google/summit/ast",
         "//src/main/java/com/google/summit/translation",
         "//src/main/javatests/com/google/summit/testing",
-        "@junit//jar",
-        "@truth//jar",
+        "@maven//:junit_junit",
+        "@maven//:com_google_truth_truth",
         "@com_github_jetbrains_kotlin//:kotlin-test",
     ],
     runtime_deps = [
-        "@flogger-system-backend//jar",
+        "@maven//:com_google_flogger_flogger_system_backend",
     ],
 )
 

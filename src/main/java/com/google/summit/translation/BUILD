@@ -10,6 +10,6 @@ kt_jvm_library(
     deps = [
        "//src/main/java/com/google/summit/ast",
        "@apex_parser//:apex_parser",
-       "@flogger//jar",
+       "@maven//:com_google_flogger_flogger",
     ],
 )

@@ -8,11 +8,11 @@ kt_jvm_library(
         "*.kt",
     ]),
     runtime_deps = [
-        "@kotlin-reflect//jar",
+        "@maven//:org_jetbrains_kotlin_kotlin_reflect",
     ],
     deps = [
         "//src/main/java/com/google/summit/ast",
         "//third_party/gson:extras",
-        "@gson//jar",
+        "@maven//:com_google_code_gson_gson",
     ],
 )

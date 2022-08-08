@@ -11,11 +11,11 @@ kt_jvm_library(
         "//src/main/java/com/google/summit/ast",
         "//src/main/java/com/google/summit/translation",
         "@apex_parser",
-        "@flogger//jar",
-        "@guava//jar",
+        "@maven//:com_google_flogger_flogger",
+        "@maven//:com_google_guava_guava",
     ],
     runtime_deps = [
-        "@flogger-system-backend//jar",
+        "@maven//:com_google_flogger_flogger_system_backend",
     ],
 )
 

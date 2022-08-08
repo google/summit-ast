@@ -9,6 +9,6 @@ kt_jvm_library(
     deps = [
         "//src/main/java/com/google/summit/ast",
         "//src/main/java/com/google/summit/translation",
-        "@truth//jar",
+        "@maven//:com_google_truth_truth",
     ],
 )

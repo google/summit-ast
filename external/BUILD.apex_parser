@@ -4,10 +4,10 @@ java_binary(
     name = "antlr4_tool",
     main_class = "org.antlr.v4.Tool",
     runtime_deps = [
-        "@antlr4//jar",
-        "@antlr4-runtime//jar",
-        "@antlr-runtime//jar",
-        "@antlr-st4//jar",
+        "@maven//:org_antlr_antlr4",
+        "@maven//:org_antlr_antlr4_runtime",
+        "@maven//:org_antlr_antlr_runtime",
+        "@maven//:org_antlr_ST4",
     ],
 )
 
@@ -70,7 +70,7 @@ java_library(
         ":apex_parser_gensrc",
     ],
     deps = [
-        "@antlr4-runtime//jar",
+        "@maven//:org_antlr_antlr4_runtime",
     ],
     visibility = ["//visibility:public"],
 )
