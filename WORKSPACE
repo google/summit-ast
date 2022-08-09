@@ -45,25 +45,14 @@ kt_register_toolchains()
 # Third-party libaries
 # -------------------------
 
-http_archive(
-  name = "apex_parser",
-  urls = ["https://github.com/nawforce/apex-parser/archive/v2.13.0.tar.gz"],
-  sha256 = "c239a2176067269e926d8944502a817aca7344029fde305c68b3a8e50889d7c0",
-  build_file = "BUILD.apex_parser",
-  strip_prefix = "apex-parser-2.13.0",
-)
-
 maven_install(
     artifacts = [
         "org.apache.commons:commons-lang3:3.6",
-        "org.antlr:antlr4:4.10.1",
-        "org.antlr:antlr4-runtime:4.10.1",
-        "org.antlr:antlr-runtime:3.5.3",
-        "org.antlr:ST4:4.3.3",
         "com.google.flogger:flogger:0.7.4",
         "com.google.guava:guava:31.1-jre",
         "com.google.flogger:flogger-system-backend:0.7.4",
         "junit:junit:4.13.2",
+        "com.github.nawforce:apex-parser:2.13.0",
         "com.google.truth:truth:1.1.3",
         "com.google.code.gson:gson:2.9.0",
         "org.jetbrains.kotlin:kotlin-reflect:1.7.0",
