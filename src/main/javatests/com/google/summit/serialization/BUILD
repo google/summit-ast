@@ -9,15 +9,15 @@ kt_jvm_library(
         "//src/main/javatests/com/google/summit:testdata",
     ],
     runtime_deps = [
-        "@flogger-system-backend//jar",
+        "@maven//:com_google_flogger_flogger_system_backend",
     ],
     deps = [
         "//src/main/java/com/google/summit/ast",
         "//src/main/java/com/google/summit/serialization",
         "//src/main/javatests/com/google/summit/testing",
         "@com_github_jetbrains_kotlin//:kotlin-test",
-        "@junit//jar",
-        "@truth//jar",
+        "@maven//:junit_junit",
+        "@maven//:com_google_truth_truth",
     ],
 )
 

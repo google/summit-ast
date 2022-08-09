@@ -8,8 +8,8 @@ kt_jvm_library(
         "*.kt",
     ]),
     deps = [
-       "//src/main/java/com/google/summit/ast",
-       "@apex_parser//:apex_parser",
-       "@flogger//jar",
+        "//src/main/java/com/google/summit/ast",
+        "@maven//:com_github_nawforce_apex_parser",
+        "@maven//:com_google_flogger_flogger",
     ],
 )

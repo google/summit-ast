@@ -14,8 +14,8 @@ kt_jvm_library(
     ],
     deps = [
         "//src/main/java/com/google/summit:SummitAST",
-        "@junit//jar",
-        "@truth//jar",
+        "@maven//:junit_junit",
+        "@maven//:com_google_truth_truth",
     ],
 )
 

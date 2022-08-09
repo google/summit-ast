@@ -5,8 +5,8 @@ kt_jvm_library(
     srcs = glob(["*.kt"]),
     deps = [
         "//src/main/java/com/google/summit/ast",
-        "@junit//jar",
-        "@truth//jar",
+        "@maven//:junit_junit",
+        "@maven//:com_google_truth_truth",
     ],
 )
 
