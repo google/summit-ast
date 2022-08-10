@@ -107,6 +107,7 @@ class ClassDeclarationTest {
     assertThat(fieldDecl.modifiers).hasSize(1)
     assertThat(fieldDecl.hasKeyword(KeywordModifier.Keyword.PUBLIC)).isTrue()
     assertThat(fieldDecl.initializer).isNotNull()
+    assertThat(fieldDecl.type.asCodeString()).isEqualTo("String")
   }
 
   @Test
