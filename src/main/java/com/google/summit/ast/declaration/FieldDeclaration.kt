@@ -63,6 +63,10 @@ class FieldDeclaration(id: Identifier, val initializer: Expression?, loc: Source
       group.modifiers = value
     }
 
+  /** The type of this field. */
+  val type: TypeRef
+    get() = group.type
+
   override fun getChildren(): List<Node> = listOfNotNull(id, initializer)
 
   override fun getEnclosingType(): TypeDeclaration? = group.parent as? TypeDeclaration
