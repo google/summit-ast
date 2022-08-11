@@ -18,7 +18,10 @@ package com.google.summit.translation
 
 import com.google.common.truth.Truth.assertThat
 import com.google.summit.ast.SourceLocation
+import com.google.summit.ast.declaration.ClassDeclaration
+import com.google.summit.ast.declaration.FieldDeclarationGroup
 import com.google.summit.testing.TranslateHelpers
+import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -48,5 +51,77 @@ class SourceLocationTest {
   fun unknownSourceLocation_printsSpecialString() {
     assertThat(SourceLocation.UNKNOWN.isUnknown()).isTrue()
     assertThat(SourceLocation.UNKNOWN.toString()).isEqualTo("<unknown>")
+  }
+
+  @Test
+  fun extractFromSource_oneLineNode() {
+    val input =
+      """
+        class Test {
+          public String field
+            = 'Hello';
+        }
+        """
+    val classDecl = TranslateHelpers.parseAndFindFirstNodeOfType<ClassDeclaration>(input)
+    assertNotNull(classDecl)
+    val loc = classDecl.id.getSourceLocation()
+
+    val extracted = loc.extractFrom(input)
+
+    assertThat(extracted).isEqualTo("Test")
+  }
+
+  @Test
+  fun extractFromSource_multiLineNode() {
+    val input =
+      """
+        class Test {
+          public String field
+            = 'Hello';
+        }
+        """
+    val fieldDeclGroup = TranslateHelpers.parseAndFindFirstNodeOfType<FieldDeclarationGroup>(input)
+    assertNotNull(fieldDeclGroup)
+    val loc = fieldDeclGroup.getSourceLocation()
+
+    val extracted = loc.extractFrom(input)
+
+    assertThat(extracted).isEqualTo("""String field
+            = 'Hello';""")
+  }
+
+  @Test
+  fun extractFromSource_wholeFile() {
+    val input =
+      """
+        class Test {
+          public String field
+            = 'Hello';
+        }
+        """.trim()
+    val cu = TranslateHelpers.parseAndTranslate(input)
+    val loc = cu.getSourceLocation()
+
+    val extracted = loc.extractFrom(input)
+
+    assertThat(extracted).isEqualTo(input)
+  }
+
+  @Test
+  fun extractFromSource_arbitraryLocation() {
+    val input =
+      """
+        class Test {
+          public String field
+            = 'Hello';
+        }
+        """.trim()
+    val loc = SourceLocation(startLine = 1, startColumn = 4, endLine = 3, endColumn = 16)
+
+    val extracted = loc.extractFrom(input)
+
+    assertThat(extracted).isEqualTo("""s Test {
+          public String field
+            = 'H""")
   }
 }
