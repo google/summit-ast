@@ -2,11 +2,16 @@ load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library"
 
 package(default_visibility = ["//visibility:public"])
 
-kt_jvm_library(
-    name = "SummitAST",
+filegroup(
+    name = "lib_sources",
     srcs = [
         "SummitAST.kt",
     ],
+)
+
+kt_jvm_library(
+    name = "SummitAST",
+    srcs = [":lib_sources"],
     deps = [
         "//src/main/java/com/google/summit/ast",
         "//src/main/java/com/google/summit/translation",
