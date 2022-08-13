@@ -42,6 +42,31 @@ load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_register_toolchains")
 kt_register_toolchains()
 
 # -------------------------
+# Maven publishing
+# -------------------------
+
+git_repository(
+    name = "vaticle_bazel_distribution",
+    remote = "https://github.com/vaticle/bazel-distribution",
+    commit = "e61daa787bc77d97e36df944e7223821cab309ea"
+)
+
+# Load //common
+load("@vaticle_bazel_distribution//common:deps.bzl", "rules_pkg")
+rules_pkg()
+load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
+rules_pkg_dependencies()
+
+# Load //maven
+load("@vaticle_bazel_distribution//maven:deps.bzl", "maven_artifacts_with_versions")
+
+# Workspace refs
+load("@vaticle_bazel_distribution//common:rules.bzl", "workspace_refs")
+workspace_refs(
+    name = "maven_workspace_refs"
+)
+
+# -------------------------
 # Third-party libaries
 # -------------------------
 
@@ -56,7 +81,9 @@ maven_install(
         "com.google.truth:truth:1.1.3",
         "com.google.code.gson:gson:2.9.0",
         "org.jetbrains.kotlin:kotlin-reflect:1.7.0",
-    ],
+        # Unofficial version to reference in Maven dependencies
+        "org.danilopianini:gson-extras:1.0.0",
+    ] + maven_artifacts_with_versions,
     repositories = [
         "https://repo1.maven.org/maven2",
         "https://maven.google.com",
