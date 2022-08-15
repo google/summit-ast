@@ -44,6 +44,23 @@ data class SourceLocation(
     }
   }
 
+  /**
+   * Extracts this source location from a [source] string. If this location is [unknown][isUnknown],
+   * returns `null`.
+   */
+  fun extractFrom(source: String): String? {
+    if (isUnknown()) {
+      return null
+    }
+
+    val lines = source.lines().subList(startLine!! - 1, endLine!!)
+    val joinedLines = lines.joinToString(separator = "\n")
+
+    val distanceFromStart = startColumn!!
+    val distanceFromEnd = lines.last().length - endColumn!!
+    return joinedLines.drop(distanceFromStart).dropLast(distanceFromEnd)
+  }
+
   companion object {
     /** An unknown source location. */
     val UNKNOWN = SourceLocation(null, null, null, null)
