@@ -17,6 +17,7 @@
 package com.google.summit.ast.expression
 
 import com.google.summit.ast.Node
+import com.google.summit.ast.PrintableAsCodeString
 import com.google.summit.ast.SourceLocation
 
 /**
@@ -24,7 +25,7 @@ import com.google.summit.ast.SourceLocation
  *
  * @param loc the location in the source file
  */
-sealed class LiteralExpression(loc: SourceLocation) : Expression(loc) {
+sealed class LiteralExpression(loc: SourceLocation) : Expression(loc), PrintableAsCodeString {
 
   /** Returns empty list of children because this is a leaf node. */
   override fun getChildren(): List<Node> = emptyList()
@@ -35,7 +36,9 @@ sealed class LiteralExpression(loc: SourceLocation) : Expression(loc) {
    * @property value the string value
    * @param loc the location in the source file
    */
-  class StringVal(val value: String, loc: SourceLocation) : LiteralExpression(loc)
+  class StringVal(val value: String, loc: SourceLocation) : LiteralExpression(loc) {
+    override fun asCodeString(): String = "'$value'"
+  }
 
   /**
    * An integer literal.
@@ -43,7 +46,9 @@ sealed class LiteralExpression(loc: SourceLocation) : Expression(loc) {
    * @property value the integer value
    * @param loc the location in the source file
    */
-  class IntegerVal(val value: Int, loc: SourceLocation) : LiteralExpression(loc)
+  class IntegerVal(val value: Int, loc: SourceLocation) : LiteralExpression(loc) {
+    override fun asCodeString(): String = value.toString()
+  }
 
   /**
    * A long literal.
@@ -51,7 +56,9 @@ sealed class LiteralExpression(loc: SourceLocation) : Expression(loc) {
    * @property value the long value
    * @param loc the location in the source file
    */
-  class LongVal(val value: Long, loc: SourceLocation) : LiteralExpression(loc)
+  class LongVal(val value: Long, loc: SourceLocation) : LiteralExpression(loc) {
+    override fun asCodeString(): String = value.toString()
+  }
 
   /**
    * A boolean literal.
@@ -59,14 +66,18 @@ sealed class LiteralExpression(loc: SourceLocation) : Expression(loc) {
    * @property value the boolean value
    * @param loc the location in the source file
    */
-  class BooleanVal(val value: Boolean, loc: SourceLocation) : LiteralExpression(loc)
+  class BooleanVal(val value: Boolean, loc: SourceLocation) : LiteralExpression(loc) {
+    override fun asCodeString(): String = value.toString()
+  }
 
   /**
    * A null literal.
    *
    * @param loc the location in the source file
    */
-  class NullVal(loc: SourceLocation) : LiteralExpression(loc)
+  class NullVal(loc: SourceLocation) : LiteralExpression(loc) {
+    override fun asCodeString(): String = "null"
+  }
 
   /**
    * A (floating point) number literal.
@@ -74,5 +85,7 @@ sealed class LiteralExpression(loc: SourceLocation) : Expression(loc) {
    * @property value the floating point value
    * @param loc the location in the source file
    */
-  class DoubleVal(val value: Double, loc: SourceLocation) : LiteralExpression(loc)
+  class DoubleVal(val value: Double, loc: SourceLocation) : LiteralExpression(loc) {
+    override fun asCodeString(): String = value.toString()
+  }
 }
