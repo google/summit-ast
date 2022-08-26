@@ -870,13 +870,15 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     return try {
       when {
         ctx.IntegerLiteral() != null -> {
-          val signMultiplier =
-            if (ctx.SUB() != null) {
-              -1
-            } else {
-              1
-            }
-          LiteralExpression.IntegerVal(text.toInt() * signMultiplier, loc)
+          val absoluteValue = ctx.IntegerLiteral().text.toInt() // value without sign
+          val integerVal =
+            LiteralExpression.IntegerVal(absoluteValue, toSourceLocation(ctx.IntegerLiteral()))
+
+          if (ctx.SUB() != null) {
+            UnaryExpression(value = integerVal, op = UnaryExpression.Operator.NEGATION, loc)
+          } else {
+            integerVal
+          }
         }
         ctx.LongLiteral() != null ->
           LiteralExpression.LongVal(text.replace("[lL]$".toRegex(), "").toLong(), loc)
