@@ -882,7 +882,8 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
         }
         ctx.LongLiteral() != null ->
           LiteralExpression.LongVal(text.replace("[lL]$".toRegex(), "").toLong(), loc)
-        ctx.StringLiteral() != null -> LiteralExpression.StringVal(text, loc)
+        ctx.StringLiteral() != null ->
+          LiteralExpression.StringVal(text.removeSurrounding("'", "'"), loc)
         ctx.NULL() != null -> LiteralExpression.NullVal(loc)
         // An identifier is an enum value
         ctx.id() != null -> VariableExpression(visitId(ctx.id()), loc)
