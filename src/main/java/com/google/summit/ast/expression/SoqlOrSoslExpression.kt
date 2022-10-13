@@ -20,13 +20,33 @@ import com.google.summit.ast.Node
 import com.google.summit.ast.SourceLocation
 
 /**
- * An SOQL or SOSL expression.
+ * A SOQL or SOSL expression.
  *
+ * @property query the raw string
+ * @property bindings the bound expressions
  * @param loc the location in the source file
  */
-class SoqlOrSoslExpression(loc: SourceLocation) : Expression(loc) {
-  // TODO(b/216117963): Translate SOQL syntax.
+class SoqlOrSoslExpression(
+  val query: String,
+  val bindings: List<SoqlOrSoslBinding>,
+  loc: SourceLocation,
+) : Expression(loc) {
+  // TODO(b/216117963): Translate SOQL syntax (beyond bound expressions).
 
-  /** Returns empty list of children because this is a leaf node. */
-  override fun getChildren(): List<Node> = emptyList()
+  /** Returns list of children. */
+  override fun getChildren(): List<Node> = bindings
+}
+
+/**
+ * A SOQL or SOSL expression binding.
+ *
+ * @property expr the bound expression
+ */
+class SoqlOrSoslBinding(val expr: Expression) : Node() {
+
+  /** Returns list of children. */
+  override fun getChildren(): List<Node> = listOf(expr)
+
+  /** Returns the [SourceLocation] of the bound expression. */
+  override fun getSourceLocation(): SourceLocation = expr.getSourceLocation()
 }

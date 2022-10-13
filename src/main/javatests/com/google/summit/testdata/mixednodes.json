@@ -582,6 +582,8 @@
                           },
                           "thenValue": {
                             "@type": "SoqlOrSoslExpression",
+                            "query": "[SELECT COUNT() FROM Account]",
+                            "bindings": [],
                             "sourceLocation": {
                               "startLine": 18,
                               "startColumn": 33,

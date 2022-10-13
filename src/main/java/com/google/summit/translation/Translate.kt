@@ -42,6 +42,7 @@ import com.google.summit.ast.expression.Expression
 import com.google.summit.ast.expression.FieldExpression
 import com.google.summit.ast.expression.LiteralExpression
 import com.google.summit.ast.expression.NewExpression
+import com.google.summit.ast.expression.SoqlOrSoslBinding
 import com.google.summit.ast.expression.SoqlOrSoslExpression
 import com.google.summit.ast.expression.SuperExpression
 import com.google.summit.ast.expression.TernaryExpression
@@ -82,6 +83,7 @@ import com.nawforce.apexparser.ApexParserBaseVisitor
 import kotlin.math.min
 import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.TokenStream
+import org.antlr.v4.runtime.misc.Interval
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.SyntaxTree
 
@@ -1310,16 +1312,35 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   }
 
   /** Translates the 'primary#soqlPrimary' grammar rule and returns an AST [Expression]. */
-  override fun visitSoqlPrimary(ctx: ApexParser.SoqlPrimaryContext): Expression =
-    // TODO(b/216117963): Translate the body of the SOQL query.
-    SoqlOrSoslExpression(toSourceLocation(ctx))
+  override fun visitSoqlPrimary(ctx: ApexParser.SoqlPrimaryContext) =
+    visitSoqlLiteral(ctx.soqlLiteral())
 
   /** Translates the 'primary#soslPrimary' grammar rule and returns an AST [Expression]. */
-  override fun visitSoslPrimary(ctx: ApexParser.SoslPrimaryContext): Expression =
-    // TODO(b/216117963): Translate the body of the SOSL query.
-    SoqlOrSoslExpression(toSourceLocation(ctx))
+  override fun visitSoslPrimary(ctx: ApexParser.SoslPrimaryContext) =
+    visitSoslLiteral(ctx.soslLiteral())
+
 
   // END PRIMARY
+
+  // BEGIN SOQL/SOSL
+
+  /** Translates the 'soqlLiteral' grammar rule and returns an AST [SoqlOrSoslExpression]. */
+  override fun visitSoqlLiteral(ctx: ApexParser.SoqlLiteralContext) =
+    SoqlOrSoslExpression(toSourceString(ctx),
+                         emptyList(), //TODO(aaronhurst): in next commit...
+                         toSourceLocation(ctx))
+
+  /** Translates the 'soslLiteral' grammar rule and returns an AST [SoqlOrSoslExpression]. */
+  override fun visitSoslLiteral(ctx: ApexParser.SoslLiteralContext) =
+    SoqlOrSoslExpression(toSourceString(ctx),
+                         emptyList(), //TODO(aaronhurst): in next commit...
+                         toSourceLocation(ctx))
+
+  /** Translates the 'boundExpression' grammar rule and returns a [SoqlOrSoslBinding]. */
+  override fun visitBoundExpression(ctx: ApexParser.BoundExpressionContext) =
+    SoqlOrSoslBinding(visitExpression(ctx.expression()))
+
+  // END SOQL/SOSL
 
   // BEGIN STATEMENT
 
@@ -1572,7 +1593,13 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     )
   }
 
-  private companion object {
+  /** Gets the original source string for any parser rule context. */
+  private fun toSourceString(context: ParserRuleContext): String {
+    val stream = context.start.getInputStream()
+    return stream.getText(Interval(context.start.getStartIndex(), context.stop.getStopIndex()))
+  }
+
+    private companion object {
     val logger = FluentLogger.forEnclosingClass()
   }
 }

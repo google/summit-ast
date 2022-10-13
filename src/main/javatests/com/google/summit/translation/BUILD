@@ -65,6 +65,12 @@ kt_jvm_test(
 )
 
 kt_jvm_test(
+    name = "SoqlAndSoslTest",
+    test_class = "com.google.summit.translation.SoqlAndSoslTest",
+    deps = [ ":tests" ],
+)
+
+kt_jvm_test(
     name = "SourceLocationTest",
     test_class = "com.google.summit.translation.SourceLocationTest",
     deps = [ ":tests" ],
