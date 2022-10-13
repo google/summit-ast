@@ -1319,7 +1319,6 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitSoslPrimary(ctx: ApexParser.SoslPrimaryContext) =
     visitSoslLiteral(ctx.soslLiteral())
 
-
   // END PRIMARY
 
   // BEGIN SOQL/SOSL
@@ -1327,18 +1326,279 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   /** Translates the 'soqlLiteral' grammar rule and returns an AST [SoqlOrSoslExpression]. */
   override fun visitSoqlLiteral(ctx: ApexParser.SoqlLiteralContext) =
     SoqlOrSoslExpression(toSourceString(ctx),
-                         emptyList(), //TODO(aaronhurst): in next commit...
+                         visitQuery(ctx.query()).bindings,
                          toSourceLocation(ctx))
 
   /** Translates the 'soslLiteral' grammar rule and returns an AST [SoqlOrSoslExpression]. */
-  override fun visitSoslLiteral(ctx: ApexParser.SoslLiteralContext) =
-    SoqlOrSoslExpression(toSourceString(ctx),
-                         emptyList(), //TODO(aaronhurst): in next commit...
-                         toSourceLocation(ctx))
+  override fun visitSoslLiteral(ctx: ApexParser.SoslLiteralContext): SoqlOrSoslExpression {
+    val bindings = listOf(
+      *visitSoslClauses(ctx.soslClauses()).bindings.toTypedArray(),
+      ctx.boundExpression()?.let { visitBoundExpression(it) },
+    ).filterNotNull()
+    return SoqlOrSoslExpression(toSourceString(ctx),
+                                bindings,
+                                toSourceLocation(ctx))
+  }
 
   /** Translates the 'boundExpression' grammar rule and returns a [SoqlOrSoslBinding]. */
   override fun visitBoundExpression(ctx: ApexParser.BoundExpressionContext) =
     SoqlOrSoslBinding(visitExpression(ctx.expression()))
+
+  /**
+   * This class captures details about a SOQL or SOSL fragment.
+   *
+   * We don't (yet) fully represent parsed SOQL or SOSL. TODO(b/216117963)
+   * We do aggregate the set of bound expressions.
+   *
+   * @property bindings is the list of bound expressions
+   */
+  data class SoqlFragment(val bindings: List<SoqlOrSoslBinding>) {
+    /** Constructs a SOQL fragment with one expression binding. */
+    constructor(binding: SoqlOrSoslBinding) : this(listOf(binding))
+
+    /** Constructs a SOQL fragment from its sub-fragments. */
+    constructor(vararg fragments: SoqlFragment?) :
+      this(listOf(*fragments).filterNotNull().map { it.bindings }.flatten())
+
+    companion object {
+      /** Returns a [SoqlFragment] with no expression bindings. */
+      fun withNoBindings() = SoqlFragment(emptyList())
+    }
+  }
+
+  // NOTE: the SOQL/SOSL visitors below simply propagate the list of bound expressions up to
+  // the primary.
+
+  /** Translates the 'query' grammar rule and returns a [SoqlFragment]. */
+  override fun visitQuery(ctx: ApexParser.QueryContext) =
+    SoqlFragment(
+      ctx.selectList()?.let { visitSelectList(it) },
+      ctx.fromNameList()?.let { visitFromNameList(it) },
+      ctx.usingScope()?.let { visitUsingScope(it) },
+      ctx.whereClause()?.let { visitWhereClause(it) },
+      ctx.withClause()?.let { visitWithClause(it) },
+      ctx.groupByClause()?.let { visitGroupByClause(it) },
+      ctx.orderByClause()?.let { visitOrderByClause(it) },
+      ctx.limitClause()?.let { visitLimitClause(it) },
+      ctx.offsetClause()?.let { visitOffsetClause(it) },
+      ctx.allRowsClause()?.let { visitAllRowsClause(it) },
+      ctx.forClauses()?.let { visitForClauses(it) },
+      ctx.updateList()?.let { visitUpdateList(it) },
+    )
+
+  /** Translates the 'subQuery' grammar rule and returns a [SoqlFragment]. */
+  override fun visitSubQuery(ctx: ApexParser.SubQueryContext) =
+    SoqlFragment(
+      ctx.subFieldList()?.let { visitSubFieldList(it) },
+      ctx.fromNameList()?.let { visitFromNameList(it) },
+      ctx.whereClause()?.let { visitWhereClause(it) },
+      ctx.orderByClause()?.let { visitOrderByClause(it) },
+      ctx.limitClause()?.let { visitLimitClause(it) },
+      ctx.forClauses()?.let { visitForClauses(it) },
+      ctx.updateList()?.let { visitUpdateList(it) },
+    )
+
+  /** Translates the 'selectList' grammar rule and returns a [SoqlFragment]. */
+  override fun visitSelectList(ctx: ApexParser.SelectListContext) =
+    SoqlFragment(*ctx.selectEntry().map { visitSelectEntry(it) }.toTypedArray())
+
+  /** Translates the 'selectEntry' grammar rule and returns a [SoqlFragment]. */
+  override fun visitSelectEntry(ctx: ApexParser.SelectEntryContext) =
+    SoqlFragment(
+      ctx.fieldName()?.let { visitFieldName(it) },
+      ctx.soqlId()?.let { visitSoqlId(it) },
+      ctx.soqlFunction()?.let { visitSoqlFunction(it) },
+      ctx.subQuery()?.let { visitSubQuery(it) },
+      ctx.typeOf()?.let { visitTypeOf(it) },
+    )
+
+  /** Translates the 'fieldName' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitFieldName(ctx: ApexParser.FieldNameContext) = SoqlFragment.withNoBindings()
+
+  /** Translates the 'fromNameList' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitFromNameList(ctx: ApexParser.FromNameListContext) =
+    SoqlFragment.withNoBindings()
+
+  /** Translates the 'subFieldList' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitSubFieldList(ctx: ApexParser.SubFieldListContext) =
+    SoqlFragment.withNoBindings()
+
+  /** Translates the 'subFieldEntry' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitSubFieldEntry(ctx: ApexParser.SubFieldEntryContext) =
+    SoqlFragment.withNoBindings()
+
+  /** Translates the 'soqlFieldsParameter' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitSoqlFieldsParameter(ctx: ApexParser.SoqlFieldsParameterContext) =
+    SoqlFragment.withNoBindings()
+
+  /** Translates the 'soqlFunction' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitSoqlFunction(ctx: ApexParser.SoqlFunctionContext) =
+    SoqlFragment.withNoBindings()
+
+  /** Translates the 'dateFieldName' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitDateFieldName(ctx: ApexParser.DateFieldNameContext) =
+    SoqlFragment.withNoBindings()
+
+  /** Translates the 'typeOf' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitTypeOf(ctx: ApexParser.TypeOfContext) = SoqlFragment.withNoBindings()
+
+  /** Translates the 'whenClause' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitWhenClause(ctx: ApexParser.WhenClauseContext) = SoqlFragment.withNoBindings()
+
+  /** Translates the 'elseClause' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitElseClause(ctx: ApexParser.ElseClauseContext) = SoqlFragment.withNoBindings()
+
+  /** Translates the 'fieldNameList' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitFieldNameList(ctx: ApexParser.FieldNameListContext) =
+    SoqlFragment.withNoBindings()
+
+  /** Translates the 'usingScope' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitUsingScope(ctx: ApexParser.UsingScopeContext) = SoqlFragment.withNoBindings()
+
+  /** Translates the 'whereClause' grammar rule and returns a [SoqlFragment]. */
+  override fun visitWhereClause(ctx: ApexParser.WhereClauseContext) =
+    visitLogicalExpression(ctx.logicalExpression())
+
+  /** Translates the 'logicalExpression' grammar rule and returns a [SoqlFragment]. */
+  override fun visitLogicalExpression(ctx: ApexParser.LogicalExpressionContext): SoqlFragment =
+    SoqlFragment(
+      *ctx.conditionalExpression().map { visitConditionalExpression(it) }.toTypedArray(),
+    )
+
+  /** Translates the 'conditionalExpression' grammar rule and returns a [SoqlFragment]. */
+  override fun visitConditionalExpression(ctx: ApexParser.ConditionalExpressionContext) =
+    SoqlFragment(
+      ctx.logicalExpression()?.let { visitLogicalExpression(it) },
+      ctx.fieldExpression()?.let { visitFieldExpression(it) },
+    )
+
+  /** Translates the 'fieldExpression' grammar rule and returns a [SoqlFragment]. */
+  override fun visitFieldExpression(ctx: ApexParser.FieldExpressionContext) = SoqlFragment(
+    ctx.fieldName()?.let { visitFieldName(it) },
+    ctx.value()?.let { visitValue(it) },
+    ctx.soqlFunction()?.let { visitSoqlFunction(it) },
+  )
+
+  /** Translates the 'value' grammar rule and returns a [SoqlFragment]. */
+  override fun visitValue(ctx: ApexParser.ValueContext): SoqlFragment = SoqlFragment(
+    ctx.dateFormula()?.let { visitDateFormula(it) },
+    ctx.subQuery()?.let { visitSubQuery(it) },
+    ctx.valueList()?.let { visitValueList(it) },
+    ctx.boundExpression()?.let { SoqlFragment(visitBoundExpression(it)) }
+  )
+
+  /** Translates the 'valueList' grammar rule and returns a [SoqlFragment]. */
+  override fun visitValueList(ctx: ApexParser.ValueListContext) = SoqlFragment(
+    *ctx.value().map { visitValue(it) }.toTypedArray(),
+  )
+
+  /** Translates the 'withClause' grammar rule and returns a [SoqlFragment]. */
+  override fun visitWithClause(ctx: ApexParser.WithClauseContext) = SoqlFragment(
+    ctx.filteringExpression()?.let { visitFilteringExpression(it) },
+    ctx.logicalExpression()?.let { visitLogicalExpression(it) },
+  )
+
+  /** Translates the 'filteringExpression' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitFilteringExpression(ctx: ApexParser.FilteringExpressionContext) =
+    SoqlFragment.withNoBindings()
+
+  /** Translates the 'dataCategorySelection' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitDataCategorySelection(ctx: ApexParser.DataCategorySelectionContext) =
+    SoqlFragment.withNoBindings()
+
+  /** Translates the 'dataCategoryName' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitDataCategoryName(ctx: ApexParser.DataCategoryNameContext) =
+    SoqlFragment.withNoBindings()
+
+  /** Translates the 'filteringSelector' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitFilteringSelector(ctx: ApexParser.FilteringSelectorContext) =
+    SoqlFragment.withNoBindings()
+
+  /** Translates the 'groupByClause' grammar rule and returns a [SoqlFragment]. */
+  override fun visitGroupByClause(ctx: ApexParser.GroupByClauseContext) = SoqlFragment(
+    ctx.selectList()?.let { visitSelectList(it) },
+    ctx.logicalExpression()?.let { visitLogicalExpression(it) },
+    *ctx.fieldName().map { visitFieldName(it) }.toTypedArray(),
+  )
+
+  /** Translates the 'orderByClause' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitOrderByClause(ctx: ApexParser.OrderByClauseContext) =
+    SoqlFragment.withNoBindings()
+
+  /** Translates the 'fieldOrderList' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitFieldOrderList(ctx: ApexParser.FieldOrderListContext) =
+    SoqlFragment.withNoBindings()
+
+  /** Translates the 'fieldOrder' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitFieldOrder(ctx: ApexParser.FieldOrderContext) = SoqlFragment.withNoBindings()
+
+  /** Translates the 'limitClause' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitLimitClause(ctx: ApexParser.LimitClauseContext) = SoqlFragment(
+    ctx.boundExpression()?.let { SoqlFragment(visitBoundExpression(it)) }
+  )
+
+  /** Translates the 'offsetClause' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitOffsetClause(ctx: ApexParser.OffsetClauseContext) = SoqlFragment(
+    ctx.boundExpression()?.let { SoqlFragment(visitBoundExpression(it)) }
+  )
+
+  /** Translates the 'allRows' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitAllRowsClause(ctx: ApexParser.AllRowsClauseContext) =
+    SoqlFragment.withNoBindings()
+
+  /** Translates the 'forClauses' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitForClauses(ctx: ApexParser.ForClausesContext) = SoqlFragment.withNoBindings()
+
+  /** Translates the 'dateFormula' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitDateFormula(ctx: ApexParser.DateFormulaContext) = SoqlFragment.withNoBindings()
+
+  /** Translates the 'soqlId' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitSoqlId(ctx: ApexParser.SoqlIdContext) = SoqlFragment.withNoBindings()
+
+  /** Translates the 'soslClauses' grammar rule and returns a [SoqlFragment]. */
+  override fun visitSoslClauses(ctx: ApexParser.SoslClausesContext) =
+    SoqlFragment(
+      ctx.searchGroup()?.let { visitSearchGroup(it) },
+      ctx.fieldSpecList()?.let { visitFieldSpecList(it) },
+      ctx.filteringExpression()?.let { visitFilteringExpression(it) },
+      ctx.networkList()?.let { visitNetworkList(it) },
+      ctx.limitClause()?.let { visitLimitClause(it) },
+      ctx.updateList()?.let { visitUpdateList(it) },
+    )
+
+  /** Translates the 'fieldSpecList' grammar rule and returns a [SoqlFragment]. */
+  override fun visitFieldSpecList(ctx: ApexParser.FieldSpecListContext): SoqlFragment =
+    SoqlFragment(
+      ctx.fieldSpec()?.let { visitFieldSpec(it) },
+      *ctx.fieldSpecList().map { visitFieldSpecList(it) }.toTypedArray(),
+    )
+
+  /** Translates the 'fieldSpec' grammar rule and returns a [SoqlFragment]. */
+  override fun visitFieldSpec(ctx: ApexParser.FieldSpecContext) = SoqlFragment(
+    *ctx.soslId().map { visitSoslId(it) }.toTypedArray(),
+    ctx.fieldList()?.let { visitFieldList(it) },
+    ctx.fieldOrderList()?.let { visitFieldOrderList(it) },
+    ctx.limitClause()?.let { visitLimitClause(it) },
+    ctx.offsetClause()?.let { visitOffsetClause(it) },
+  )
+
+  /** Translates the 'searchGroup' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitSearchGroup(ctx: ApexParser.SearchGroupContext) = SoqlFragment.withNoBindings()
+
+  /** Translates the 'fieldList' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitFieldList(ctx: ApexParser.FieldListContext) = SoqlFragment.withNoBindings()
+
+  /** Translates the 'updateList' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitUpdateList(ctx: ApexParser.UpdateListContext) = SoqlFragment.withNoBindings()
+
+  /** Translates the 'updateType' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitUpdateType(ctx: ApexParser.UpdateTypeContext) = SoqlFragment.withNoBindings()
+
+  /** Translates the 'networkList' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitNetworkList(ctx: ApexParser.NetworkListContext) = SoqlFragment.withNoBindings()
+
+  /** Translates the 'soslId' grammar rule and returns a [SoqlFragment] with no bindings. */
+  override fun visitSoslId(ctx: ApexParser.SoslIdContext) = SoqlFragment.withNoBindings()
 
   // END SOQL/SOSL
 

@@ -78,5 +78,6 @@ class SoqlAndSoslTest {
     val node = TranslateHelpers.findFirstNodeOfType<SoqlOrSoslExpression>(root)
     assertThat(node).isNotNull()
     assertThat(node!!.query).isEqualTo("[$query]")
+    assertThat(node.bindings).hasSize(1)
   }
 }

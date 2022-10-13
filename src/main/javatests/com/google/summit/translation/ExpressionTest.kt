@@ -102,21 +102,21 @@ class ExpressionTest {
   }
 
   @Test
-  fun soqlPrimary_translation_isLeafNode() {
-    val root = parseApexExpressionInCode("[SELECT Id FROM Contact]")
+  fun soqlPrimary_translation_hasBoundExpressions() {
+    val root = parseApexExpressionInCode("[SELECT Id FROM Contact WHERE Value > :Threshold]")
     val node = TranslateHelpers.findFirstNodeOfType<SoqlOrSoslExpression>(root)
 
     assertThat(node).isNotNull()
-    assertWithMessage("Node should have no children").that(node?.getChildren()).isEmpty()
+    assertWithMessage("Node should have one child").that(node?.getChildren()).hasSize(1)
   }
 
   @Test
-  fun soslPrimary_translation_isLeafNode() {
+  fun soslPrimary_translation_hasBoundExpressions() {
     val root = parseApexExpressionInCode("[FIND :search IN ALL FIELDS RETURNING Account(Name)]")
     val node = TranslateHelpers.findFirstNodeOfType<SoqlOrSoslExpression>(root)
 
     assertThat(node).isNotNull()
-    assertWithMessage("Node should have no children").that(node?.getChildren()).isEmpty()
+    assertWithMessage("Node should have one child").that(node?.getChildren()).hasSize(1)
   }
 
   /**
