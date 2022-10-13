@@ -662,12 +662,12 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     val loc: SourceLocation
   )
 
-  /** Translates the 'variableDeclarators' grammar rule and returns a VariableDeclarator list. */
+  /** Translates the 'variableDeclarators' grammar rule and returns a [VariableDeclarator] list. */
   override fun visitVariableDeclarators(
     ctx: ApexParser.VariableDeclaratorsContext
   ): List<VariableDeclarator> = ctx.variableDeclarator().map { visitVariableDeclarator(it) }
 
-  /** Translates the 'variableDeclarator' grammar rule and returns a VariableDeclarator. */
+  /** Translates the 'variableDeclarator' grammar rule and returns a [VariableDeclarator]. */
   override fun visitVariableDeclarator(
     ctx: ApexParser.VariableDeclaratorContext
   ): VariableDeclarator =
