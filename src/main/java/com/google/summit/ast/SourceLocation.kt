@@ -66,3 +66,38 @@ data class SourceLocation(
     val UNKNOWN = SourceLocation(null, null, null, null)
   }
 }
+
+/** Returns the [SourceLocation] with the minimum start position. */
+private fun minStart(x: SourceLocation, y: SourceLocation) =
+  when {
+    x.startLine == null -> y
+    y.startLine == null -> x
+    x.startLine < y.startLine -> x
+    y.startLine < x.startLine -> y
+    x.startColumn == null -> y
+    y.startColumn == null -> x
+    x.startColumn < y.startColumn -> x
+    else -> y
+  }
+
+/** Returns the [SourceLocation] with the maximum end position. */
+private fun maxEnd(x: SourceLocation, y: SourceLocation) =
+  when {
+    x.endLine == null -> y
+    y.endLine == null -> x
+    x.endLine > y.endLine -> x
+    y.endLine > x.endLine -> y
+    x.endColumn == null -> y
+    y.endColumn == null -> x
+    x.endColumn > y.endColumn -> x
+    else -> y
+  }
+
+/** Unions one or more [SourceLocation] ranges to the containing range. */
+fun unionOf(vararg locs: SourceLocation): SourceLocation {
+  val start = locs.reduce { x, y -> minStart(x, y) }
+  val end = locs.reduce { x, y -> maxEnd(x, y) }
+  return SourceLocation(
+    start.startLine, start.startColumn, end.endLine, end.endColumn
+  )
+}
