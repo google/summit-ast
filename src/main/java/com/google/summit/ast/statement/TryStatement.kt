@@ -18,7 +18,7 @@ package com.google.summit.ast.statement
 
 import com.google.summit.ast.Node
 import com.google.summit.ast.SourceLocation
-import com.google.summit.ast.declaration.VariableDeclaration
+import com.google.summit.ast.declaration.VariableDeclarationGroup
 
 /**
  * A `try` statement.
@@ -39,15 +39,15 @@ class TryStatement(
   /**
    * A `catch` block.
    *
-   * @property exceptionVariable the exception variable declaration
+   * @property exceptionDeclarations the exception variable declaration
    * @property body the statement to execute when caught
    * @param loc the location in the source file
    */
   class CatchBlock(
-    val exceptionVariable: VariableDeclaration,
+    val exceptionDeclarations: VariableDeclarationGroup,
     val body: Statement,
     loc: SourceLocation
   ) : Statement(loc) {
-    override fun getChildren(): List<Node> = listOf(exceptionVariable, body)
+    override fun getChildren(): List<Node> = listOf(exceptionDeclarations, body)
   }
 }

@@ -160,10 +160,12 @@ class StatementTest {
 
     assertNotNull(node)
     assertThat(node.type.asCodeString()).isEqualTo("Type")
-    assertThat(node.variableDeclaration.type.asCodeString()).isEqualTo("Type")
-    assertThat(node.variableDeclaration.id.asCodeString()).isEqualTo("variable")
+    assertThat(node.variableDeclarations.declarations).hasSize(1)
+    val varDecl = node.variableDeclarations.declarations.first()
+    assertThat(varDecl.type.asCodeString()).isEqualTo("Type")
+    assertThat(varDecl.id.asCodeString()).isEqualTo("variable")
     assertWithMessage("Variables declared in `when` clauses should not have an initializer")
-      .that(node.variableDeclaration.initializer)
+      .that(varDecl.initializer)
       .isNull()
   }
 
@@ -173,7 +175,8 @@ class StatementTest {
     val node = TranslateHelpers.findFirstNodeOfType<ForLoopStatement>(root)
 
     assertNotNull(node)
-    assertThat(node.declarations).hasSize(2)
+    assertNotNull(node.declarationGroup)
+    assertThat(node.declarationGroup!!.declarations).hasSize(2)
     assertThat(node.initializations).isEmpty()
     assertThat(node.condition).isNotNull()
     assertThat(node.updates).hasSize(2)
@@ -185,7 +188,7 @@ class StatementTest {
     val node = TranslateHelpers.findFirstNodeOfType<ForLoopStatement>(root)
 
     assertNotNull(node)
-    assertThat(node.declarations).isEmpty()
+    assertThat(node.declarationGroup).isNull()
     assertThat(node.initializations).hasSize(2)
     assertThat(node.condition).isNull()
     assertThat(node.updates).isEmpty()
@@ -197,9 +200,11 @@ class StatementTest {
     val node = TranslateHelpers.findFirstNodeOfType<EnhancedForLoopStatement>(root)
 
     assertNotNull(node)
-    assertThat(node.elementDeclaration.type.asCodeString()).isEqualTo("String")
-    assertThat(node.elementDeclaration.id.asCodeString()).isEqualTo("s")
-    assertThat(node.elementDeclaration.initializer).isNull()
+    assertThat(node.elementDeclarations.declarations).hasSize(1)
+    val varDecl = node.elementDeclarations.declarations.first()
+    assertThat(varDecl.type.asCodeString()).isEqualTo("String")
+    assertThat(varDecl.id.asCodeString()).isEqualTo("s")
+    assertThat(varDecl.initializer).isNull()
   }
 
   @Test
@@ -252,8 +257,10 @@ class StatementTest {
     assertNotNull(node)
     assertThat(node.catchBlocks).hasSize(1)
     val catchBlock = node.catchBlocks.first()
-    assertThat(catchBlock.exceptionVariable.type.asCodeString()).isEqualTo("Exception")
-    assertThat(catchBlock.exceptionVariable.id.asCodeString()).isEqualTo("e")
+    assertThat(catchBlock.exceptionDeclarations.declarations).hasSize(1)
+    val exceptionDecl = catchBlock.exceptionDeclarations.declarations.first()
+    assertThat(exceptionDecl.type.asCodeString()).isEqualTo("Exception")
+    assertThat(exceptionDecl.id.asCodeString()).isEqualTo("e")
     assertThat(node.finallyBlock).isNull()
   }
 
@@ -363,9 +370,9 @@ class StatementTest {
 
     assertNotNull(node)
     assertWithMessage("The statement should declare two variables")
-      .that(node.variableDeclarations)
+      .that(node.group.declarations)
       .hasSize(2)
-    val firstDecl = node.variableDeclarations.first()
+    val firstDecl = node.group.declarations.first()
     assertThat(firstDecl.id.asCodeString()).isEqualTo("s")
     assertThat(firstDecl.type.asCodeString()).isEqualTo("String")
     assertWithMessage("Variable 's' should be initialized to null")

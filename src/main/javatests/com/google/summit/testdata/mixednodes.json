@@ -253,7 +253,7 @@
               "@type": "TryStatement",
               "catchBlocks": [
                 {
-                  "exceptionVariable": {
+                  "exceptionDeclarations": {
                     "type": {
                       "components": [
                         {
@@ -266,16 +266,26 @@
                       ],
                       "arrayNesting": 0
                     },
-                    "modifiers": [],
-                    "id": {
-                      "string": "e",
-                      "sourceLocation": {
-                        "startLine": 23,
-                        "startColumn": 23,
-                        "endLine": 23,
-                        "endColumn": 24
+                    "declarations": [
+                      {
+                        "id": {
+                          "string": "e",
+                          "sourceLocation": {
+                            "startLine": 23,
+                            "startColumn": 23,
+                            "endLine": 23,
+                            "endColumn": 24
+                          }
+                        },
+                        "sourceLocation": {
+                          "startLine": 23,
+                          "startColumn": 23,
+                          "endLine": 23,
+                          "endColumn": 24
+                        }
                       }
-                    },
+                    ],
+                    "modifiers": [],
                     "sourceLocation": {
                       "startLine": 23,
                       "startColumn": 23,
@@ -365,47 +375,55 @@
                   },
                   {
                     "@type": "VariableDeclarationStatement",
-                    "variableDeclarations": [
-                      {
-                        "type": {
-                          "components": [
-                            {
-                              "id": {
-                                "string": "integer",
-                                "sourceLocation": {
-                                  "startLine": 17,
-                                  "startColumn": 6,
-                                  "endLine": 17,
-                                  "endColumn": 13
-                                }
-                              },
-                              "args": []
-                            }
-                          ],
-                          "arrayNesting": 0
-                        },
-                        "initializer": {
-                          "@type": "CastExpression",
-                          "value": {
-                            "@type": "CallExpression",
+                    "group": {
+                      "type": {
+                        "components": [
+                          {
                             "id": {
-                              "string": "foo",
+                              "string": "integer",
                               "sourceLocation": {
                                 "startLine": 17,
-                                "startColumn": 29,
+                                "startColumn": 6,
                                 "endLine": 17,
-                                "endColumn": 32
+                                "endColumn": 13
                               }
                             },
-                            "args": [
-                              {
-                                "@type": "BinaryExpression",
-                                "left": {
-                                  "@type": "UnaryExpression",
-                                  "value": {
-                                    "@type": "VariableExpression",
-                                    "id": {
-                                      "string": "a",
+                            "args": []
+                          }
+                        ],
+                        "arrayNesting": 0
+                      },
+                      "declarations": [
+                        {
+                          "initializer": {
+                            "@type": "CastExpression",
+                            "value": {
+                              "@type": "CallExpression",
+                              "id": {
+                                "string": "foo",
+                                "sourceLocation": {
+                                  "startLine": 17,
+                                  "startColumn": 29,
+                                  "endLine": 17,
+                                  "endColumn": 32
+                                }
+                              },
+                              "args": [
+                                {
+                                  "@type": "BinaryExpression",
+                                  "left": {
+                                    "@type": "UnaryExpression",
+                                    "value": {
+                                      "@type": "VariableExpression",
+                                      "id": {
+                                        "string": "a",
+                                        "sourceLocation": {
+                                          "startLine": 17,
+                                          "startColumn": 34,
+                                          "endLine": 17,
+                                          "endColumn": 35
+                                        }
+                                      },
                                       "sourceLocation": {
                                         "startLine": 17,
                                         "startColumn": 34,
@@ -413,26 +431,26 @@
                                         "endColumn": 35
                                       }
                                     },
+                                    "op": "NEGATION",
                                     "sourceLocation": {
                                       "startLine": 17,
-                                      "startColumn": 34,
+                                      "startColumn": 33,
                                       "endLine": 17,
                                       "endColumn": 35
                                     }
                                   },
-                                  "op": "NEGATION",
-                                  "sourceLocation": {
-                                    "startLine": 17,
-                                    "startColumn": 33,
-                                    "endLine": 17,
-                                    "endColumn": 35
-                                  }
-                                },
-                                "op": "ADDITION",
-                                "right": {
-                                  "@type": "VariableExpression",
-                                  "id": {
-                                    "string": "b",
+                                  "op": "ADDITION",
+                                  "right": {
+                                    "@type": "VariableExpression",
+                                    "id": {
+                                      "string": "b",
+                                      "sourceLocation": {
+                                        "startLine": 17,
+                                        "startColumn": 38,
+                                        "endLine": 17,
+                                        "endColumn": 39
+                                      }
+                                    },
                                     "sourceLocation": {
                                       "startLine": 17,
                                       "startColumn": 38,
@@ -442,69 +460,69 @@
                                   },
                                   "sourceLocation": {
                                     "startLine": 17,
-                                    "startColumn": 38,
+                                    "startColumn": 33,
                                     "endLine": 17,
                                     "endColumn": 39
                                   }
-                                },
-                                "sourceLocation": {
-                                  "startLine": 17,
-                                  "startColumn": 33,
-                                  "endLine": 17,
-                                  "endColumn": 39
                                 }
+                              ],
+                              "isSafe": false,
+                              "sourceLocation": {
+                                "startLine": 17,
+                                "startColumn": 29,
+                                "endLine": 17,
+                                "endColumn": 40
                               }
-                            ],
-                            "isSafe": false,
+                            },
+                            "type": {
+                              "components": [
+                                {
+                                  "id": {
+                                    "string": "double",
+                                    "sourceLocation": {
+                                      "startLine": 17,
+                                      "startColumn": 21,
+                                      "endLine": 17,
+                                      "endColumn": 27
+                                    }
+                                  },
+                                  "args": []
+                                }
+                              ],
+                              "arrayNesting": 0
+                            },
                             "sourceLocation": {
                               "startLine": 17,
-                              "startColumn": 29,
+                              "startColumn": 20,
                               "endLine": 17,
                               "endColumn": 40
                             }
                           },
-                          "type": {
-                            "components": [
-                              {
-                                "id": {
-                                  "string": "double",
-                                  "sourceLocation": {
-                                    "startLine": 17,
-                                    "startColumn": 21,
-                                    "endLine": 17,
-                                    "endColumn": 27
-                                  }
-                                },
-                                "args": []
-                              }
-                            ],
-                            "arrayNesting": 0
+                          "id": {
+                            "string": "sum",
+                            "sourceLocation": {
+                              "startLine": 17,
+                              "startColumn": 14,
+                              "endLine": 17,
+                              "endColumn": 17
+                            }
                           },
-                          "sourceLocation": {
-                            "startLine": 17,
-                            "startColumn": 20,
-                            "endLine": 17,
-                            "endColumn": 40
-                          }
-                        },
-                        "modifiers": [],
-                        "id": {
-                          "string": "sum",
                           "sourceLocation": {
                             "startLine": 17,
                             "startColumn": 14,
                             "endLine": 17,
-                            "endColumn": 17
+                            "endColumn": 40
                           }
-                        },
-                        "sourceLocation": {
-                          "startLine": 17,
-                          "startColumn": 6,
-                          "endLine": 17,
-                          "endColumn": 40
                         }
+                      ],
+                      "modifiers": [],
+                      "sourceLocation": {
+                        "startLine": 17,
+                        "startColumn": 6,
+                        "endLine": 17,
+                        "endColumn": 40
                       }
-                    ],
+                    },
                     "sourceLocation": {
                       "startLine": 17,
                       "startColumn": 6,
@@ -514,118 +532,126 @@
                   },
                   {
                     "@type": "VariableDeclarationStatement",
-                    "variableDeclarations": [
-                      {
-                        "type": {
-                          "components": [
-                            {
-                              "id": {
-                                "string": "integer",
-                                "sourceLocation": {
-                                  "startLine": 18,
-                                  "startColumn": 6,
-                                  "endLine": 18,
-                                  "endColumn": 13
-                                }
-                              },
-                              "args": []
-                            }
-                          ],
-                          "arrayNesting": 0
-                        },
-                        "initializer": {
-                          "@type": "TernaryExpression",
-                          "condition": {
-                            "@type": "NewExpression",
-                            "initializer": {
-                              "@type": "SizedArrayInitializer",
-                              "size": {
-                                "@type": "IntegerVal",
-                                "value": 5,
-                                "sourceLocation": {
-                                  "startLine": 18,
-                                  "startColumn": 28,
-                                  "endLine": 18,
-                                  "endColumn": 29
-                                }
-                              },
-                              "type": {
-                                "components": [
-                                  {
-                                    "id": {
-                                      "string": "float",
-                                      "sourceLocation": {
-                                        "startLine": 18,
-                                        "startColumn": 22,
-                                        "endLine": 18,
-                                        "endColumn": 27
-                                      }
-                                    },
-                                    "args": []
+                    "group": {
+                      "type": {
+                        "components": [
+                          {
+                            "id": {
+                              "string": "integer",
+                              "sourceLocation": {
+                                "startLine": 18,
+                                "startColumn": 6,
+                                "endLine": 18,
+                                "endColumn": 13
+                              }
+                            },
+                            "args": []
+                          }
+                        ],
+                        "arrayNesting": 0
+                      },
+                      "declarations": [
+                        {
+                          "initializer": {
+                            "@type": "TernaryExpression",
+                            "condition": {
+                              "@type": "NewExpression",
+                              "initializer": {
+                                "@type": "SizedArrayInitializer",
+                                "size": {
+                                  "@type": "IntegerVal",
+                                  "value": 5,
+                                  "sourceLocation": {
+                                    "startLine": 18,
+                                    "startColumn": 28,
+                                    "endLine": 18,
+                                    "endColumn": 29
                                   }
-                                ],
-                                "arrayNesting": 1
+                                },
+                                "type": {
+                                  "components": [
+                                    {
+                                      "id": {
+                                        "string": "float",
+                                        "sourceLocation": {
+                                          "startLine": 18,
+                                          "startColumn": 22,
+                                          "endLine": 18,
+                                          "endColumn": 27
+                                        }
+                                      },
+                                      "args": []
+                                    }
+                                  ],
+                                  "arrayNesting": 1
+                                },
+                                "sourceLocation": {
+                                  "startLine": 18,
+                                  "startColumn": 22,
+                                  "endLine": 18,
+                                  "endColumn": 30
+                                }
                               },
                               "sourceLocation": {
                                 "startLine": 18,
-                                "startColumn": 22,
+                                "startColumn": 18,
                                 "endLine": 18,
                                 "endColumn": 30
+                              }
+                            },
+                            "thenValue": {
+                              "@type": "SoqlOrSoslExpression",
+                              "query": "[SELECT COUNT() FROM Account]",
+                              "bindings": [],
+                              "sourceLocation": {
+                                "startLine": 18,
+                                "startColumn": 33,
+                                "endLine": 18,
+                                "endColumn": 62
+                              }
+                            },
+                            "elseValue": {
+                              "@type": "BooleanVal",
+                              "value": false,
+                              "sourceLocation": {
+                                "startLine": 18,
+                                "startColumn": 65,
+                                "endLine": 18,
+                                "endColumn": 70
                               }
                             },
                             "sourceLocation": {
                               "startLine": 18,
                               "startColumn": 18,
                               "endLine": 18,
-                              "endColumn": 30
-                            }
-                          },
-                          "thenValue": {
-                            "@type": "SoqlOrSoslExpression",
-                            "query": "[SELECT COUNT() FROM Account]",
-                            "bindings": [],
-                            "sourceLocation": {
-                              "startLine": 18,
-                              "startColumn": 33,
-                              "endLine": 18,
-                              "endColumn": 62
-                            }
-                          },
-                          "elseValue": {
-                            "@type": "BooleanVal",
-                            "value": false,
-                            "sourceLocation": {
-                              "startLine": 18,
-                              "startColumn": 65,
-                              "endLine": 18,
                               "endColumn": 70
                             }
                           },
-                          "sourceLocation": {
-                            "startLine": 18,
-                            "startColumn": 18,
-                            "endLine": 18,
-                            "endColumn": 70
-                          }
-                        },
-                        "modifiers": [],
-                        "id": {
-                          "string": "i",
+                          "id": {
+                            "string": "i",
+                            "sourceLocation": {
+                              "startLine": 18,
+                              "startColumn": 14,
+                              "endLine": 18,
+                              "endColumn": 15
+                            }
+                          },
                           "sourceLocation": {
                             "startLine": 18,
                             "startColumn": 14,
                             "endLine": 18,
-                            "endColumn": 15
+                            "endColumn": 70
                           }
-                        },
-                        "sourceLocation": {
-                          "startLine": 18,
-                          "startColumn": 6,
-                          "endLine": 18,
-                          "endColumn": 70
                         }
+                      ],
+                      "modifiers": [],
+                      "sourceLocation": {
+                        "startLine": 18,
+                        "startColumn": 6,
+                        "endLine": 18,
+                        "endColumn": 70
                       }
-                    ],
+                    },
                     "sourceLocation": {
                       "startLine": 18,
                       "startColumn": 6,
@@ -635,214 +661,222 @@
                   },
                   {
                     "@type": "VariableDeclarationStatement",
-                    "variableDeclarations": [
-                      {
-                        "type": {
-                          "components": [
-                            {
-                              "id": {
-                                "string": "Map",
-                                "sourceLocation": {
-                                  "startLine": 19,
-                                  "startColumn": 6,
-                                  "endLine": 19,
-                                  "endColumn": 9
-                                }
+                    "group": {
+                      "type": {
+                        "components": [
+                          {
+                            "id": {
+                              "string": "Map",
+                              "sourceLocation": {
+                                "startLine": 19,
+                                "startColumn": 6,
+                                "endLine": 19,
+                                "endColumn": 9
+                              }
+                            },
+                            "args": [
+                              {
+                                "components": [
+                                  {
+                                    "id": {
+                                      "string": "String",
+                                      "sourceLocation": {
+                                        "startLine": 19,
+                                        "startColumn": 10,
+                                        "endLine": 19,
+                                        "endColumn": 16
+                                      }
+                                    },
+                                    "args": []
+                                  }
+                                ],
+                                "arrayNesting": 0
                               },
-                              "args": [
-                                {
-                                  "components": [
-                                    {
-                                      "id": {
-                                        "string": "String",
-                                        "sourceLocation": {
-                                          "startLine": 19,
-                                          "startColumn": 10,
-                                          "endLine": 19,
-                                          "endColumn": 16
-                                        }
-                                      },
-                                      "args": []
-                                    }
-                                  ],
-                                  "arrayNesting": 0
-                                },
-                                {
-                                  "components": [
-                                    {
-                                      "id": {
-                                        "string": "String",
-                                        "sourceLocation": {
-                                          "startLine": 19,
-                                          "startColumn": 18,
-                                          "endLine": 19,
-                                          "endColumn": 24
-                                        }
-                                      },
-                                      "args": []
-                                    }
-                                  ],
-                                  "arrayNesting": 0
-                                }
-                              ]
-                            }
-                          ],
-                          "arrayNesting": 0
-                        },
-                        "initializer": {
-                          "@type": "NewExpression",
+                              {
+                                "components": [
+                                  {
+                                    "id": {
+                                      "string": "String",
+                                      "sourceLocation": {
+                                        "startLine": 19,
+                                        "startColumn": 18,
+                                        "endLine": 19,
+                                        "endColumn": 24
+                                      }
+                                    },
+                                    "args": []
+                                  }
+                                ],
+                                "arrayNesting": 0
+                              }
+                            ]
+                          }
+                        ],
+                        "arrayNesting": 0
+                      },
+                      "declarations": [
+                        {
                           "initializer": {
-                            "@type": "MapInitializer",
-                            "pairs": [
-                              {
-                                "first": {
-                                  "@type": "StringVal",
-                                  "value": "a",
-                                  "sourceLocation": {
-                                    "startLine": 19,
-                                    "startColumn": 62,
-                                    "endLine": 19,
-                                    "endColumn": 65
-                                  }
-                                },
-                                "second": {
-                                  "@type": "StringVal",
-                                  "value": "b",
-                                  "sourceLocation": {
-                                    "startLine": 19,
-                                    "startColumn": 69,
-                                    "endLine": 19,
-                                    "endColumn": 72
-                                  }
-                                }
-                              },
-                              {
-                                "first": {
-                                  "@type": "StringVal",
-                                  "value": "c",
-                                  "sourceLocation": {
-                                    "startLine": 19,
-                                    "startColumn": 74,
-                                    "endLine": 19,
-                                    "endColumn": 77
-                                  }
-                                },
-                                "second": {
-                                  "@type": "CallExpression",
-                                  "receiver": {
+                            "@type": "NewExpression",
+                            "initializer": {
+                              "@type": "MapInitializer",
+                              "pairs": [
+                                {
+                                  "first": {
                                     "@type": "StringVal",
-                                    "value": "d",
+                                    "value": "a",
+                                    "sourceLocation": {
+                                      "startLine": 19,
+                                      "startColumn": 62,
+                                      "endLine": 19,
+                                      "endColumn": 65
+                                    }
+                                  },
+                                  "second": {
+                                    "@type": "StringVal",
+                                    "value": "b",
+                                    "sourceLocation": {
+                                      "startLine": 19,
+                                      "startColumn": 69,
+                                      "endLine": 19,
+                                      "endColumn": 72
+                                    }
+                                  }
+                                },
+                                {
+                                  "first": {
+                                    "@type": "StringVal",
+                                    "value": "c",
+                                    "sourceLocation": {
+                                      "startLine": 19,
+                                      "startColumn": 74,
+                                      "endLine": 19,
+                                      "endColumn": 77
+                                    }
+                                  },
+                                  "second": {
+                                    "@type": "CallExpression",
+                                    "receiver": {
+                                      "@type": "StringVal",
+                                      "value": "d",
+                                      "sourceLocation": {
+                                        "startLine": 19,
+                                        "startColumn": 81,
+                                        "endLine": 19,
+                                        "endColumn": 84
+                                      }
+                                    },
+                                    "id": {
+                                      "string": "toUpperCase",
+                                      "sourceLocation": {
+                                        "startLine": 19,
+                                        "startColumn": 85,
+                                        "endLine": 19,
+                                        "endColumn": 96
+                                      }
+                                    },
+                                    "args": [],
+                                    "isSafe": false,
                                     "sourceLocation": {
                                       "startLine": 19,
                                       "startColumn": 81,
                                       "endLine": 19,
-                                      "endColumn": 84
+                                      "endColumn": 98
                                     }
-                                  },
-                                  "id": {
-                                    "string": "toUpperCase",
-                                    "sourceLocation": {
-                                      "startLine": 19,
-                                      "startColumn": 85,
-                                      "endLine": 19,
-                                      "endColumn": 96
-                                    }
-                                  },
-                                  "args": [],
-                                  "isSafe": false,
-                                  "sourceLocation": {
-                                    "startLine": 19,
-                                    "startColumn": 81,
-                                    "endLine": 19,
-                                    "endColumn": 98
                                   }
                                 }
-                              }
-                            ],
-                            "type": {
-                              "components": [
-                                {
-                                  "id": {
-                                    "string": "Map",
-                                    "sourceLocation": {
-                                      "startLine": 19,
-                                      "startColumn": 42,
-                                      "endLine": 19,
-                                      "endColumn": 45
-                                    }
-                                  },
-                                  "args": [
-                                    {
-                                      "components": [
-                                        {
-                                          "id": {
-                                            "string": "String",
-                                            "sourceLocation": {
-                                              "startLine": 19,
-                                              "startColumn": 46,
-                                              "endLine": 19,
-                                              "endColumn": 52
-                                            }
-                                          },
-                                          "args": []
-                                        }
-                                      ],
-                                      "arrayNesting": 0
-                                    },
-                                    {
-                                      "components": [
-                                        {
-                                          "id": {
-                                            "string": "String",
-                                            "sourceLocation": {
-                                              "startLine": 19,
-                                              "startColumn": 54,
-                                              "endLine": 19,
-                                              "endColumn": 60
-                                            }
-                                          },
-                                          "args": []
-                                        }
-                                      ],
-                                      "arrayNesting": 0
-                                    }
-                                  ]
-                                }
                               ],
-                              "arrayNesting": 0
+                              "type": {
+                                "components": [
+                                  {
+                                    "id": {
+                                      "string": "Map",
+                                      "sourceLocation": {
+                                        "startLine": 19,
+                                        "startColumn": 42,
+                                        "endLine": 19,
+                                        "endColumn": 45
+                                      }
+                                    },
+                                    "args": [
+                                      {
+                                        "components": [
+                                          {
+                                            "id": {
+                                              "string": "String",
+                                              "sourceLocation": {
+                                                "startLine": 19,
+                                                "startColumn": 46,
+                                                "endLine": 19,
+                                                "endColumn": 52
+                                              }
+                                            },
+                                            "args": []
+                                          }
+                                        ],
+                                        "arrayNesting": 0
+                                      },
+                                      {
+                                        "components": [
+                                          {
+                                            "id": {
+                                              "string": "String",
+                                              "sourceLocation": {
+                                                "startLine": 19,
+                                                "startColumn": 54,
+                                                "endLine": 19,
+                                                "endColumn": 60
+                                              }
+                                            },
+                                            "args": []
+                                          }
+                                        ],
+                                        "arrayNesting": 0
+                                      }
+                                    ]
+                                  }
+                                ],
+                                "arrayNesting": 0
+                              },
+                              "sourceLocation": {
+                                "startLine": 19,
+                                "startColumn": 42,
+                                "endLine": 19,
+                                "endColumn": 99
+                              }
                             },
                             "sourceLocation": {
                               "startLine": 19,
-                              "startColumn": 42,
+                              "startColumn": 38,
                               "endLine": 19,
                               "endColumn": 99
                             }
                           },
-                          "sourceLocation": {
-                            "startLine": 19,
-                            "startColumn": 38,
-                            "endLine": 19,
-                            "endColumn": 99
-                          }
-                        },
-                        "modifiers": [],
-                        "id": {
-                          "string": "MyStrings",
+                          "id": {
+                            "string": "MyStrings",
+                            "sourceLocation": {
+                              "startLine": 19,
+                              "startColumn": 26,
+                              "endLine": 19,
+                              "endColumn": 35
+                            }
+                          },
                           "sourceLocation": {
                             "startLine": 19,
                             "startColumn": 26,
                             "endLine": 19,
-                            "endColumn": 35
+                            "endColumn": 99
                           }
-                        },
-                        "sourceLocation": {
-                          "startLine": 19,
-                          "startColumn": 6,
-                          "endLine": 19,
-                          "endColumn": 99
                         }
+                      ],
+                      "modifiers": [],
+                      "sourceLocation": {
+                        "startLine": 19,
+                        "startColumn": 6,
+                        "endLine": 19,
+                        "endColumn": 99
                       }
-                    ],
+                    },
                     "sourceLocation": {
                       "startLine": 19,
                       "startColumn": 6,
