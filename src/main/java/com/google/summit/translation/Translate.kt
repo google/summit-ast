@@ -1356,13 +1356,17 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     /** Constructs a SOQL fragment with one expression binding. */
     constructor(binding: SoqlOrSoslBinding) : this(listOf(binding))
 
-    /** Constructs a SOQL fragment from its sub-fragments. */
-    constructor(vararg fragments: SoqlFragment?) :
-      this(listOf(*fragments).filterNotNull().map { it.bindings }.flatten())
-
     companion object {
       /** Returns a [SoqlFragment] with no expression bindings. */
       fun withNoBindings() = SoqlFragment(emptyList())
+
+      /** Constructs a SOQL fragment from its sub-fragments. */
+      fun mergeOf(vararg fragments: SoqlFragment?) =
+        SoqlFragment(listOf(*fragments).filterNotNull().map { it.bindings }.flatten())
+
+      /** Constructs a SOQL fragment from its sub-fragments. */
+      fun mergeOf(fragments: List<SoqlFragment?>) =
+        SoqlFragment(fragments.filterNotNull().map { it.bindings }.flatten())
     }
   }
 
@@ -1371,7 +1375,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'query' grammar rule and returns a [SoqlFragment]. */
   override fun visitQuery(ctx: ApexParser.QueryContext) =
-    SoqlFragment(
+    SoqlFragment.mergeOf(
       ctx.selectList()?.let { visitSelectList(it) },
       ctx.fromNameList()?.let { visitFromNameList(it) },
       ctx.usingScope()?.let { visitUsingScope(it) },
@@ -1388,7 +1392,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'subQuery' grammar rule and returns a [SoqlFragment]. */
   override fun visitSubQuery(ctx: ApexParser.SubQueryContext) =
-    SoqlFragment(
+    SoqlFragment.mergeOf(
       ctx.subFieldList()?.let { visitSubFieldList(it) },
       ctx.fromNameList()?.let { visitFromNameList(it) },
       ctx.whereClause()?.let { visitWhereClause(it) },
@@ -1400,11 +1404,11 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'selectList' grammar rule and returns a [SoqlFragment]. */
   override fun visitSelectList(ctx: ApexParser.SelectListContext) =
-    SoqlFragment(*ctx.selectEntry().map { visitSelectEntry(it) }.toTypedArray())
+    SoqlFragment.mergeOf(ctx.selectEntry().map { visitSelectEntry(it) })
 
   /** Translates the 'selectEntry' grammar rule and returns a [SoqlFragment]. */
   override fun visitSelectEntry(ctx: ApexParser.SelectEntryContext) =
-    SoqlFragment(
+    SoqlFragment.mergeOf(
       ctx.fieldName()?.let { visitFieldName(it) },
       ctx.soqlId()?.let { visitSoqlId(it) },
       ctx.soqlFunction()?.let { visitSoqlFunction(it) },
@@ -1461,26 +1465,27 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'logicalExpression' grammar rule and returns a [SoqlFragment]. */
   override fun visitLogicalExpression(ctx: ApexParser.LogicalExpressionContext): SoqlFragment =
-    SoqlFragment(
-      *ctx.conditionalExpression().map { visitConditionalExpression(it) }.toTypedArray(),
+    SoqlFragment.mergeOf(
+      ctx.conditionalExpression().map { visitConditionalExpression(it) }
     )
 
   /** Translates the 'conditionalExpression' grammar rule and returns a [SoqlFragment]. */
   override fun visitConditionalExpression(ctx: ApexParser.ConditionalExpressionContext) =
-    SoqlFragment(
+    SoqlFragment.mergeOf(
       ctx.logicalExpression()?.let { visitLogicalExpression(it) },
       ctx.fieldExpression()?.let { visitFieldExpression(it) },
     )
 
   /** Translates the 'fieldExpression' grammar rule and returns a [SoqlFragment]. */
-  override fun visitFieldExpression(ctx: ApexParser.FieldExpressionContext) = SoqlFragment(
+  override fun visitFieldExpression(ctx: ApexParser.FieldExpressionContext) = 
+  SoqlFragment.mergeOf(
     ctx.fieldName()?.let { visitFieldName(it) },
     ctx.value()?.let { visitValue(it) },
     ctx.soqlFunction()?.let { visitSoqlFunction(it) },
   )
 
   /** Translates the 'value' grammar rule and returns a [SoqlFragment]. */
-  override fun visitValue(ctx: ApexParser.ValueContext): SoqlFragment = SoqlFragment(
+  override fun visitValue(ctx: ApexParser.ValueContext): SoqlFragment = SoqlFragment.mergeOf(
     ctx.dateFormula()?.let { visitDateFormula(it) },
     ctx.subQuery()?.let { visitSubQuery(it) },
     ctx.valueList()?.let { visitValueList(it) },
@@ -1488,12 +1493,12 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   )
 
   /** Translates the 'valueList' grammar rule and returns a [SoqlFragment]. */
-  override fun visitValueList(ctx: ApexParser.ValueListContext) = SoqlFragment(
-    *ctx.value().map { visitValue(it) }.toTypedArray(),
+  override fun visitValueList(ctx: ApexParser.ValueListContext) = SoqlFragment.mergeOf(
+    ctx.value().map { visitValue(it) }
   )
 
   /** Translates the 'withClause' grammar rule and returns a [SoqlFragment]. */
-  override fun visitWithClause(ctx: ApexParser.WithClauseContext) = SoqlFragment(
+  override fun visitWithClause(ctx: ApexParser.WithClauseContext) = SoqlFragment.mergeOf(
     ctx.filteringExpression()?.let { visitFilteringExpression(it) },
     ctx.logicalExpression()?.let { visitLogicalExpression(it) },
   )
@@ -1515,7 +1520,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     SoqlFragment.withNoBindings()
 
   /** Translates the 'groupByClause' grammar rule and returns a [SoqlFragment]. */
-  override fun visitGroupByClause(ctx: ApexParser.GroupByClauseContext) = SoqlFragment(
+  override fun visitGroupByClause(ctx: ApexParser.GroupByClauseContext) = SoqlFragment.mergeOf(
     ctx.selectList()?.let { visitSelectList(it) },
     ctx.logicalExpression()?.let { visitLogicalExpression(it) },
     *ctx.fieldName().map { visitFieldName(it) }.toTypedArray(),
@@ -1532,13 +1537,13 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   /** Translates the 'fieldOrder' grammar rule and returns a [SoqlFragment] with no bindings. */
   override fun visitFieldOrder(ctx: ApexParser.FieldOrderContext) = SoqlFragment.withNoBindings()
 
-  /** Translates the 'limitClause' grammar rule and returns a [SoqlFragment] with no bindings. */
-  override fun visitLimitClause(ctx: ApexParser.LimitClauseContext) = SoqlFragment(
+  /** Translates the 'limitClause' grammar rule and returns a [SoqlFragment]. */
+  override fun visitLimitClause(ctx: ApexParser.LimitClauseContext) = SoqlFragment.mergeOf(
     ctx.boundExpression()?.let { SoqlFragment(visitBoundExpression(it)) }
   )
 
-  /** Translates the 'offsetClause' grammar rule and returns a [SoqlFragment] with no bindings. */
-  override fun visitOffsetClause(ctx: ApexParser.OffsetClauseContext) = SoqlFragment(
+  /** Translates the 'offsetClause' grammar rule and returns a [SoqlFragment]. */
+  override fun visitOffsetClause(ctx: ApexParser.OffsetClauseContext) = SoqlFragment.mergeOf(
     ctx.boundExpression()?.let { SoqlFragment(visitBoundExpression(it)) }
   )
 
@@ -1557,7 +1562,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'soslClauses' grammar rule and returns a [SoqlFragment]. */
   override fun visitSoslClauses(ctx: ApexParser.SoslClausesContext) =
-    SoqlFragment(
+    SoqlFragment.mergeOf(
       ctx.searchGroup()?.let { visitSearchGroup(it) },
       ctx.fieldSpecList()?.let { visitFieldSpecList(it) },
       ctx.filteringExpression()?.let { visitFilteringExpression(it) },
@@ -1568,13 +1573,13 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'fieldSpecList' grammar rule and returns a [SoqlFragment]. */
   override fun visitFieldSpecList(ctx: ApexParser.FieldSpecListContext): SoqlFragment =
-    SoqlFragment(
+    SoqlFragment.mergeOf(
       ctx.fieldSpec()?.let { visitFieldSpec(it) },
       *ctx.fieldSpecList().map { visitFieldSpecList(it) }.toTypedArray(),
     )
 
   /** Translates the 'fieldSpec' grammar rule and returns a [SoqlFragment]. */
-  override fun visitFieldSpec(ctx: ApexParser.FieldSpecContext) = SoqlFragment(
+  override fun visitFieldSpec(ctx: ApexParser.FieldSpecContext) = SoqlFragment.mergeOf(
     *ctx.soslId().map { visitSoslId(it) }.toTypedArray(),
     ctx.fieldList()?.let { visitFieldList(it) },
     ctx.fieldOrderList()?.let { visitFieldOrderList(it) },
