@@ -93,8 +93,12 @@ private fun maxEnd(x: SourceLocation, y: SourceLocation) =
     else -> y
   }
 
-/** Unions one or more [SourceLocation] ranges to the containing range. */
-fun unionOf(vararg locs: SourceLocation): SourceLocation {
+/**
+  * Span of one or more [SourceLocation] ranges.
+  *
+  * The result is the minimal range that encloses them all.
+  */
+fun spanOf(vararg locs: SourceLocation): SourceLocation {
   val start = locs.reduce { x, y -> minStart(x, y) }
   val end = locs.reduce { x, y -> maxEnd(x, y) }
   return SourceLocation(
