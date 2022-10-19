@@ -18,18 +18,18 @@ package com.google.summit.ast.statement
 
 import com.google.summit.ast.Node
 import com.google.summit.ast.SourceLocation
-import com.google.summit.ast.declaration.VariableDeclaration
+import com.google.summit.ast.declaration.VariableDeclarationGroup
 
 /**
  * A variable declaration statement.
  *
- * @property variableDeclarations the declared variables
+ * @property group the variable declaration group
  * @param loc the location in the source file
  */
 class VariableDeclarationStatement(
-  val variableDeclarations: List<VariableDeclaration>,
+  val group: VariableDeclarationGroup,
   loc: SourceLocation
 ) : Statement(loc) {
 
-  override fun getChildren(): List<Node> = variableDeclarations
+  override fun getChildren(): List<Node> = listOf(group)
 }

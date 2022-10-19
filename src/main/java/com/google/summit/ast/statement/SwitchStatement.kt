@@ -19,7 +19,7 @@ package com.google.summit.ast.statement
 import com.google.summit.ast.Node
 import com.google.summit.ast.SourceLocation
 import com.google.summit.ast.TypeRef
-import com.google.summit.ast.declaration.VariableDeclaration
+import com.google.summit.ast.declaration.VariableDeclarationGroup
 import com.google.summit.ast.expression.Expression
 
 /**
@@ -59,15 +59,15 @@ class SwitchStatement(val condition: Expression, val whenClauses: List<When>, lo
    * The expression is cast to a new variable of the type.
    *
    * @property type the type to match
-   * @property variableDeclaration for the downcast switch condition
+   * @property downcast is the new variable of the downcast switch condition
    * @property statement to execute when matched
    */
   class WhenType(
     val type: TypeRef,
-    val variableDeclaration: VariableDeclaration,
+    val downcast: VariableDeclarationGroup,
     statement: Statement
   ) : When(statement) {
-    override fun getChildren(): List<Node> = listOf(type, variableDeclaration, statement)
+    override fun getChildren(): List<Node> = listOf(type, downcast, statement)
   }
 
   /**

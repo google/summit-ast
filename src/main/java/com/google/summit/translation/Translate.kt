@@ -33,6 +33,7 @@ import com.google.summit.ast.declaration.PropertyDeclaration
 import com.google.summit.ast.declaration.TriggerDeclaration
 import com.google.summit.ast.declaration.TypeDeclaration
 import com.google.summit.ast.declaration.VariableDeclaration
+import com.google.summit.ast.declaration.VariableDeclarationGroup
 import com.google.summit.ast.expression.ArrayExpression
 import com.google.summit.ast.expression.AssignExpression
 import com.google.summit.ast.expression.BinaryExpression
@@ -662,12 +663,12 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     val loc: SourceLocation
   )
 
-  /** Translates the 'variableDeclarators' grammar rule and returns a VariableDeclarator list. */
+  /** Translates the 'variableDeclarators' grammar rule and returns a [VariableDeclarator] list. */
   override fun visitVariableDeclarators(
     ctx: ApexParser.VariableDeclaratorsContext
   ): List<VariableDeclarator> = ctx.variableDeclarator().map { visitVariableDeclarator(it) }
 
-  /** Translates the 'variableDeclarator' grammar rule and returns a VariableDeclarator. */
+  /** Translates the 'variableDeclarator' grammar rule and returns a [VariableDeclarator]. */
   override fun visitVariableDeclarator(
     ctx: ApexParser.VariableDeclaratorContext
   ): VariableDeclarator =
@@ -772,12 +773,12 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitCatchClause(ctx: ApexParser.CatchClauseContext): TryStatement.CatchBlock {
     val exceptionVariableName = visitId(ctx.id())
     return TryStatement.CatchBlock(
-      VariableDeclaration(
-        exceptionVariableName,
-        TypeRef.createFromQualifiedName(ctx.qualifiedName().getText()),
+      VariableDeclarationGroup.of(
+        id = exceptionVariableName,
+        type = TypeRef.createFromQualifiedName(ctx.qualifiedName().getText()),
         modifiers = ctx.modifier().map { visitModifier(it) },
         initializer = null,
-        exceptionVariableName.getSourceLocation() // approximate as a location of name
+        loc = exceptionVariableName.getSourceLocation() // approximate as a location of name
       ),
       visitBlock(ctx.block()),
       toSourceLocation(ctx)
@@ -785,23 +786,27 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   }
 
   /**
-   * Translates the 'localVariableDeclaration' grammar rule and returns an AST [VariableDeclaration]
+   * Translates the 'localVariableDeclaration' grammar rule and returns an AST [VariableDeclarationGroup]
    * list.
+   *
+   * The source location does not include the type or modifiers; it only includes the identifier and
+   * the initializer. Including the type when there are multiple declarators would require the
+   * source location ranges to overlap: this is undesirable for some use cases.
    */
   override fun visitLocalVariableDeclaration(
-    ctx: ApexParser.LocalVariableDeclarationContext
-  ): List<VariableDeclaration> {
-    val loc = toSourceLocation(ctx) // reuse object multiple times
-    return visitVariableDeclarators(ctx.variableDeclarators()).map { declarator ->
-      VariableDeclaration(
-        declarator.id,
-        visitTypeRef(ctx.typeRef()),
-        ctx.modifier().map { visitModifier(it) },
-        declarator.initializer,
-        loc
-      )
-    }
-  }
+    ctx: ApexParser.LocalVariableDeclarationContext,
+  ) =
+    VariableDeclarationGroup(
+      visitTypeRef(ctx.typeRef()),
+      visitVariableDeclarators(ctx.variableDeclarators()).map { declarator ->
+        VariableDeclaration(
+          declarator.id,
+          declarator.initializer,
+          declarator.loc
+        )
+      },
+      toSourceLocation(ctx)
+    ).apply { modifiers = ctx.modifier().map { visitModifier(it) } }
 
   /** Translates the 'whenControl' grammar rule and returns an AST [SwitchStatement.When]. */
   override fun visitWhenControl(ctx: ApexParser.WhenControlContext): SwitchStatement.When {
@@ -837,7 +842,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     val nameIdentifier = visitId(this.id().last())
 
     val variableDecl =
-      VariableDeclaration(
+      VariableDeclarationGroup.of(
         nameIdentifier,
         TypeRef.createFromUnqualifiedName(typeIdentifier),
         emptyList(),
@@ -1666,8 +1671,8 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     val enhancedForControl = forControl.enhancedForControl()
     if (enhancedForControl != null) {
       // Enhanced for loop
-      val elementDeclaration =
-        VariableDeclaration(
+      val elementDeclarationGroup =
+        VariableDeclarationGroup.of(
           visitId(enhancedForControl.id()),
           visitTypeRef(enhancedForControl.typeRef()),
           modifiers = emptyList(),
@@ -1675,24 +1680,20 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
           toSourceLocation(enhancedForControl)
         )
       return EnhancedForLoopStatement(
-        elementDeclaration,
+        elementDeclarationGroup,
         collection = visitExpression(enhancedForControl.expression()),
         bodyStatement,
         loc
       )
     } else {
       // Traditional for loop
-      val declarations =
-        translateOptionalList(
-          forControl.forInit()?.localVariableDeclaration(),
-          ::visitLocalVariableDeclaration
-        )
+      val declarationGroup = forControl.forInit()?.localVariableDeclaration()?.let{visitLocalVariableDeclaration(it)}
       val initializations =
         translateOptionalList(forControl.forInit()?.expressionList(), ::visitExpressionList)
       val updates =
         translateOptionalList(forControl.forUpdate()?.expressionList(), ::visitExpressionList)
       return ForLoopStatement(
-        declarations,
+        declarationGroup,
         initializations,
         updates,
         condition = translateOptional(forControl.expression(), ::visitExpression),

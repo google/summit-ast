@@ -59,7 +59,19 @@ class SerializationTest {
   }
 
   @Test
-  fun testAll_variableDeclaration() {
+  fun testSerialization_variableDeclaration() {
+    val ser = Serializer(format = true)
+    val expectedJson = readTestFile("vardecl.json")
+    val testSrc = readTestFile("vardecl.cls")
+    val testTree = TranslateHelpers.parseAndTranslateStatement(testSrc)
+
+    val actualJson = ser.serialize(testTree)
+
+    assertThat(actualJson).isEqualTo(expectedJson)
+  }
+
+  @Test
+  fun testRoundTrip_variableDeclaration() {
     val ser = Serializer(format = true)
     val expectedJson = readTestFile("vardecl.json")
 

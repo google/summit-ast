@@ -20,6 +20,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import com.google.summit.ast.CompilationUnit
 import com.google.summit.ast.Node
 import com.google.summit.ast.Untranslated
+import com.google.summit.ast.statement.Statement
 import com.google.summit.ast.traversal.DfsWalker
 import com.google.summit.translation.Translate
 import com.nawforce.apexparser.ApexLexer
@@ -111,6 +112,32 @@ object TranslateHelpers {
     try {
       val root = parseAndTranslateWithExceptions(input)
       return findFirstNodeOfType<T>(root)
+    } catch (e: Translate.TranslationException) {
+      assertWithMessage("Translation failed on %s because %s", e.tree.text, e.message).fail()
+      // Exception to log-and-rethrow anti-pattern for syntactic purposes:
+      // want to avoid returning optional type by exiting with exception.
+      throw e
+    }
+  }
+
+  /**
+   * Parses and translates a source code statement, failing the test if translation fails.
+   *
+   * The string should be parseable as a statement. If there are any parsing errors,
+   * asserts a test failure and throws.
+   *
+   * @param input the source code to parse and translate
+   * @return the translated AST for the compilation unit
+   * @throw Translate.TranslationException when translation fails
+   */
+  fun parseAndTranslateStatement(input: String): Statement {
+    try {
+      val lexer = ApexLexer(CaseInsensitiveInputStream(CharStreams.fromString(input)))
+      lexer.addErrorListener(FailOnErrorListener)
+      val tokens = CommonTokenStream(lexer)
+      val parser = ApexParser(tokens)
+      parser.addErrorListener(FailOnErrorListener)
+      return Translate("<input>", tokens).visitStatement(parser.statement())
     } catch (e: Translate.TranslationException) {
       assertWithMessage("Translation failed on %s because %s", e.tree.text, e.message).fail()
       // Exception to log-and-rethrow anti-pattern for syntactic purposes:
