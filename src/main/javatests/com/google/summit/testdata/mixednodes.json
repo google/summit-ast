@@ -253,7 +253,7 @@
               "@type": "TryStatement",
               "catchBlocks": [
                 {
-                  "exceptionDeclarations": {
+                  "exception": {
                     "type": {
                       "components": [
                         {

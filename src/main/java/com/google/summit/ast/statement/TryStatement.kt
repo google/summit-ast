@@ -39,15 +39,15 @@ class TryStatement(
   /**
    * A `catch` block.
    *
-   * @property exceptionDeclarations the exception variable declaration
+   * @property exception the exception variable declaration
    * @property body the statement to execute when caught
    * @param loc the location in the source file
    */
   class CatchBlock(
-    val exceptionDeclarations: VariableDeclarationGroup,
+    val exception: VariableDeclarationGroup,
     val body: Statement,
     loc: SourceLocation
   ) : Statement(loc) {
-    override fun getChildren(): List<Node> = listOf(exceptionDeclarations, body)
+    override fun getChildren(): List<Node> = listOf(exception, body)
   }
 }

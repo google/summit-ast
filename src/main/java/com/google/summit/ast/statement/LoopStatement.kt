@@ -54,18 +54,18 @@ class ForLoopStatement(
 /**
  * A enhanced `for` loop statement.
  *
- * @property elementDeclarations the element iterator
+ * @property element the element iterator
  * @property collection the collection to iterate on
  * @param body the statement being looped
  * @param loc the location in the source file
  */
 class EnhancedForLoopStatement(
-  val elementDeclarations: VariableDeclarationGroup,
+  val element: VariableDeclarationGroup,
   val collection: Expression,
   body: Statement,
   loc: SourceLocation
 ) : LoopStatement(body, loc) {
-  override fun getChildren(): List<Node> = listOf(elementDeclarations, collection, body)
+  override fun getChildren(): List<Node> = listOf(element, collection, body)
 }
 
 /**

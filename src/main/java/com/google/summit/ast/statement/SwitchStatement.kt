@@ -59,15 +59,15 @@ class SwitchStatement(val condition: Expression, val whenClauses: List<When>, lo
    * The expression is cast to a new variable of the type.
    *
    * @property type the type to match
-   * @property variableDeclarations for the downcast switch condition
+   * @property downcast is the new variable of the downcast switch condition
    * @property statement to execute when matched
    */
   class WhenType(
     val type: TypeRef,
-    val variableDeclarations: VariableDeclarationGroup,
+    val downcast: VariableDeclarationGroup,
     statement: Statement
   ) : When(statement) {
-    override fun getChildren(): List<Node> = listOf(type, variableDeclarations, statement)
+    override fun getChildren(): List<Node> = listOf(type, downcast, statement)
   }
 
   /**

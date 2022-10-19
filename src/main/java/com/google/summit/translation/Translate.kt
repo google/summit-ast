@@ -1671,7 +1671,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     val enhancedForControl = forControl.enhancedForControl()
     if (enhancedForControl != null) {
       // Enhanced for loop
-      val elementDeclaration =
+      val elementDeclarationGroup =
         VariableDeclarationGroup.of(
           visitId(enhancedForControl.id()),
           visitTypeRef(enhancedForControl.typeRef()),
@@ -1680,20 +1680,20 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
           toSourceLocation(enhancedForControl)
         )
       return EnhancedForLoopStatement(
-        elementDeclaration,
+        elementDeclarationGroup,
         collection = visitExpression(enhancedForControl.expression()),
         bodyStatement,
         loc
       )
     } else {
       // Traditional for loop
-      val declarations = forControl.forInit()?.localVariableDeclaration()?.let{visitLocalVariableDeclaration(it)}
+      val declarationGroup = forControl.forInit()?.localVariableDeclaration()?.let{visitLocalVariableDeclaration(it)}
       val initializations =
         translateOptionalList(forControl.forInit()?.expressionList(), ::visitExpressionList)
       val updates =
         translateOptionalList(forControl.forUpdate()?.expressionList(), ::visitExpressionList)
       return ForLoopStatement(
-        declarations,
+        declarationGroup,
         initializations,
         updates,
         condition = translateOptional(forControl.expression(), ::visitExpression),
