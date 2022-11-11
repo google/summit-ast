@@ -28,7 +28,8 @@ import com.google.summit.ast.expression.CastExpression
 import com.google.summit.ast.expression.Expression
 import com.google.summit.ast.expression.FieldExpression
 import com.google.summit.ast.expression.NewExpression
-import com.google.summit.ast.expression.SoqlOrSoslExpression
+import com.google.summit.ast.expression.SoqlExpression
+import com.google.summit.ast.expression.SoslExpression
 import com.google.summit.ast.expression.SuperExpression
 import com.google.summit.ast.expression.TernaryExpression
 import com.google.summit.ast.expression.ThisExpression
@@ -104,7 +105,7 @@ class ExpressionTest {
   @Test
   fun soqlPrimary_translation_hasBoundExpressions() {
     val root = parseApexExpressionInCode("[SELECT Id FROM Contact WHERE Value > :Threshold]")
-    val node = TranslateHelpers.findFirstNodeOfType<SoqlOrSoslExpression>(root)
+    val node = TranslateHelpers.findFirstNodeOfType<SoqlExpression>(root)
 
     assertThat(node).isNotNull()
     assertWithMessage("Node should have one child").that(node?.getChildren()).hasSize(1)
@@ -113,7 +114,7 @@ class ExpressionTest {
   @Test
   fun soslPrimary_translation_hasBoundExpressions() {
     val root = parseApexExpressionInCode("[FIND :search IN ALL FIELDS RETURNING Account(Name)]")
-    val node = TranslateHelpers.findFirstNodeOfType<SoqlOrSoslExpression>(root)
+    val node = TranslateHelpers.findFirstNodeOfType<SoslExpression>(root)
 
     assertThat(node).isNotNull()
     assertWithMessage("Node should have one child").that(node?.getChildren()).hasSize(1)

@@ -34,7 +34,7 @@ class SerializationTest {
   @Test
   fun testSerialization_compilationUnit() {
     val ser = Serializer(format = true)
-    val expectedJson = readTestFile("mixednodes.json")
+    val expectedJson = readTestFile("mixednodes.json").trimEnd()
     val testSrc = readTestFile("mixednodes.cls")
     val testTree = TranslateHelpers.parseAndTranslate(testSrc)
 
@@ -61,7 +61,7 @@ class SerializationTest {
   @Test
   fun testSerialization_variableDeclaration() {
     val ser = Serializer(format = true)
-    val expectedJson = readTestFile("vardecl.json")
+    val expectedJson = readTestFile("vardecl.json").trimEnd()
     val testSrc = readTestFile("vardecl.cls")
     val testTree = TranslateHelpers.parseAndTranslateStatement(testSrc)
 
@@ -73,7 +73,7 @@ class SerializationTest {
   @Test
   fun testRoundTrip_variableDeclaration() {
     val ser = Serializer(format = true)
-    val expectedJson = readTestFile("vardecl.json")
+    val expectedJson = readTestFile("vardecl.json").trimEnd()
 
     val testTree = ser.deserialize(VariableDeclarationStatement::class.java, expectedJson)
     assertNotNull(testTree)

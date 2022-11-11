@@ -44,7 +44,8 @@ import com.google.summit.ast.expression.FieldExpression
 import com.google.summit.ast.expression.LiteralExpression
 import com.google.summit.ast.expression.NewExpression
 import com.google.summit.ast.expression.SoqlOrSoslBinding
-import com.google.summit.ast.expression.SoqlOrSoslExpression
+import com.google.summit.ast.expression.SoqlExpression
+import com.google.summit.ast.expression.SoslExpression
 import com.google.summit.ast.expression.SuperExpression
 import com.google.summit.ast.expression.TernaryExpression
 import com.google.summit.ast.expression.ThisExpression
@@ -1328,21 +1329,21 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   // BEGIN SOQL/SOSL
 
-  /** Translates the 'soqlLiteral' grammar rule and returns an AST [SoqlOrSoslExpression]. */
+  /** Translates the 'soqlLiteral' grammar rule and returns an AST [SoqlExpression]. */
   override fun visitSoqlLiteral(ctx: ApexParser.SoqlLiteralContext) =
-    SoqlOrSoslExpression(toSourceString(ctx),
-                         visitQuery(ctx.query()).bindings,
-                         toSourceLocation(ctx))
+    SoqlExpression(toSourceString(ctx),
+                   visitQuery(ctx.query()).bindings,
+                   toSourceLocation(ctx))
 
-  /** Translates the 'soslLiteral' grammar rule and returns an AST [SoqlOrSoslExpression]. */
-  override fun visitSoslLiteral(ctx: ApexParser.SoslLiteralContext): SoqlOrSoslExpression {
+  /** Translates the 'soslLiteral' grammar rule and returns an AST [SoslExpression]. */
+  override fun visitSoslLiteral(ctx: ApexParser.SoslLiteralContext): SoslExpression {
     val bindings = listOf(
       *visitSoslClauses(ctx.soslClauses()).bindings.toTypedArray(),
       ctx.boundExpression()?.let { visitBoundExpression(it) },
     ).filterNotNull()
-    return SoqlOrSoslExpression(toSourceString(ctx),
-                                bindings,
-                                toSourceLocation(ctx))
+    return SoslExpression(toSourceString(ctx),
+                          bindings,
+                          toSourceLocation(ctx))
   }
 
   /** Translates the 'boundExpression' grammar rule and returns a [SoqlOrSoslBinding]. */
