@@ -28,7 +28,8 @@ import com.google.summit.ast.expression.CastExpression
 import com.google.summit.ast.expression.Expression
 import com.google.summit.ast.expression.FieldExpression
 import com.google.summit.ast.expression.NewExpression
-import com.google.summit.ast.expression.SoqlOrSoslExpression
+import com.google.summit.ast.expression.SoqlExpression
+import com.google.summit.ast.expression.SoslExpression
 import com.google.summit.ast.expression.SuperExpression
 import com.google.summit.ast.expression.TernaryExpression
 import com.google.summit.ast.expression.ThisExpression
@@ -63,7 +64,7 @@ class SoqlAndSoslTest {
 
     val root = parseSoqlOrSoslInCode(query)
 
-    val node = TranslateHelpers.findFirstNodeOfType<SoqlOrSoslExpression>(root)
+    val node = TranslateHelpers.findFirstNodeOfType<SoqlExpression>(root)
     assertThat(node).isNotNull()
     assertThat(node!!.query).isEqualTo("[$query]")
     assertThat(node.bindings).isEmpty()
@@ -75,7 +76,7 @@ class SoqlAndSoslTest {
 
     val root = parseSoqlOrSoslInCode(query)
 
-    val node = TranslateHelpers.findFirstNodeOfType<SoqlOrSoslExpression>(root)
+    val node = TranslateHelpers.findFirstNodeOfType<SoslExpression>(root)
     assertThat(node).isNotNull()
     assertThat(node!!.query).isEqualTo("[$query]")
     assertThat(node.bindings).hasSize(1)

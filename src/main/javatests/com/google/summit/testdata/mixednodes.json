@@ -600,7 +600,7 @@
                               }
                             },
                             "thenValue": {
-                              "@type": "SoqlOrSoslExpression",
+                              "@type": "SoqlExpression",
                               "query": "[SELECT COUNT() FROM Account]",
                               "bindings": [],
                               "sourceLocation": {
