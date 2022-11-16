@@ -1331,7 +1331,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'soqlLiteral' grammar rule and returns an AST [SoqlExpression]. */
   override fun visitSoqlLiteral(ctx: ApexParser.SoqlLiteralContext) =
-    SoqlExpression(toSourceString(ctx),
+    SoqlExpression(toSourceString(ctx.query()),
                    visitQuery(ctx.query()).bindings,
                    toSourceLocation(ctx))
 
@@ -1341,9 +1341,11 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
       *visitSoslClauses(ctx.soslClauses()).bindings.toTypedArray(),
       ctx.boundExpression()?.let { visitBoundExpression(it) },
     ).filterNotNull()
-    return SoslExpression(toSourceString(ctx),
-                          bindings,
-                          toSourceLocation(ctx))
+    return SoslExpression(
+        toSourceString(ctx).trim().removeSurrounding("[","]"),
+        bindings,
+        toSourceLocation(ctx)
+    )
   }
 
   /** Translates the 'boundExpression' grammar rule and returns a [SoqlOrSoslBinding]. */
