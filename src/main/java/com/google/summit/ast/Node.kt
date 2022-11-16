@@ -75,7 +75,7 @@ abstract class Node {
   @Transient var parent: Node? = null
 
   init {
-    ++Node.totalCount
+    ++totalCount
   }
 
   companion object {
