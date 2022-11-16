@@ -24,10 +24,24 @@ import com.google.summit.ast.SourceLocation
  * A declaration for a enum symbol.
  *
  * @param id the name of the enum
+ * @property values the list of enum values
  * @param loc the location in the source file
  */
-class EnumDeclaration(id: Identifier, loc: SourceLocation) : TypeDeclaration(id, loc) {
-  // TODO(b/215202709): the body is not yet translated
+class EnumDeclaration(id: Identifier, val values: List<EnumValue>, loc: SourceLocation) :
+  TypeDeclaration(id, loc) {
 
-  override fun getChildren(): List<Node> = modifiers + listOf(id)
+  override fun getChildren(): List<Node> = modifiers + listOf(id) + values
+}
+
+/**
+ * A declaration for a enum value.
+ *
+ * @param id the value name
+ */
+class EnumValue(val id: Identifier) : Node() {
+  /** Returns list of children. */
+  override fun getChildren(): List<Node> = listOf(id)
+
+  /** Returns the [SourceLocation] of the identifier. */
+  override fun getSourceLocation(): SourceLocation = id.getSourceLocation()
 }
