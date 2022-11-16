@@ -20,6 +20,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.summit.ast.declaration.ClassDeclaration
 import com.google.summit.ast.declaration.EnumDeclaration
+import com.google.summit.ast.declaration.EnumValue
 import com.google.summit.ast.declaration.FieldDeclarationGroup
 import com.google.summit.ast.declaration.InterfaceDeclaration
 import com.google.summit.ast.declaration.MethodDeclaration
@@ -263,5 +264,21 @@ class ClassDeclarationTest {
     assertThat(methodDecl.id.asCodeString()).isEqualTo("Test")
     assertThat(methodDecl.parameterDeclarations).hasSize(1)
     assertThat(methodDecl.returnType.isVoid()).isTrue()
+  }
+
+  @Test
+  fun enumDeclarations_have_values() {
+    val enumDecl =
+      TranslateHelpers.parseAndTranslate(
+          """
+    enum PrimaryColors {
+      RED, GREEN,
+      BLUE
+    }
+    """
+        )
+        .typeDeclaration as EnumDeclaration
+
+    assertThat(enumDecl.values.map{ it.id.asCodeString() }).containsExactly("RED", "GREEN", "BLUE")
   }
 }

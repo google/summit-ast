@@ -24,6 +24,7 @@ import com.google.summit.ast.SourceLocation
 import com.google.summit.ast.TypeRef
 import com.google.summit.ast.declaration.ClassDeclaration
 import com.google.summit.ast.declaration.EnumDeclaration
+import com.google.summit.ast.declaration.EnumValue
 import com.google.summit.ast.declaration.FieldDeclaration
 import com.google.summit.ast.declaration.FieldDeclarationGroup
 import com.google.summit.ast.declaration.InterfaceDeclaration
@@ -228,7 +229,15 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'enumDeclaration' grammar rule and returns an AST [EnumDeclaration]. */
   override fun visitEnumDeclaration(ctx: ApexParser.EnumDeclarationContext): EnumDeclaration =
-    EnumDeclaration(visitId(ctx.id()), toSourceLocation(ctx))
+    EnumDeclaration(
+      visitId(ctx.id()),
+      translateOptionalList(ctx.enumConstants(), ::visitEnumConstants),
+      toSourceLocation(ctx)
+    )
+
+  /** Translates the 'enumConstants' grammar rule and returns a list of AST [EnumValue]s. */
+  override fun visitEnumConstants(ctx: ApexParser.EnumConstantsContext): List<EnumValue> =
+    ctx.id().map { EnumValue(visitId(it)) }
 
   /** Translates the 'typeDeclaration' grammar rule and returns an AST [TypeDeclaration]. */
   override fun visitTypeDeclaration(ctx: ApexParser.TypeDeclarationContext): TypeDeclaration {

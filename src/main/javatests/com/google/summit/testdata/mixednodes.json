@@ -40,6 +40,41 @@
     "innerTypeDeclarations": [
       {
         "@type": "EnumDeclaration",
+        "values": [
+          {
+            "id": {
+              "string": "A",
+              "sourceLocation": {
+                "startLine": 5,
+                "startColumn": 11,
+                "endLine": 5,
+                "endColumn": 12
+              }
+            }
+          },
+          {
+            "id": {
+              "string": "B",
+              "sourceLocation": {
+                "startLine": 5,
+                "startColumn": 14,
+                "endLine": 5,
+                "endColumn": 15
+              }
+            }
+          },
+          {
+            "id": {
+              "string": "C",
+              "sourceLocation": {
+                "startLine": 5,
+                "startColumn": 17,
+                "endLine": 5,
+                "endColumn": 18
+              }
+            }
+          }
+        ],
         "modifiers": [],
         "id": {
           "string": "E",
