@@ -19,8 +19,8 @@ package com.google.summit.translation
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.summit.ast.declaration.ClassDeclaration
+import com.google.summit.ast.declaration.Declaration
 import com.google.summit.ast.declaration.EnumDeclaration
-import com.google.summit.ast.declaration.EnumValue
 import com.google.summit.ast.declaration.FieldDeclarationGroup
 import com.google.summit.ast.declaration.InterfaceDeclaration
 import com.google.summit.ast.declaration.MethodDeclaration
@@ -75,17 +75,17 @@ class ClassDeclarationTest {
     assertThat(enclosingClassDecl.qualifiedName).isEqualTo("EnclosingClass")
 
     val innerClassDecl =
-      enclosingClassDecl.innerTypeDeclarations.filterIsInstance<ClassDeclaration>().first()
+      enclosingClassDecl.innerTypeDeclarations.filterIsInstance<ClassDeclaration>().single()
     assertThat(innerClassDecl.getEnclosingType()).isEqualTo(enclosingClassDecl)
     assertThat(innerClassDecl.qualifiedName).isEqualTo("EnclosingClass.InnerClass")
 
     val innerInterfaceDecl =
-      enclosingClassDecl.innerTypeDeclarations.filterIsInstance<InterfaceDeclaration>().first()
+      enclosingClassDecl.innerTypeDeclarations.filterIsInstance<InterfaceDeclaration>().single()
     assertThat(innerInterfaceDecl.getEnclosingType()).isEqualTo(enclosingClassDecl)
     assertThat(innerInterfaceDecl.qualifiedName).isEqualTo("EnclosingClass.InnerInterface")
 
     val innerEnumDecl =
-      enclosingClassDecl.innerTypeDeclarations.filterIsInstance<EnumDeclaration>().first()
+      enclosingClassDecl.innerTypeDeclarations.filterIsInstance<EnumDeclaration>().single()
     assertThat(innerEnumDecl.getEnclosingType()).isEqualTo(enclosingClassDecl)
     assertThat(innerEnumDecl.qualifiedName).isEqualTo("EnclosingClass.InnerEnum")
   }
@@ -103,7 +103,7 @@ class ClassDeclarationTest {
 
     assertNotNull(fieldDeclGroup)
     assertThat(fieldDeclGroup.declarations).hasSize(1)
-    val fieldDecl = fieldDeclGroup.declarations.first()
+    val fieldDecl = fieldDeclGroup.declarations.single()
     assertThat(fieldDecl.qualifiedName).isEqualTo("Test.field")
     assertThat(fieldDecl.modifiers).hasSize(1)
     assertThat(fieldDecl.hasKeyword(KeywordModifier.Keyword.PUBLIC)).isTrue()
@@ -246,7 +246,7 @@ class ClassDeclarationTest {
     // Check parameter and return types
     assertThat(setterMethodDecl.returnType.isVoid()).isTrue()
     assertThat(setterMethodDecl.parameterDeclarations).hasSize(1)
-    val paramDecl = setterMethodDecl.parameterDeclarations.first()
+    val paramDecl = setterMethodDecl.parameterDeclarations.single()
     assertThat(paramDecl.type.asCodeString()).isEqualTo("String")
     assertThat(paramDecl.id.asCodeString()).isEqualTo("value")
   }
@@ -279,6 +279,55 @@ class ClassDeclarationTest {
         )
         .typeDeclaration as EnumDeclaration
 
-    assertThat(enumDecl.values.map{ it.id.asCodeString() }).containsExactly("RED", "GREEN", "BLUE")
+    assertThat(enumDecl.values.map { it.id.asCodeString() }).containsExactly("RED", "GREEN", "BLUE")
+  }
+
+  @Test
+  fun bodyDeclaration_ordering() {
+    val testClassDecl =
+      TranslateHelpers.parseAndTranslate(
+          """
+    class TestClass {
+      Int positiveField = 3;
+      void aMethod() { }
+      class InnerClass { }
+      public String upProperty { get { return 'up'; } }
+      enum InnerEnum { }
+      Int negativeField = -7;
+      public String downProperty { get { return 'down'; } }
+      void otherMethod() { }
+    }
+    """
+        )
+        .typeDeclaration as ClassDeclaration
+
+    assertWithMessage(
+        """ClassDeclaration.getChildren() returns the body declarations in the following order:
+        inner types < fields < properties < methods. The order within each category is syntactic.
+        """
+          .trim()
+      )
+      .that(
+        testClassDecl
+          .getChildren()
+          .map {
+            when (it) {
+              is Declaration -> it.id.asCodeString()
+              is FieldDeclarationGroup -> it.declarations.single().id.asCodeString()
+              else -> null
+            }
+          }
+          .filterNotNull()
+      )
+      .containsExactly(
+        "InnerClass",
+        "InnerEnum",
+        "positiveField",
+        "negativeField",
+        "upProperty",
+        "downProperty",
+        "aMethod",
+        "otherMethod"
+      )
   }
 }

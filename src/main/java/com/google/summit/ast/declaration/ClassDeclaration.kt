@@ -42,10 +42,10 @@ class ClassDeclaration(
   val innerTypeDeclarations = bodyDeclarations.filterIsInstance<TypeDeclaration>()
   /** The field declarations include both static and instance members. */
   val fieldDeclarations = bodyDeclarations.filterIsInstance<FieldDeclarationGroup>()
-  /** The method declarations include both static and instance methods. */
-  val methodDeclarations = bodyDeclarations.filterIsInstance<MethodDeclaration>()
   /** The property declarations include both static and instance properties. */
   val propertyDeclarations = bodyDeclarations.filterIsInstance<PropertyDeclaration>()
+  /** The method declarations include both static and instance methods. */
+  val methodDeclarations = bodyDeclarations.filterIsInstance<MethodDeclaration>()
 
   override fun getChildren(): List<Node> =
     modifiers +
@@ -53,6 +53,6 @@ class ClassDeclaration(
       implementsTypes +
       innerTypeDeclarations +
       fieldDeclarations +
-      methodDeclarations +
-      propertyDeclarations
+      propertyDeclarations +
+      methodDeclarations
 }
