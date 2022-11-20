@@ -48,6 +48,7 @@ class TypeRefTest {
     assertThat(outerTypeRefNode.components[1].args).hasSize(2) // C, D.E<F>
     assertThat(outerTypeRefNode.components[1].args[1].components).hasSize(2) // D, E
     assertThat(outerTypeRefNode.components[1].args[1].components[1].args).hasSize(1) // F
+    assertThat(outerTypeRefNode.asTypeErasedString()).isEqualTo("A.B");
   }
 
   @Test
@@ -58,6 +59,8 @@ class TypeRefTest {
 
     assertNotNull(typeRefNode)
     assertThat(typeRefNode.arrayNesting).isEqualTo(2)
+    assertThat(typeRefNode.asCodeString()).isEqualTo("A[][]")
+    assertThat(typeRefNode.asTypeErasedString()).isEqualTo("A[][]")
   }
 
   @Test
@@ -69,5 +72,6 @@ class TypeRefTest {
 
     assertNotNull(typeRefNode)
     assertThat(typeRefNode.asCodeString()).isEqualTo("Map<String>")
+    assertThat(typeRefNode.asTypeErasedString()).isEqualTo("Map")
   }
 }
