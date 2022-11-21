@@ -69,6 +69,18 @@ class TypeRef(val components: List<Component>, val arrayNesting: Int) :
       components.joinToString(".") { it.asCodeString() } + "[]".repeat(arrayNesting)
     }
 
+  /**
+   * Returns the type reference as a type-erased string.
+   *
+   * This is the same as [asCodeString] but without any type arguments.
+   */
+  fun asTypeErasedString(): String =
+    if (isVoid()) {
+      "void"
+    } else {
+      components.joinToString(".") { it.id.asCodeString() } + "[]".repeat(arrayNesting)
+    }
+
   /** Returns an unknown location, but the constituent identifiers have locations. */
   override fun getSourceLocation(): SourceLocation = SourceLocation.UNKNOWN
 
