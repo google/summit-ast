@@ -1860,14 +1860,16 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   /** Gets a source location for any grammar rule. */
   private fun toSourceLocation(tree: SyntaxTree): SourceLocation {
     val interval = tree.sourceInterval
+    val firstToken = tokens.get(interval.a)
     // The end of the last token in the interval is the start of the next token--
     // except for the EOF token which has no next token.
-    val endToken = min(interval.b + 1, tokens.size() - 1)
+    val nextToken = tokens.get(min(interval.b + 1, tokens.size() - 1))
+
     return SourceLocation(
-      tokens.get(interval.a).line,
-      tokens.get(interval.a).charPositionInLine,
-      tokens.get(endToken).line,
-      tokens.get(endToken).charPositionInLine
+      firstToken.line,
+      firstToken.charPositionInLine,
+      nextToken.line,
+      nextToken.charPositionInLine,
     )
   }
 

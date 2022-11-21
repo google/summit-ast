@@ -21,6 +21,12 @@ package com.google.summit.ast
  *
  * A special "unknown" value can also be constructed.
  *
+ * The lines are numbered 1..N. The columns are numbered 0..N-1.
+ * The range is exclusive of the character at endLine/endColumn.
+ *
+ * For example, the first word in the line "Hello there" spans
+ * from column 0 to column 5 on line 1.
+ *
  * @property startLine the line where the source location starts
  * @property startColumn the column where the source location starts
  * @property endLine the line where the source location ends
