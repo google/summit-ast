@@ -62,6 +62,9 @@ abstract class Node {
    * should only be the child of exactly one parent, and there must be no cycles in the
    * relationship.
    *
+   * The order of the children is stable but may differ from their positional order in the
+   * input source.
+   *
    * The bottom-up tree creation implies that the children already exist when the parent node is
    * constructed, and so the list of children should be fixed from initialization onward.
    */
