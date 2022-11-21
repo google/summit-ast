@@ -204,6 +204,233 @@
         }
       }
     ],
+    "propertyDeclarations": [
+      {
+        "type": {
+          "components": [
+            {
+              "id": {
+                "string": "String",
+                "sourceLocation": {
+                  "startLine": 10,
+                  "startColumn": 2,
+                  "endLine": 10,
+                  "endColumn": 8
+                }
+              },
+              "args": []
+            }
+          ],
+          "arrayNesting": 0
+        },
+        "getter": {
+          "returnType": {
+            "components": [
+              {
+                "id": {
+                  "string": "String",
+                  "sourceLocation": {
+                    "startLine": 10,
+                    "startColumn": 2,
+                    "endLine": 10,
+                    "endColumn": 8
+                  }
+                },
+                "args": []
+              }
+            ],
+            "arrayNesting": 0
+          },
+          "parameterDeclarations": [],
+          "body": {
+            "statements": [
+              {
+                "@type": "ReturnStatement",
+                "value": {
+                  "@type": "VariableExpression",
+                  "id": {
+                    "string": "property",
+                    "sourceLocation": {
+                      "startLine": 11,
+                      "startColumn": 17,
+                      "endLine": 11,
+                      "endColumn": 25
+                    }
+                  },
+                  "sourceLocation": {
+                    "startLine": 11,
+                    "startColumn": 17,
+                    "endLine": 11,
+                    "endColumn": 25
+                  }
+                },
+                "sourceLocation": {
+                  "startLine": 11,
+                  "startColumn": 10,
+                  "endLine": 11,
+                  "endColumn": 26
+                }
+              }
+            ],
+            "scoping": "SCOPE_BOUNDARY",
+            "sourceLocation": {
+              "startLine": 11,
+              "startColumn": 8,
+              "endLine": 11,
+              "endColumn": 28
+            }
+          },
+          "isConstructor": false,
+          "modifiers": [],
+          "id": {
+            "string": "get",
+            "sourceLocation": {
+              "startLine": 11,
+              "startColumn": 4,
+              "endLine": 11,
+              "endColumn": 7
+            }
+          },
+          "sourceLocation": {
+            "startLine": 11,
+            "startColumn": 4,
+            "endLine": 11,
+            "endColumn": 28
+          }
+        },
+        "setter": {
+          "returnType": {
+            "components": [],
+            "arrayNesting": 0
+          },
+          "parameterDeclarations": [
+            {
+              "type": {
+                "components": [
+                  {
+                    "id": {
+                      "string": "String",
+                      "sourceLocation": {
+                        "startLine": 10,
+                        "startColumn": 2,
+                        "endLine": 10,
+                        "endColumn": 8
+                      }
+                    },
+                    "args": []
+                  }
+                ],
+                "arrayNesting": 0
+              },
+              "modifiers": [],
+              "id": {
+                "string": "value",
+                "sourceLocation": {}
+              },
+              "sourceLocation": {}
+            }
+          ],
+          "body": {
+            "statements": [
+              {
+                "@type": "ExpressionStatement",
+                "expression": {
+                  "@type": "AssignExpression",
+                  "target": {
+                    "@type": "VariableExpression",
+                    "id": {
+                      "string": "property",
+                      "sourceLocation": {
+                        "startLine": 12,
+                        "startColumn": 10,
+                        "endLine": 12,
+                        "endColumn": 18
+                      }
+                    },
+                    "sourceLocation": {
+                      "startLine": 12,
+                      "startColumn": 10,
+                      "endLine": 12,
+                      "endColumn": 18
+                    }
+                  },
+                  "source": {
+                    "@type": "VariableExpression",
+                    "id": {
+                      "string": "value",
+                      "sourceLocation": {
+                        "startLine": 12,
+                        "startColumn": 21,
+                        "endLine": 12,
+                        "endColumn": 26
+                      }
+                    },
+                    "sourceLocation": {
+                      "startLine": 12,
+                      "startColumn": 21,
+                      "endLine": 12,
+                      "endColumn": 26
+                    }
+                  },
+                  "sourceLocation": {
+                    "startLine": 12,
+                    "startColumn": 10,
+                    "endLine": 12,
+                    "endColumn": 26
+                  }
+                },
+                "sourceLocation": {
+                  "startLine": 12,
+                  "startColumn": 10,
+                  "endLine": 12,
+                  "endColumn": 27
+                }
+              }
+            ],
+            "scoping": "SCOPE_BOUNDARY",
+            "sourceLocation": {
+              "startLine": 12,
+              "startColumn": 8,
+              "endLine": 12,
+              "endColumn": 29
+            }
+          },
+          "isConstructor": false,
+          "modifiers": [],
+          "id": {
+            "string": "set",
+            "sourceLocation": {
+              "startLine": 12,
+              "startColumn": 4,
+              "endLine": 12,
+              "endColumn": 7
+            }
+          },
+          "sourceLocation": {
+            "startLine": 12,
+            "startColumn": 4,
+            "endLine": 12,
+            "endColumn": 29
+          }
+        },
+        "modifiers": [],
+        "id": {
+          "string": "property",
+          "sourceLocation": {
+            "startLine": 10,
+            "startColumn": 9,
+            "endLine": 10,
+            "endColumn": 17
+          }
+        },
+        "sourceLocation": {
+          "startLine": 10,
+          "startColumn": 2,
+          "endLine": 13,
+          "endColumn": 3
+        }
+      }
+    ],
     "methodDeclarations": [
       {
         "returnType": {
@@ -1244,233 +1471,6 @@
           "startLine": 14,
           "startColumn": 2,
           "endLine": 24,
-          "endColumn": 3
-        }
-      }
-    ],
-    "propertyDeclarations": [
-      {
-        "type": {
-          "components": [
-            {
-              "id": {
-                "string": "String",
-                "sourceLocation": {
-                  "startLine": 10,
-                  "startColumn": 2,
-                  "endLine": 10,
-                  "endColumn": 8
-                }
-              },
-              "args": []
-            }
-          ],
-          "arrayNesting": 0
-        },
-        "getter": {
-          "returnType": {
-            "components": [
-              {
-                "id": {
-                  "string": "String",
-                  "sourceLocation": {
-                    "startLine": 10,
-                    "startColumn": 2,
-                    "endLine": 10,
-                    "endColumn": 8
-                  }
-                },
-                "args": []
-              }
-            ],
-            "arrayNesting": 0
-          },
-          "parameterDeclarations": [],
-          "body": {
-            "statements": [
-              {
-                "@type": "ReturnStatement",
-                "value": {
-                  "@type": "VariableExpression",
-                  "id": {
-                    "string": "property",
-                    "sourceLocation": {
-                      "startLine": 11,
-                      "startColumn": 17,
-                      "endLine": 11,
-                      "endColumn": 25
-                    }
-                  },
-                  "sourceLocation": {
-                    "startLine": 11,
-                    "startColumn": 17,
-                    "endLine": 11,
-                    "endColumn": 25
-                  }
-                },
-                "sourceLocation": {
-                  "startLine": 11,
-                  "startColumn": 10,
-                  "endLine": 11,
-                  "endColumn": 26
-                }
-              }
-            ],
-            "scoping": "SCOPE_BOUNDARY",
-            "sourceLocation": {
-              "startLine": 11,
-              "startColumn": 8,
-              "endLine": 11,
-              "endColumn": 28
-            }
-          },
-          "isConstructor": false,
-          "modifiers": [],
-          "id": {
-            "string": "get",
-            "sourceLocation": {
-              "startLine": 11,
-              "startColumn": 4,
-              "endLine": 11,
-              "endColumn": 7
-            }
-          },
-          "sourceLocation": {
-            "startLine": 11,
-            "startColumn": 4,
-            "endLine": 11,
-            "endColumn": 28
-          }
-        },
-        "setter": {
-          "returnType": {
-            "components": [],
-            "arrayNesting": 0
-          },
-          "parameterDeclarations": [
-            {
-              "type": {
-                "components": [
-                  {
-                    "id": {
-                      "string": "String",
-                      "sourceLocation": {
-                        "startLine": 10,
-                        "startColumn": 2,
-                        "endLine": 10,
-                        "endColumn": 8
-                      }
-                    },
-                    "args": []
-                  }
-                ],
-                "arrayNesting": 0
-              },
-              "modifiers": [],
-              "id": {
-                "string": "value",
-                "sourceLocation": {}
-              },
-              "sourceLocation": {}
-            }
-          ],
-          "body": {
-            "statements": [
-              {
-                "@type": "ExpressionStatement",
-                "expression": {
-                  "@type": "AssignExpression",
-                  "target": {
-                    "@type": "VariableExpression",
-                    "id": {
-                      "string": "property",
-                      "sourceLocation": {
-                        "startLine": 12,
-                        "startColumn": 10,
-                        "endLine": 12,
-                        "endColumn": 18
-                      }
-                    },
-                    "sourceLocation": {
-                      "startLine": 12,
-                      "startColumn": 10,
-                      "endLine": 12,
-                      "endColumn": 18
-                    }
-                  },
-                  "source": {
-                    "@type": "VariableExpression",
-                    "id": {
-                      "string": "value",
-                      "sourceLocation": {
-                        "startLine": 12,
-                        "startColumn": 21,
-                        "endLine": 12,
-                        "endColumn": 26
-                      }
-                    },
-                    "sourceLocation": {
-                      "startLine": 12,
-                      "startColumn": 21,
-                      "endLine": 12,
-                      "endColumn": 26
-                    }
-                  },
-                  "sourceLocation": {
-                    "startLine": 12,
-                    "startColumn": 10,
-                    "endLine": 12,
-                    "endColumn": 26
-                  }
-                },
-                "sourceLocation": {
-                  "startLine": 12,
-                  "startColumn": 10,
-                  "endLine": 12,
-                  "endColumn": 27
-                }
-              }
-            ],
-            "scoping": "SCOPE_BOUNDARY",
-            "sourceLocation": {
-              "startLine": 12,
-              "startColumn": 8,
-              "endLine": 12,
-              "endColumn": 29
-            }
-          },
-          "isConstructor": false,
-          "modifiers": [],
-          "id": {
-            "string": "set",
-            "sourceLocation": {
-              "startLine": 12,
-              "startColumn": 4,
-              "endLine": 12,
-              "endColumn": 7
-            }
-          },
-          "sourceLocation": {
-            "startLine": 12,
-            "startColumn": 4,
-            "endLine": 12,
-            "endColumn": 29
-          }
-        },
-        "modifiers": [],
-        "id": {
-          "string": "property",
-          "sourceLocation": {
-            "startLine": 10,
-            "startColumn": 9,
-            "endLine": 10,
-            "endColumn": 17
-          }
-        },
-        "sourceLocation": {
-          "startLine": 10,
-          "startColumn": 2,
-          "endLine": 13,
           "endColumn": 3
         }
       }
