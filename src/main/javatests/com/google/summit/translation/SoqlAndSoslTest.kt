@@ -66,7 +66,7 @@ class SoqlAndSoslTest {
 
     val node = TranslateHelpers.findFirstNodeOfType<SoqlExpression>(root)
     assertThat(node).isNotNull()
-    assertThat(node!!.query).isEqualTo("[$query]")
+    assertThat(node!!.query).isEqualTo(query)
     assertThat(node.bindings).isEmpty()
   }
 
@@ -78,7 +78,7 @@ class SoqlAndSoslTest {
 
     val node = TranslateHelpers.findFirstNodeOfType<SoslExpression>(root)
     assertThat(node).isNotNull()
-    assertThat(node!!.query).isEqualTo("[$query]")
+    assertThat(node!!.query).isEqualTo(query)
     assertThat(node.bindings).hasSize(1)
   }
 }

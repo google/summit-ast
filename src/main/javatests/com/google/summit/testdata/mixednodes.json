@@ -636,7 +636,7 @@
                             },
                             "thenValue": {
                               "@type": "SoqlExpression",
-                              "query": "[SELECT COUNT() FROM Account]",
+                              "query": "SELECT COUNT() FROM Account",
                               "bindings": [],
                               "sourceLocation": {
                                 "startLine": 18,
