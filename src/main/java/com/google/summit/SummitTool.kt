@@ -17,11 +17,13 @@
 package com.google.summit
 
 import com.google.common.flogger.FluentLogger
+import com.google.summit.symbols.SummitResolver
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.stream.Stream
+import kotlin.streams.toList
 
 /**
  * This is a simple command line tool to parse and translate Apex source files.
@@ -32,8 +34,11 @@ import java.util.stream.Stream
 object SummitTool {
   private val logger = FluentLogger.forEnclosingClass()
 
+  // TODO: it'll be useful to have this support flags.
   @JvmStatic
   fun main(args: Array<String>) {
+    // TODO: using a `FluentLogger` here (in this class specifically) does not seem like
+    //   the right thing to do.
     logger.atInfo().log("Summit AST Tool")
     logger.atInfo().log("Usage: SummitTool <Apex files or search directories>")
 
@@ -50,11 +55,13 @@ object SummitTool {
             { path, _ -> SummitAST.isApexSourceFile(path) }
           )
 
-        stream.forEach { path ->
+        val paths = stream.toList()
+        val allAsts = paths.mapNotNull { path ->
           numFiles++
-          val ast = SummitAST.parseAndTranslate(path)
-          numFailures += if (ast != null) 0 else 1
+          SummitAST.parseAndTranslate(path)
         }
+        SummitResolver().resolve(allAsts)
+        numFailures = numFiles - allAsts.size
       } catch (e: IOException) {
         logger.atWarning().withCause(e).log("Invalid path %s", arg)
       }
