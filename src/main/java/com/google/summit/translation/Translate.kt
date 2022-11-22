@@ -111,27 +111,31 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
    */
   @Throws(TranslationException::class)
   fun translate(tree: ParserRuleContext): CompilationUnit {
-    logger.atInfo().log("Translating %s", file)
-    val prevNodeCount = Node.totalCount
-    val cu =
-      when (tree) {
-        is ApexParser.CompilationUnitContext -> visitCompilationUnit(tree)
-        is ApexParser.TriggerUnitContext -> visitTriggerUnit(tree)
-        else -> throw IllegalArgumentException("Unexpected parse tree")
-      }
-    val newNodeCount = Node.totalCount - prevNodeCount
-    val reachableNodeCount = Node.setNodeParents(cu)
-    if (reachableNodeCount != newNodeCount) {
-      throw TranslationException(
-        tree,
-        """|Number of created nodes $newNodeCount should match number of
+    try {
+      val prevNodeCount = Node.totalCount
+      val cu =
+        when (tree) {
+          is ApexParser.CompilationUnitContext -> visitCompilationUnit(tree)
+          is ApexParser.TriggerUnitContext -> visitTriggerUnit(tree)
+          else -> throw IllegalArgumentException("Unexpected parse tree")
+        }
+      val newNodeCount = Node.totalCount - prevNodeCount
+      val reachableNodeCount = Node.setNodeParents(cu)
+      if (reachableNodeCount != newNodeCount) {
+        throw TranslationException(
+          tree,
+          """|Number of created nodes $newNodeCount should match number of
            |reachable nodes $reachableNodeCount"""
-          .trimMargin()
-          .replace("\n", " ")
-      )
+            .trimMargin()
+            .replace("\n", " ")
+        )
+      }
+      logger.atInfo().log("Translated %s successfully. Created %d nodes.", file, newNodeCount)
+      return cu
+    } catch (e: Exception) {
+      logger.atInfo().log("Failed to translate %s.", file)
+      throw e
     }
-    logger.atInfo().log("Translated AST successfully. Created %d nodes.", newNodeCount)
-    return cu
   }
 
   /** Exception for any unexpected translation errors. */
