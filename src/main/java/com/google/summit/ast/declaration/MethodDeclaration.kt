@@ -46,7 +46,7 @@ class MethodDeclaration(
   loc: SourceLocation
 ) : DeclarationWithModifiers(id, loc) {
   override fun getChildren(): List<Node> =
-    modifiers + listOfNotNull(id, returnType, body) + parameterDeclarations
+    modifiers + listOf(id, returnType) + parameterDeclarations + listOfNotNull(body)
 
   /**
    * Returns whether this method is an anonymous initialization block.
