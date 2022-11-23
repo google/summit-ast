@@ -21,6 +21,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import com.google.summit.ast.declaration.ClassDeclaration
 import com.google.summit.ast.declaration.MethodDeclaration
 import com.google.summit.ast.modifier.KeywordModifier
+import com.google.summit.ast.statement.CompoundStatement
 import com.google.summit.testing.TranslateHelpers
 import kotlin.test.assertNotNull
 import org.junit.Test
@@ -111,5 +112,25 @@ class MethodDeclarationTest {
 
     val constructorDecl = classDecl.methodDeclarations.last()
     assertThat(constructorDecl.isConstructor).isTrue()
+  }
+
+  @Test
+  fun method_getChildren_ordering() {
+    val input =
+      """
+        class Test {
+          public String f(Integer i) { }
+        }
+        """
+
+    val methodDecl = TranslateHelpers.parseAndFindFirstNodeOfType<MethodDeclaration>(input)
+
+    assertNotNull(methodDecl)
+    assertWithMessage("MethodDeclaration.getChildren() should list the body last")
+      .that(
+        methodDecl
+          .getChildren()
+          .last()
+      ).isInstanceOf(CompoundStatement::class.java)
   }
 }
