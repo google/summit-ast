@@ -243,7 +243,6 @@ class ExpressionTest {
         BinaryExpression.Operator.SUBTRACTION to "-=",
         BinaryExpression.Operator.MULTIPLICATION to "*=",
         BinaryExpression.Operator.DIVISION to "/=",
-        BinaryExpression.Operator.MODULO to "%=",
         BinaryExpression.Operator.BITWISE_AND to "&=",
         BinaryExpression.Operator.BITWISE_OR to "|=",
         BinaryExpression.Operator.BITWISE_XOR to "^=",

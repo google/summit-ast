@@ -47,7 +47,6 @@ class BinaryExpression(
     SUBTRACTION,
     MULTIPLICATION,
     DIVISION,
-    MODULO,
     GREATER_THAN_OR_EQUAL,
     GREATER_THAN,
     LESS_THAN,
@@ -92,7 +91,6 @@ class BinaryExpression(
         "-" -> Operator.SUBTRACTION
         "*" -> Operator.MULTIPLICATION
         "/" -> Operator.DIVISION
-        "%" -> Operator.MODULO
         ">" -> Operator.GREATER_THAN
         ">=" -> Operator.GREATER_THAN_OR_EQUAL
         "<" -> Operator.LESS_THAN
@@ -128,7 +126,6 @@ class BinaryExpression(
         Operator.SUBTRACTION -> "-"
         Operator.MULTIPLICATION -> "*"
         Operator.DIVISION -> "/"
-        Operator.MODULO -> "%"
         Operator.GREATER_THAN -> ">"
         Operator.GREATER_THAN_OR_EQUAL -> ">="
         Operator.LESS_THAN -> "<"
