@@ -1032,7 +1032,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'expression#arth1Expression' grammar rule and returns an AST [Expression]. */
   override fun visitArth1Expression(ctx: ApexParser.Arth1ExpressionContext): Expression {
-    val matchedTerminal = matchExactlyOne(ruleBeingChecked = ctx, ctx.MUL(), ctx.DIV(), ctx.MOD())
+    val matchedTerminal = matchExactlyOne(ruleBeingChecked = ctx, ctx.MUL(), ctx.DIV())
 
     return BinaryExpression(
       visitExpression(ctx.expression().first()),
@@ -1100,7 +1100,6 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
       ctx.RSHIFT_ASSIGN(),
       ctx.URSHIFT_ASSIGN(),
       ctx.LSHIFT_ASSIGN(),
-      ctx.MOD_ASSIGN(),
     )
 
     return AssignExpression(
@@ -1118,7 +1117,6 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
         ctx.RSHIFT_ASSIGN() != null -> BinaryExpression.Operator.RIGHT_SHIFT_SIGNED
         ctx.URSHIFT_ASSIGN() != null -> BinaryExpression.Operator.RIGHT_SHIFT_UNSIGNED
         ctx.LSHIFT_ASSIGN() != null -> BinaryExpression.Operator.LEFT_SHIFT
-        ctx.MOD_ASSIGN() != null -> BinaryExpression.Operator.MODULO
         else -> throw TranslationException(ctx, "Unreachable case reached")
       },
       toSourceLocation(ctx)
@@ -1323,6 +1321,15 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
    */
   override fun visitTypeRefPrimary(ctx: ApexParser.TypeRefPrimaryContext): Expression =
     TypeRefExpression(visitTypeRef(ctx.typeRef()), toSourceLocation(ctx))
+
+  /**
+   * Translates the 'primary#voidPrimary' grammar rule and returns an AST [Expression].
+   *
+   * This grammar rule appeared in apex-parser@2.16, but more info is needed about
+   * semantic meaning.
+   */
+  override fun visitVoidPrimary(ctx: ApexParser.VoidPrimaryContext): Expression =
+    throw TranslationException(ctx, "void.<class> not yet translated")
 
   /** Translates the 'primary#idPrimary' grammar rule and returns an AST [Expression]. */
   override fun visitIdPrimary(ctx: ApexParser.IdPrimaryContext): Expression {
@@ -1682,7 +1689,11 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitForStatement(ctx: ApexParser.ForStatementContext): Statement {
     val loc = toSourceLocation(ctx)
     val forControl = ctx.forControl()
-    val bodyStatement = visitStatement(ctx.statement())
+    val bodyStatement = if (ctx.statement() != null) {
+      visitStatement(ctx.statement())
+    } else {
+      CompoundStatement(emptyList(), CompoundStatement.Scoping.SCOPE_BOUNDARY, SourceLocation.UNKNOWN)
+    }
 
     val enhancedForControl = forControl.enhancedForControl()
     if (enhancedForControl != null) {
@@ -1723,7 +1734,11 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitWhileStatement(ctx: ApexParser.WhileStatementContext): Statement =
     WhileLoopStatement(
       condition = visitParExpression(ctx.parExpression()),
-      body = visitStatement(ctx.statement()),
+      body = if (ctx.statement() != null) {
+        visitStatement(ctx.statement())
+      } else {
+        CompoundStatement(emptyList(), CompoundStatement.Scoping.SCOPE_BOUNDARY, SourceLocation.UNKNOWN)
+      },
       toSourceLocation(ctx)
     )
 
