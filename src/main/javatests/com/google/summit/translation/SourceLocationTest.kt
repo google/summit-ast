@@ -43,7 +43,7 @@ class SourceLocationTest {
     assertThat(cu.typeDeclaration.id.getSourceLocation())
       .isEqualTo(
         // span from start of "Test" identifier to before open braces
-        SourceLocation(1, input.indexOf("Test"), 1, input.indexOf("{") - 1)
+        SourceLocation(1, input.indexOf("Test"), 1, input.indexOf("Test") + "Test".length)
       )
   }
 
@@ -83,7 +83,6 @@ class SourceLocationTest {
     val fieldDeclGroup = TranslateHelpers.parseAndFindFirstNodeOfType<FieldDeclarationGroup>(input)
     assertNotNull(fieldDeclGroup)
     val loc = fieldDeclGroup.getSourceLocation()
-
     val extracted = loc.extractFrom(input)
 
     assertThat(extracted).isEqualTo("""String field
@@ -123,5 +122,52 @@ class SourceLocationTest {
     assertThat(extracted).isEqualTo("""s Test {
           public String field
             = 'H""")
+  }
+
+  @Test
+  fun trailingEmptyLine() {
+    val input = "public class Test { }\n"
+
+    val cu = TranslateHelpers.parseAndTranslate(input)
+    val loc = cu.getSourceLocation()
+
+    assertThat(loc.endLine).isEqualTo(2)
+    assertThat(loc.endColumn).isEqualTo(0)
+    assertThat(loc.extractFrom(input)).isEqualTo(input)
+  }
+
+  @Test
+  fun trailingWhitespaceLine() {
+    val input = "public class Test { }\n "
+
+    val cu = TranslateHelpers.parseAndTranslate(input)
+    val loc = cu.getSourceLocation()
+
+    assertThat(loc.endLine).isEqualTo(2)
+    assertThat(loc.endColumn).isEqualTo(1)
+    assertThat(loc.extractFrom(input)).isEqualTo(input)
+  }
+
+  @Test
+  fun leadingEmptyLine() {
+    val input = "\npublic class Test { }"
+
+    val cu = TranslateHelpers.parseAndTranslate(input)
+    val loc = cu.getSourceLocation()
+
+    // The source location starts from the first regular token.
+    // This follows from the grammar and not any aspect of
+    // how locations are represented.
+    assertThat(loc.startLine).isEqualTo(2)
+    assertThat(loc.startColumn).isEqualTo(0)
+  }
+
+  @Test
+  fun tabsAreCountedAsSingleCharacters() {
+    val input = "\t\tpublic class Test { }"
+
+    val cu = TranslateHelpers.parseAndTranslate(input)
+
+    assertThat(cu.getSourceLocation().startColumn).isEqualTo(2)
   }
 }
