@@ -10,7 +10,7 @@ import com.google.summit.ast.declaration.MethodDeclaration
 class SummitResolver {
 
   fun resolve(allAsts: List<CompilationUnit>) {
-    val classMap = SummitClassResolver.resolveClassesAndMethods(allAsts)
+    val classMap = ClassResolver.resolveClassesAndMethods(allAsts)
 
     if (PRINT_DEBUG) {
       SummitResolverDebug.printClassesAndMethods(classMap)
