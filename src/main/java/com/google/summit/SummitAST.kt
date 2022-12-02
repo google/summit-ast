@@ -16,7 +16,6 @@
 
 package com.google.summit
 
-import com.google.common.base.Ascii
 import com.google.common.flogger.FluentLogger
 import com.google.summit.ast.CompilationUnit
 import com.google.summit.translation.Translate
@@ -187,14 +186,14 @@ object SummitAST {
    * (case-insensitive) suffix `.cls`.
    */
   private fun isApexClassFile(path: Path): Boolean =
-    Files.isRegularFile(path) && Ascii.toLowerCase(path.toString()).endsWith(".cls")
+    Files.isRegularFile(path) && path.toString().lowercase().endsWith(".cls")
 
   /**
    * Returns `true` if the path is an Apex trigger file. These are regular files with the
    * (case-insensitive) suffix `.trigger`.
    */
   private fun isApexTriggerFile(path: Path): Boolean =
-    Files.isRegularFile(path) && Ascii.toLowerCase(path.toString()).endsWith(".trigger")
+    Files.isRegularFile(path) && path.toString().lowercase().endsWith(".trigger")
 
   /** Returns `true` if the path is an Apex source file: either a class or a trigger. */
   fun isApexSourceFile(path: Path): Boolean = isApexClassFile(path) || isApexTriggerFile(path)

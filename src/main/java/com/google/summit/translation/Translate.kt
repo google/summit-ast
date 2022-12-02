@@ -112,27 +112,31 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
    */
   @Throws(TranslationException::class)
   fun translate(tree: ParserRuleContext): CompilationUnit {
-    logger.atInfo().log("Translating %s", file)
-    val prevNodeCount = Node.totalCount
-    val cu =
-      when (tree) {
-        is ApexParser.CompilationUnitContext -> visitCompilationUnit(tree)
-        is ApexParser.TriggerUnitContext -> visitTriggerUnit(tree)
-        else -> throw IllegalArgumentException("Unexpected parse tree")
-      }
-    val newNodeCount = Node.totalCount - prevNodeCount
-    val reachableNodeCount = Node.setNodeParents(cu)
-    if (reachableNodeCount != newNodeCount) {
-      throw TranslationException(
-        tree,
-        """|Number of created nodes $newNodeCount should match number of
+    try {
+      val prevNodeCount = Node.totalCount
+      val cu =
+        when (tree) {
+          is ApexParser.CompilationUnitContext -> visitCompilationUnit(tree)
+          is ApexParser.TriggerUnitContext -> visitTriggerUnit(tree)
+          else -> throw IllegalArgumentException("Unexpected parse tree")
+        }
+      val newNodeCount = Node.totalCount - prevNodeCount
+      val reachableNodeCount = Node.setNodeParents(cu)
+      if (reachableNodeCount != newNodeCount) {
+        throw TranslationException(
+          tree,
+          """|Number of created nodes $newNodeCount should match number of
            |reachable nodes $reachableNodeCount"""
-          .trimMargin()
-          .replace("\n", " ")
-      )
+            .trimMargin()
+            .replace("\n", " ")
+        )
+      }
+      logger.atInfo().log("Translated %s successfully. Created %d nodes.", file, newNodeCount)
+      return cu
+    } catch (e: Exception) {
+      logger.atInfo().log("Failed to translate %s.", file)
+      throw e
     }
-    logger.atInfo().log("Translated AST successfully. Created %d nodes.", newNodeCount)
-    return cu
   }
 
   /** Exception for any unexpected translation errors. */
@@ -1028,7 +1032,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
 
   /** Translates the 'expression#arth1Expression' grammar rule and returns an AST [Expression]. */
   override fun visitArth1Expression(ctx: ApexParser.Arth1ExpressionContext): Expression {
-    val matchedTerminal = matchExactlyOne(ruleBeingChecked = ctx, ctx.MUL(), ctx.DIV(), ctx.MOD())
+    val matchedTerminal = matchExactlyOne(ruleBeingChecked = ctx, ctx.MUL(), ctx.DIV())
 
     return BinaryExpression(
       visitExpression(ctx.expression().first()),
@@ -1096,7 +1100,6 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
       ctx.RSHIFT_ASSIGN(),
       ctx.URSHIFT_ASSIGN(),
       ctx.LSHIFT_ASSIGN(),
-      ctx.MOD_ASSIGN(),
     )
 
     return AssignExpression(
@@ -1114,7 +1117,6 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
         ctx.RSHIFT_ASSIGN() != null -> BinaryExpression.Operator.RIGHT_SHIFT_SIGNED
         ctx.URSHIFT_ASSIGN() != null -> BinaryExpression.Operator.RIGHT_SHIFT_UNSIGNED
         ctx.LSHIFT_ASSIGN() != null -> BinaryExpression.Operator.LEFT_SHIFT
-        ctx.MOD_ASSIGN() != null -> BinaryExpression.Operator.MODULO
         else -> throw TranslationException(ctx, "Unreachable case reached")
       },
       toSourceLocation(ctx)
@@ -1319,6 +1321,15 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
    */
   override fun visitTypeRefPrimary(ctx: ApexParser.TypeRefPrimaryContext): Expression =
     TypeRefExpression(visitTypeRef(ctx.typeRef()), toSourceLocation(ctx))
+
+  /**
+   * Translates the 'primary#voidPrimary' grammar rule and returns an AST [Expression].
+   *
+   * This grammar rule appeared in apex-parser@2.16, but more info is needed about
+   * semantic meaning.
+   */
+  override fun visitVoidPrimary(ctx: ApexParser.VoidPrimaryContext): Expression =
+    throw TranslationException(ctx, "void.<class> not yet translated")
 
   /** Translates the 'primary#idPrimary' grammar rule and returns an AST [Expression]. */
   override fun visitIdPrimary(ctx: ApexParser.IdPrimaryContext): Expression {
@@ -1678,7 +1689,11 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitForStatement(ctx: ApexParser.ForStatementContext): Statement {
     val loc = toSourceLocation(ctx)
     val forControl = ctx.forControl()
-    val bodyStatement = visitStatement(ctx.statement())
+    val bodyStatement = if (ctx.statement() != null) {
+      visitStatement(ctx.statement())
+    } else {
+      CompoundStatement(emptyList(), CompoundStatement.Scoping.SCOPE_BOUNDARY, SourceLocation.UNKNOWN)
+    }
 
     val enhancedForControl = forControl.enhancedForControl()
     if (enhancedForControl != null) {
@@ -1719,7 +1734,11 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitWhileStatement(ctx: ApexParser.WhileStatementContext): Statement =
     WhileLoopStatement(
       condition = visitParExpression(ctx.parExpression()),
-      body = visitStatement(ctx.statement()),
+      body = if (ctx.statement() != null) {
+        visitStatement(ctx.statement())
+      } else {
+        CompoundStatement(emptyList(), CompoundStatement.Scoping.SCOPE_BOUNDARY, SourceLocation.UNKNOWN)
+      },
       toSourceLocation(ctx)
     )
 
@@ -1860,14 +1879,16 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   /** Gets a source location for any grammar rule. */
   private fun toSourceLocation(tree: SyntaxTree): SourceLocation {
     val interval = tree.sourceInterval
+    val firstToken = tokens.get(interval.a)
     // The end of the last token in the interval is the start of the next token--
     // except for the EOF token which has no next token.
-    val endToken = min(interval.b + 1, tokens.size() - 1)
+    val nextToken = tokens.get(min(interval.b + 1, tokens.size() - 1))
+
     return SourceLocation(
-      tokens.get(interval.a).line,
-      tokens.get(interval.a).charPositionInLine,
-      tokens.get(endToken).line,
-      tokens.get(endToken).charPositionInLine
+      firstToken.line,
+      firstToken.charPositionInLine,
+      nextToken.line,
+      nextToken.charPositionInLine,
     )
   }
 
