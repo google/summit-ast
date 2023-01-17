@@ -24,9 +24,11 @@ This software is built using [bazel](https://bazel.build/).
 $ bazel build ...
 ```
 
-It is tested and working with version 5.2, and 5.4.
+It is tested and working with the version listed in the `.bazelversion` file.
 
-If you use [Bazelisk to use Bazel](https://bazel.build/install/bazelisk), it will download 5.4.
+If you use [Bazelisk to use
+Bazel](https://bazel.build/install/bazelisk), it will download the
+correct version.
 
 ## Running
 
