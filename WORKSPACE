@@ -21,8 +21,8 @@ load("@rules_jvm_external//:defs.bzl", "maven_install")
 # Kotlin toolchain
 # -------------------------
 
-rules_kotlin_version = "v1.5.0"
-rules_kotlin_sha = "12d22a3d9cbcf00f2e2d8f0683ba87d3823cb8c7f6837568dd7e48846e023307"
+rules_kotlin_version = "v1.7.1"
+rules_kotlin_sha = "fd92a98bd8a8f0e1cdcb490b93f5acef1f1727ed992571232d33de42395ca9b3"
 
 http_archive(
     name = "io_bazel_rules_kotlin",
