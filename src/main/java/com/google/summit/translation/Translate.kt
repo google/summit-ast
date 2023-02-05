@@ -1775,27 +1775,52 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitContinueStatement(ctx: ApexParser.ContinueStatementContext): Statement =
     ContinueStatement(toSourceLocation(ctx))
 
+  /** Translates the 'accessLevel' grammar rule and returns an AST [DmlStatement.AccessLevel]. */
+  override fun visitAccessLevel(ctx: ApexParser.AccessLevelContext): DmlStatement.AccessLevel =
+    when {
+      ctx.SYSTEM() != null -> DmlStatement.AccessLevel.SYSTEM_MODE
+      ctx.USER() != null -> DmlStatement.AccessLevel.USER_MODE
+      else -> throw TranslationException(ctx, "Unreachable case reached")
+    }
+
   /** Translates the 'insertStatement' grammar rule and returns an AST [Statement]. */
   override fun visitInsertStatement(ctx: ApexParser.InsertStatementContext): Statement =
-    DmlStatement.Insert(visitExpression(ctx.expression()), toSourceLocation(ctx))
+    DmlStatement.Insert(
+      visitExpression(ctx.expression()),
+      ctx.accessLevel()?.let{ visitAccessLevel(it) },
+      toSourceLocation(ctx)
+    )
 
   /** Translates the 'updateStatement' grammar rule and returns an AST [Statement]. */
   override fun visitUpdateStatement(ctx: ApexParser.UpdateStatementContext): Statement =
-    DmlStatement.Update(visitExpression(ctx.expression()), toSourceLocation(ctx))
+    DmlStatement.Update(
+      visitExpression(ctx.expression()),
+      ctx.accessLevel()?.let{ visitAccessLevel(it) },
+      toSourceLocation(ctx)
+    )
 
   /** Translates the 'deleteStatement' grammar rule and returns an AST [Statement]. */
   override fun visitDeleteStatement(ctx: ApexParser.DeleteStatementContext): Statement =
-    DmlStatement.Delete(visitExpression(ctx.expression()), toSourceLocation(ctx))
+    DmlStatement.Delete(
+      visitExpression(ctx.expression()),
+      ctx.accessLevel()?.let{ visitAccessLevel(it) },
+      toSourceLocation(ctx)
+    )
 
   /** Translates the 'undeleteStatement' grammar rule and returns an AST [Statement]. */
   override fun visitUndeleteStatement(ctx: ApexParser.UndeleteStatementContext): Statement =
-    DmlStatement.Undelete(visitExpression(ctx.expression()), toSourceLocation(ctx))
+    DmlStatement.Undelete(
+      visitExpression(ctx.expression()),
+      ctx.accessLevel()?.let{ visitAccessLevel(it) },
+      toSourceLocation(ctx)
+    )
 
   /** Translates the 'upsertStatement' grammar rule and returns an AST [Statement]. */
   override fun visitUpsertStatement(ctx: ApexParser.UpsertStatementContext): Statement =
     DmlStatement.Upsert(
       visitExpression(ctx.expression()),
       translateOptional(ctx.qualifiedName(), ::visitQualifiedName),
+      ctx.accessLevel()?.let{ visitAccessLevel(it) },
       toSourceLocation(ctx)
     )
 
@@ -1804,6 +1829,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     DmlStatement.Merge(
       value = visitExpression(ctx.expression().first()),
       from = visitExpression(ctx.expression().last()),
+      access = ctx.accessLevel()?.let{ visitAccessLevel(it) },
       loc = toSourceLocation(ctx)
     )
 

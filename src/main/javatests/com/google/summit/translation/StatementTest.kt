@@ -307,6 +307,9 @@ class StatementTest {
 
     assertNotNull(node)
     assertWithMessage("Node should have one child").that(node.getChildren()).hasSize(1)
+    assertWithMessage("Node should have default/unspecified access")
+      .that(node.access)
+      .isNull()
   }
 
   @Test
@@ -387,5 +390,27 @@ class StatementTest {
 
     assertNotNull(node)
     assertWithMessage("Node should have one child").that(node.getChildren()).hasSize(1)
+  }
+
+  @Test
+  fun dmlStatement_translation_withSystemMode() {
+    val root = parseApexStatementInCode("upsert as system obj field;")
+    val node = TranslateHelpers.findFirstNodeOfType<DmlStatement>(root)
+
+    assertNotNull(node)
+    assertWithMessage("Node should have system access")
+      .that(node.access)
+      .isEqualTo(DmlStatement.AccessLevel.SYSTEM_MODE)
+  }
+
+  @Test
+  fun dmlStatement_translation_withUserMode() {
+    val root = parseApexStatementInCode("insert as user obj;")
+    val node = TranslateHelpers.findFirstNodeOfType<DmlStatement>(root)
+
+    assertNotNull(node)
+    assertWithMessage("Node should have user access")
+      .that(node.access)
+      .isEqualTo(DmlStatement.AccessLevel.USER_MODE)
   }
 }
