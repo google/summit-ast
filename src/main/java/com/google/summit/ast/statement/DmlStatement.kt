@@ -25,52 +25,67 @@ import com.google.summit.ast.expression.Expression
  * An outer and a base class for any kind of DML statement.
  *
  * @property value the DML operand
+ * @property access the database operation access mode
  * @param loc the location in the source file
  */
-sealed class DmlStatement(val value: Expression, loc: SourceLocation) : Statement(loc) {
+sealed class DmlStatement(val value: Expression, val access: AccessLevel?, loc: SourceLocation) :
+    Statement(loc) {
   override fun getChildren(): List<Node> = listOfNotNull(value)
 
   /**
    * A DML insert statement.
    *
    * @param value the DML operand
+   * @param access the database operation access mode
    * @param loc the location in the source file
    */
-  class Insert(value: Expression, loc: SourceLocation) : DmlStatement(value, loc)
+  class Insert(value: Expression, access: AccessLevel?, loc: SourceLocation) :
+      DmlStatement(value, access, loc)
 
   /**
    * A DML update statement.
    *
    * @param value the DML operand
+   * @param access the database operation access mode
    * @param loc the location in the source file
    */
-  class Update(value: Expression, loc: SourceLocation) : DmlStatement(value, loc)
+  class Update(value: Expression, access: AccessLevel?, loc: SourceLocation) :
+      DmlStatement(value, access, loc)
 
   /**
    * A DML delete statement.
    *
    * @param value the DML operand
+   * @param access the database operation access mode
    * @param loc the location in the source file
    */
-  class Delete(value: Expression, loc: SourceLocation) : DmlStatement(value, loc)
+  class Delete(value: Expression, access: AccessLevel?, loc: SourceLocation) :
+      DmlStatement(value, access, loc)
 
   /**
    * A DML undelete statement.
    *
    * @param value the DML operand
+   * @param access the database operation access mode
    * @param loc the location in the source file
    */
-  class Undelete(value: Expression, loc: SourceLocation) : DmlStatement(value, loc)
+  class Undelete(value: Expression, access: AccessLevel?, loc: SourceLocation) :
+      DmlStatement(value, access, loc)
 
   /**
    * A DML upsert statement.
    *
    * @param value the DML operand
    * @param name the optional field name
+   * @param access the database operation access mode
    * @param loc the location in the source file
    */
-  class Upsert(value: Expression, val name: Identifier?, loc: SourceLocation) :
-    DmlStatement(value, loc) {
+  class Upsert(
+      value: Expression,
+      val name: Identifier?,
+      access: AccessLevel?,
+      loc: SourceLocation
+  ) : DmlStatement(value, access, loc) {
     override fun getChildren(): List<Node> = listOfNotNull(value, name)
   }
 
@@ -79,10 +94,22 @@ sealed class DmlStatement(val value: Expression, loc: SourceLocation) : Statemen
    *
    * @param value the target value to be updated
    * @param from the value to be merged from
+   * @param access the database operation access mode
    * @param loc the location in the source file
    */
-  class Merge(value: Expression, val from: Expression, loc: SourceLocation) :
-    DmlStatement(value, loc) {
+  class Merge(value: Expression, val from: Expression, access: AccessLevel?, loc: SourceLocation) :
+      DmlStatement(value, access, loc) {
     override fun getChildren(): List<Node> = listOfNotNull(value, from)
+  }
+
+  /**
+   * The database operation access level.
+   *
+   * See:
+   * [Enforce User Mode for Database Operations](https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/apex_classes_enforce_usermode.htm)
+   */
+  enum class AccessLevel {
+    USER_MODE,
+    SYSTEM_MODE,
   }
 }
