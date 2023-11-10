@@ -82,7 +82,7 @@ abstract class Node {
   }
 
   companion object {
-    private var totalCountThreadLocal: ThreadLocal<Int> = ThreadLocal()
+    private var totalCountThreadLocal: ThreadLocal<Int> = ThreadLocal.withInitial { 0 }
 
     /**
      * Total number of nodes created.
@@ -91,9 +91,13 @@ abstract class Node {
      * created [Node] objects is equal to the number of nodes reachable from the root
      * [CompilationUnit] via transitive calls to [getChildren]. (It's easy to add a node property
      * and forget to include it in that list.)
+     *
+     * Reading the value resets the internal counter to 0.
      */
-    var totalCount : Int
-      get() = totalCountThreadLocal.get()
+    var totalCount: Int
+      get() {
+        totalCountThreadLocal.set(0);
+        return totalCountThreadLocal.get(); }
       set(value) = totalCountThreadLocal.set(value)
 
     /**
