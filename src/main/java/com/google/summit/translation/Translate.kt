@@ -113,6 +113,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   @Throws(TranslationException::class)
   fun translate(tree: ParserRuleContext): CompilationUnit {
     try {
+      Node.totalCount = 0
       val prevNodeCount = Node.totalCount
       val cu =
         when (tree) {

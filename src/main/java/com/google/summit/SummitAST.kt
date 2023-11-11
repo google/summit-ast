@@ -45,6 +45,7 @@ object SummitAST {
   /** Listener for syntax errors that keeps a total count. */
   private class SyntaxErrorListener : BaseErrorListener() {
     var numErrors = 0
+    var errors = ArrayList<String>()
 
     override fun syntaxError(
       recognizer: Recognizer<*, *>,
@@ -55,9 +56,19 @@ object SummitAST {
       e: RecognitionException?
     ) {
       this.numErrors += 1
+      errors.add("Syntax error at $line:$charPositionInLine: $msg")
       logger.atInfo().log("Syntax error at %d:%d: %s", line, charPositionInLine, msg)
     }
+
+    fun errorMessages() : String = errors.joinToString("\n")
   }
+
+  /**
+   * Exception to propagate any parse/syntax errors from antlr
+   * or problems from the AST translation.
+   */
+  class ParseException(msg: String, cause: Throwable? = null) : Exception(msg, cause)
+
 
   /** The type of top-level declaration in an input. */
   enum class CompilationType {
@@ -69,6 +80,7 @@ object SummitAST {
    * Parses and translates the file at [path] and returns a [CompilationUnit] representing the AST
    * if the operation was successful.
    */
+  @Throws(ParseException::class)
   fun parseAndTranslate(path: Path) =
     parseAndTranslate(
       name = path.toString(),
@@ -87,9 +99,25 @@ object SummitAST {
    *
    * If [type] is not provided, the compilation type is determined by the contents of the [string].
    */
+  @Throws(ParseException::class)
   fun parseAndTranslate(string: String, type: CompilationType?) =
     parseAndTranslate(
       name = STRING_INPUT,
+      type = type,
+      charStream = CharStreams.fromString(string),
+    )
+
+  /**
+   * Parses and translates the [string] as [type] and returns a [CompilationUnit] representing the
+   * AST if the operation was successful.
+   * [name] is used for error messages (e.g. the name of the file being parsed).
+   *
+   * If [type] is not provided, the compilation type is determined by the contents of the [string].
+   */
+  @Throws(ParseException::class)
+  fun parseAndTranslate(name: String, string: String, type: CompilationType?) =
+    parseAndTranslate(
+      name = name,
       type = type,
       charStream = CharStreams.fromString(string),
     )
@@ -125,7 +153,7 @@ object SummitAST {
 
     if (errorCounter.numErrors > 0) {
       logger.atWarning().log("Failed to parse %s", name)
-      return null // failure
+      throw ParseException("Failed to parse $name: " + errorCounter.errorMessages())
     }
 
     try {
@@ -134,7 +162,7 @@ object SummitAST {
       return ast
     } catch (e: Translate.TranslationException) {
       logger.atWarning().withCause(e).log("Failed to translate %s", name)
-      return null // failure
+      throw ParseException("Failed to translate $name", e)
     }
   }
 

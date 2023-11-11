@@ -18,6 +18,7 @@ package com.google.summit
 
 import com.google.common.truth.Truth.assertThat
 import com.google.summit.SummitAST.CompilationType
+import org.junit.Assert
 import kotlin.io.path.Path
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,7 +67,12 @@ class SummitASTTest {
   @Test
   fun parseString_invalid_classAsTrigger() {
     val string = classString
-    val cu = SummitAST.parseAndTranslate(string, type = CompilationType.TRIGGER)
-    assertThat(cu).isNull()
+    val exception = Assert.assertThrows(SummitAST.ParseException::class.java) {
+      SummitAST.parseAndTranslate(
+        string,
+        type = CompilationType.TRIGGER
+      )
+    };
+    assertThat(exception).isNotNull()
   }
 }
