@@ -82,7 +82,7 @@ abstract class Node {
   }
 
   companion object {
-    private var totalCountThreadLocal: ThreadLocal<Int> = ThreadLocal()
+    private var totalCountThreadLocal: ThreadLocal<Int> = ThreadLocal.withInitial { 0 }
 
     /**
      * Total number of nodes created.
