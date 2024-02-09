@@ -25,6 +25,7 @@ import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.math.BigDecimal
 
 @RunWith(JUnit4::class)
 class LiteralExpressionTest {
@@ -82,16 +83,16 @@ class LiteralExpressionTest {
   }
 
   @Test
-  fun number_translation_isDoubleLiteralWithValue() {
+  fun number_translation_isDecimalLiteralWithValue() {
     val code = createCompilationUnitCodeUsingExpression("0.1")
-    val node = TranslateHelpers.parseAndFindFirstNodeOfType<LiteralExpression.DoubleVal>(code)
+    val node = TranslateHelpers.parseAndFindFirstNodeOfType<LiteralExpression.DecimalVal>(code)
 
     assertNotNull(node)
-    assertThat(node.value).isEqualTo(0.1)
+    assertThat(node.value).isEqualTo(BigDecimal("0.1"))
   }
 
   @Test
-  fun d_suffix_is_tolerated() {
+  fun number_translation_isDoubleLiteralWithValue() {
     val code = createCompilationUnitCodeUsingExpression("100.0D")
     val node = TranslateHelpers.parseAndFindFirstNodeOfType<LiteralExpression.DoubleVal>(code)
 

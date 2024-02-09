@@ -89,6 +89,7 @@ import org.antlr.v4.runtime.TokenStream
 import org.antlr.v4.runtime.misc.Interval
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.SyntaxTree
+import java.math.BigDecimal
 
 /**
  * Translates an Apex parse tree into an abstract syntax tree (AST).
@@ -714,8 +715,15 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
           // Trim required trailing 'L' character
           LiteralExpression.LongVal(text.replace("[lL]$".toRegex(), "").toLong(), loc)
         ctx.NumberLiteral() != null ->
-          // Trim optional trailing 'D' character
-          LiteralExpression.DoubleVal(text.replace("[dD]$".toRegex(), "").toDouble(), loc)
+          {
+            // optional trailing 'D' character -> Double
+            if (text.endsWith('d', ignoreCase = true)) {
+              // Trim optional trailing 'D' character
+              return LiteralExpression.DoubleVal(text.replace("[dD]$".toRegex(), "").toDouble(), loc)
+            } else {
+              return LiteralExpression.DecimalVal(BigDecimal(text), loc)
+            }
+          }
         // Trim single quotes
         ctx.StringLiteral() != null ->
           LiteralExpression.StringVal(text.removeSurrounding("'", "'"), loc)
