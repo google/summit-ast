@@ -19,6 +19,7 @@ package com.google.summit.ast.expression
 import com.google.summit.ast.Node
 import com.google.summit.ast.PrintableAsCodeString
 import com.google.summit.ast.SourceLocation
+import java.math.BigDecimal
 
 /**
  * The outer and base class for literal expressions.
@@ -86,6 +87,16 @@ sealed class LiteralExpression(loc: SourceLocation) : Expression(loc), Printable
    * @param loc the location in the source file
    */
   class DoubleVal(val value: Double, loc: SourceLocation) : LiteralExpression(loc) {
+    override fun asCodeString(): String = value.toString()
+  }
+
+  /**
+   * A decimal number literal. This supports arbitrary precision.
+   *
+   * @property value the decimal value
+   * @param loc the location in the source file
+   */
+  class DecimalVal(val value: BigDecimal, loc: SourceLocation) : LiteralExpression(loc) {
     override fun asCodeString(): String = value.toString()
   }
 }
