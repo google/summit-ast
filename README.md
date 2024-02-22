@@ -22,6 +22,7 @@ This software is built using [bazel](https://bazel.build/).
 
 ```
 $ bazel build ...
+$ bazel test ...
 ```
 
 It is tested and working with the version listed in the `.bazelversion` file.

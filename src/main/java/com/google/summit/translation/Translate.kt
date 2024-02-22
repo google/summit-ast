@@ -1302,6 +1302,17 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
       toSourceLocation(ctx)
     )
 
+  /**
+   * Translates the 'expression#coalExpression' grammar rule and returns an AST [Expression].
+   */
+  override fun visitCoalExpression(ctx: ApexParser.CoalExpressionContext): Expression =
+    BinaryExpression(
+      visitExpression(ctx.expression().first()),
+      BinaryExpression.Operator.NULL_COALESCING,
+      visitExpression(ctx.expression().last()),
+      toSourceLocation(ctx)
+    )
+
   // END EXPRESSION
 
   // BEGIN PRIMARY

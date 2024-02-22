@@ -361,4 +361,12 @@ class ExpressionTest {
       .that(expression)
       .isInstanceOf(VariableExpression::class.java)
   }
+
+  @Test
+  fun nullCoalescing_translates_to_binaryExpression() {
+    val root = parseApexExpressionInCode("leftHand ?? rightHand")
+    val node = TranslateHelpers.findFirstNodeOfType<BinaryExpression>(root)
+
+    assertWithMessage("A `BinaryExpression` node should be created").that(node).isNotNull()
+  }
 }

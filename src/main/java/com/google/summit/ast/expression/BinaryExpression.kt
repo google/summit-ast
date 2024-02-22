@@ -65,6 +65,8 @@ class BinaryExpression(
     BITWISE_XOR,
     LOGICAL_AND,
     LOGICAL_OR,
+    /** https://developer.salesforce.com/docs/atlas.en-us.apexcode.meta/apexcode/langCon_apex_NullCoalescingOperator.htm */
+    NULL_COALESCING,
   }
 
   /** Constructs an expression from a string representation of the operator. */
@@ -109,6 +111,7 @@ class BinaryExpression(
         "^" -> Operator.BITWISE_XOR
         "&&" -> Operator.LOGICAL_AND
         "||" -> Operator.LOGICAL_OR
+        "??" -> Operator.NULL_COALESCING
         else -> throw IllegalArgumentException("Unknown operator '$str'")
       }
 
@@ -144,6 +147,7 @@ class BinaryExpression(
         Operator.BITWISE_XOR -> "^"
         Operator.LOGICAL_AND -> "&&"
         Operator.LOGICAL_OR -> "||"
+        Operator.NULL_COALESCING -> "??"
       }
   }
 }
