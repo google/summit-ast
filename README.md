@@ -11,7 +11,7 @@ This is not an official Google product.
 ## Dependencies
 
 This is built on top of the
-[apex-parser](https://github.com/nawforce/apex-parser) Apex parser, which is a
+[apex-parser](https://github.com/apex-dev-tools/apex-parser) Apex parser, which is a
 compiled [ANTLR4](https://github.com/antlr/antlr4) grammar.
 
 All dependencies are downloaded and managed through the build system.
