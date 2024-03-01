@@ -87,7 +87,7 @@ class WhileLoopStatement(val condition: Expression, body: Statement, loc: Source
  * @param body the statement being looped
  * @param loc the location in the source file
  */
-class DoWhileLoopStatement(val condition: Expression, body: Statement, loc: SourceLocation) :
+class DoWhileLoopStatement(val condition: Expression, body: CompoundStatement, loc: SourceLocation) :
   LoopStatement(body, loc) {
   override fun getChildren(): List<Node> = listOf(condition, body)
 }
