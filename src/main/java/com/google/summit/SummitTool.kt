@@ -47,10 +47,17 @@ object SummitTool {
     for (arg in args) {
       logger.atInfo().log("Searching for Apex source at: %s", arg)
 
+      // bazel changes the current working directory...
+      var absolutePath = Paths.get(arg);
+      val workingDirectory = System.getenv("BUILD_WORKING_DIRECTORY")
+      if (!absolutePath.isAbsolute && workingDirectory != null) {
+        absolutePath = Paths.get(workingDirectory).resolve(absolutePath);
+      }
+
       try {
         val stream: Stream<Path> =
           Files.find(
-            Paths.get(arg),
+            absolutePath,
             Integer.MAX_VALUE,
             { path, _ -> SummitAST.isApexSourceFile(path) }
           )
