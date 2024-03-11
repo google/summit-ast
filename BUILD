@@ -28,7 +28,7 @@ kt_jvm_library(
     deps = [
         "@maven//:com_google_guava_guava",
         "@maven//:com_google_flogger_flogger_system_backend",
-        "@maven//:com_github_nawforce_apex_parser",
+        "@maven//:io_github_apex_dev_tools_apex_parser",
         "@maven//:com_google_flogger_flogger",
         "@maven//:org_danilopianini_gson_extras",
         "@maven//:org_apache_commons_commons_lang3",

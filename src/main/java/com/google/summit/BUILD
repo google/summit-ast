@@ -19,7 +19,7 @@ kt_jvm_library(
         "//src/main/java/com/google/summit/ast",
         "//src/main/java/com/google/summit/symbols",
         "//src/main/java/com/google/summit/translation",
-        "@maven//:com_github_nawforce_apex_parser",
+        "@maven//:io_github_apex_dev_tools_apex_parser",
         "@maven//:com_google_flogger_flogger",
         "@maven//:com_google_guava_guava",
     ],

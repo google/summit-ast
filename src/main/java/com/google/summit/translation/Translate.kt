@@ -1755,7 +1755,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitDoWhileStatement(ctx: ApexParser.DoWhileStatementContext): Statement =
     DoWhileLoopStatement(
       condition = visitParExpression(ctx.parExpression()),
-      body = visitStatement(ctx.statement()),
+      body = visitBlock(ctx.block()),
       toSourceLocation(ctx)
     )
 

@@ -15,7 +15,7 @@ kt_jvm_library(
     srcs = [":sources"],
     deps = [
         "//src/main/java/com/google/summit/ast",
-        "@maven//:com_github_nawforce_apex_parser",
+        "@maven//:io_github_apex_dev_tools_apex_parser",
         "@maven//:com_google_flogger_flogger",
     ],
 )
