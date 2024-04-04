@@ -23,9 +23,9 @@ import com.google.summit.ast.Untranslated
 import com.google.summit.ast.statement.Statement
 import com.google.summit.ast.traversal.DfsWalker
 import com.google.summit.translation.Translate
-import com.nawforce.apexparser.ApexLexer
-import com.nawforce.apexparser.ApexParser
-import com.nawforce.apexparser.CaseInsensitiveInputStream
+import io.github.apexdevtools.apexparser.ApexLexer
+import io.github.apexdevtools.apexparser.ApexParser
+import io.github.apexdevtools.apexparser.CaseInsensitiveInputStream
 import org.antlr.v4.runtime.BaseErrorListener
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream

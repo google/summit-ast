@@ -19,7 +19,9 @@ package com.google.summit.translation
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.summit.ast.declaration.EnumDeclaration
+import com.google.summit.ast.declaration.MethodDeclaration
 import com.google.summit.ast.declaration.TriggerDeclaration
+import com.google.summit.ast.statement.Statement
 import com.google.summit.testing.TranslateHelpers
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,5 +67,29 @@ class CompilationUnitTest {
         TriggerDeclaration.TriggerCase.TRIGGER_BEFORE_UPDATE,
         TriggerDeclaration.TriggerCase.TRIGGER_AFTER_DELETE
       )
+  }
+
+  @Test
+  fun triggerWithStatement_translatesTo_expectedTree() {
+    val cu =
+      TranslateHelpers.parseAndTranslate(
+        "trigger MyTrigger on MyObject(before update, after delete) { System.debug(''); }"
+      )
+
+    val triggerDecl = cu.typeDeclaration as TriggerDeclaration
+    val statement = triggerDecl.body.first() as Statement
+    assertThat(triggerDecl.body).containsExactly(statement)
+  }
+
+  @Test
+  fun triggerWithDeclaration_translatesTo_expectedTree() {
+    val cu =
+      TranslateHelpers.parseAndTranslate(
+        "trigger MyTrigger on MyObject(before update, after delete) { public void func() {} }"
+      )
+
+    val triggerDecl = cu.typeDeclaration as TriggerDeclaration
+    val methodDeclaration = triggerDecl.body.first() as MethodDeclaration
+    assertThat(triggerDecl.body).containsExactly(methodDeclaration)
   }
 }

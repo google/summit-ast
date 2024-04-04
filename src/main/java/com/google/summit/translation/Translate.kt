@@ -81,8 +81,8 @@ import com.google.summit.ast.statement.ThrowStatement
 import com.google.summit.ast.statement.TryStatement
 import com.google.summit.ast.statement.VariableDeclarationStatement
 import com.google.summit.ast.statement.WhileLoopStatement
-import com.nawforce.apexparser.ApexParser
-import com.nawforce.apexparser.ApexParserBaseVisitor
+import io.github.apexdevtools.apexparser.ApexParser
+import io.github.apexdevtools.apexparser.ApexParserBaseVisitor
 import kotlin.math.min
 import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.TokenStream
@@ -97,7 +97,7 @@ import java.math.BigDecimal
  * NOTE: This is a WIP, and only a subset of the Apex language is represented or translated.
  *
  * The translation is accomplished with a single-pass depth-first traversal of the parse tree, using
- * the ANTLR-generated [com.nawforce.apexparser.ApexParserVisitor] interface. Each translated
+ * the ANTLR-generated [io.github.apexdevtools.apexparser.ApexParserVisitor] interface. Each translated
  * grammar rule returns the corresponding AST object.
  *
  * @property file path (or other descriptor) that is being translated
@@ -169,7 +169,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
         id = visitId(ctx.id().get(0)),
         target = visitId(ctx.id().get(1)),
         cases = ctx.triggerCase().map { visitTriggerCase(it) },
-        body = visitBlock(ctx.block()),
+        body = visitTriggerBlock(ctx.triggerBlock()),
         loc = loc
       ),
       file,
@@ -787,6 +787,45 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
       CompoundStatement.Scoping.SCOPE_BOUNDARY,
       toSourceLocation(ctx)
     )
+
+  override fun visitTriggerBlock(ctx: ApexParser.TriggerBlockContext): List<Node> =
+    ctx.triggerBlockMember().mapNotNull { visitTriggerBlockMember(it) }
+
+  override fun visitTriggerBlockMember(ctx: ApexParser.TriggerBlockMemberContext): Node? {
+    matchExactlyOne(ruleBeingChecked = ctx, ctx.triggerMemberDeclaration(), ctx.statement())
+
+    return when {
+      ctx.triggerMemberDeclaration() != null -> {
+        val member = visitTriggerMemberDeclaration(ctx.triggerMemberDeclaration())
+        (member as HasModifiers).modifiers = ctx.modifier().map { visitModifier(it) }
+        member
+      }
+      ctx.statement() != null -> visitStatement(ctx.statement())
+      else -> throw TranslationException(ctx, "Unreachable case reached")
+    }
+  }
+
+  override fun visitTriggerMemberDeclaration(ctx: ApexParser.TriggerMemberDeclarationContext): Node {
+    matchExactlyOne(
+      ruleBeingChecked = ctx,
+      ctx.methodDeclaration(),
+      ctx.fieldDeclaration(),
+      ctx.interfaceDeclaration(),
+      ctx.classDeclaration(),
+      ctx.enumDeclaration(),
+      ctx.propertyDeclaration()
+    )
+
+    return when {
+      ctx.methodDeclaration() != null -> visitMethodDeclaration(ctx.methodDeclaration())
+      ctx.fieldDeclaration() != null -> visitFieldDeclaration(ctx.fieldDeclaration())
+      ctx.interfaceDeclaration() != null -> visitInterfaceDeclaration(ctx.interfaceDeclaration())
+      ctx.classDeclaration() != null -> visitClassDeclaration(ctx.classDeclaration())
+      ctx.enumDeclaration() != null -> visitEnumDeclaration(ctx.enumDeclaration())
+      ctx.propertyDeclaration() != null -> visitPropertyDeclaration(ctx.propertyDeclaration())
+      else -> throw TranslationException(ctx, "Unreachable case reached")
+    }
+  }
 
   /** Translates the 'finallyBlock' grammar rule and returns an AST [CompoundStatement]. */
   override fun visitFinallyBlock(ctx: ApexParser.FinallyBlockContext): CompoundStatement =
