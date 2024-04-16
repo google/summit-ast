@@ -27,14 +27,14 @@ import com.google.summit.ast.statement.CompoundStatement
  * @param id the unqualified name of the trigger
  * @param target the SObject type to watch
  * @param cases a list of operations to watch
- * @param body the code to execute
+ * @param body the declarations and/or code to execute
  * @param loc the location in the source file
  */
 class TriggerDeclaration(
   id: Identifier,
   val target: Identifier,
   val cases: List<TriggerCase>,
-  val body: CompoundStatement,
+  val body: List<Node>,
   loc: SourceLocation
 ) : TypeDeclaration(id, loc) {
 
@@ -50,5 +50,5 @@ class TriggerDeclaration(
     TRIGGER_AFTER_UNDELETE,
   }
 
-  override fun getChildren(): List<Node> = modifiers + listOfNotNull(id, target, body)
+  override fun getChildren(): List<Node> = modifiers + listOfNotNull(id, target) + body
 }

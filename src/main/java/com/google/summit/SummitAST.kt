@@ -19,9 +19,9 @@ package com.google.summit
 import com.google.common.flogger.FluentLogger
 import com.google.summit.ast.CompilationUnit
 import com.google.summit.translation.Translate
-import com.nawforce.apexparser.ApexLexer
-import com.nawforce.apexparser.ApexParser
-import com.nawforce.apexparser.CaseInsensitiveInputStream
+import io.github.apexdevtools.apexparser.ApexLexer
+import io.github.apexdevtools.apexparser.ApexParser
+import io.github.apexdevtools.apexparser.CaseInsensitiveInputStream
 import java.nio.file.Files
 import java.nio.file.Path
 import org.antlr.v4.runtime.BaseErrorListener
