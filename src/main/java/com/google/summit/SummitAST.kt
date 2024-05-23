@@ -16,20 +16,14 @@
 
 package com.google.summit
 
-import com.google.common.flogger.FluentLogger
 import com.google.summit.ast.CompilationUnit
 import com.google.summit.translation.Translate
 import io.github.apexdevtools.apexparser.ApexLexer
 import io.github.apexdevtools.apexparser.ApexParser
 import io.github.apexdevtools.apexparser.CaseInsensitiveInputStream
+import org.antlr.v4.runtime.*
 import java.nio.file.Files
 import java.nio.file.Path
-import org.antlr.v4.runtime.BaseErrorListener
-import org.antlr.v4.runtime.CharStream
-import org.antlr.v4.runtime.CharStreams
-import org.antlr.v4.runtime.CommonTokenStream
-import org.antlr.v4.runtime.RecognitionException
-import org.antlr.v4.runtime.Recognizer
 
 /** Interface to the Summit AST library. */
 object SummitAST {
@@ -39,8 +33,6 @@ object SummitAST {
    * This value becomes the `file` property of the resulting [CompilationUnit].
    */
   private const val STRING_INPUT = "<str>"
-
-  private val logger = FluentLogger.forEnclosingClass()
 
   /** Listener for syntax errors that keeps a total count. */
   private class SyntaxErrorListener : BaseErrorListener() {
@@ -57,7 +49,6 @@ object SummitAST {
     ) {
       this.numErrors += 1
       errors.add("Syntax error at $line:$charPositionInLine: $msg")
-      logger.atInfo().log("Syntax error at %d:%d: %s", line, charPositionInLine, msg)
     }
 
     fun errorMessages() : String = errors.joinToString("\n")
@@ -141,7 +132,9 @@ object SummitAST {
     val parser = ApexParser(tokens)
 
     val errorCounter = SyntaxErrorListener()
+    lexer.removeErrorListeners()
     lexer.addErrorListener(errorCounter)
+    parser.removeErrorListeners()
     parser.addErrorListener(errorCounter)
 
     // Do parse as complete compilation unit
@@ -152,8 +145,7 @@ object SummitAST {
       }
 
     if (errorCounter.numErrors > 0) {
-      logger.atWarning().log("Failed to parse %s", name)
-      throw ParseException("Failed to parse $name: " + errorCounter.errorMessages())
+      throw ParseException("Failed to parse $name:\n" + errorCounter.errorMessages())
     }
 
     try {
@@ -161,7 +153,6 @@ object SummitAST {
       val ast = translator.translate(tree)
       return ast
     } catch (e: Translate.TranslationException) {
-      logger.atWarning().withCause(e).log("Failed to translate %s", name)
       throw ParseException("Failed to translate $name", e)
     }
   }
@@ -178,6 +169,7 @@ object SummitAST {
   private fun determineCompilationType(charStream: CharStream): CompilationType {
     fun findType(): CompilationType? {
       val lexer = ApexLexer(CaseInsensitiveInputStream(charStream))
+      lexer.removeErrorListeners()
 
       // Discard tokens inside body of declaration
       val tokens =
