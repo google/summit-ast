@@ -1652,10 +1652,16 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     SoqlFragment.mergeOf(
       ctx.searchGroup()?.let { visitSearchGroup(it) },
       ctx.fieldSpecList()?.let { visitFieldSpecList(it) },
-      ctx.filteringExpression()?.let { visitFilteringExpression(it) },
-      ctx.networkList()?.let { visitNetworkList(it) },
+      *ctx.soslWithClause().map { visitSoslWithClause(it) }.toTypedArray(),
       ctx.limitClause()?.let { visitLimitClause(it) },
       ctx.updateList()?.let { visitUpdateList(it) },
+    )
+
+  /** Translates the 'soslWithClause' grammar rule and returns a [SoqlFragment]. */
+  override fun visitSoslWithClause(ctx: ApexParser.SoslWithClauseContext): SoqlFragment =
+    SoqlFragment.mergeOf(
+      ctx.filteringExpression()?.let { visitFilteringExpression(it) },
+      ctx.networkList()?.let { visitNetworkList(it) },
     )
 
   /** Translates the 'fieldSpecList' grammar rule and returns a [SoqlFragment]. */

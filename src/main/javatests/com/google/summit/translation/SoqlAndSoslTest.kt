@@ -81,4 +81,18 @@ class SoqlAndSoslTest {
     assertThat(node!!.query).isEqualTo(query)
     assertThat(node.bindings).hasSize(1)
   }
+
+  @Test
+  fun soslWithUserMode() {
+    val query = "FIND :SecondarySearchList IN NAME FIELDS RETURNING " +
+            "Account(Id, Account.Name WHERE ID = '' LIMIT 100) " +
+            "WITH USER_MODE"
+
+    val root = parseSoqlOrSoslInCode(query)
+
+    val node = TranslateHelpers.findFirstNodeOfType<SoslExpression>(root)
+    assertThat(node).isNotNull()
+    assertThat(node!!.query).isEqualTo(query)
+    assertThat(node.bindings).hasSize(1)
+  }
 }
