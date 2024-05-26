@@ -17,6 +17,7 @@ kt_jvm_library(
     ],
     deps = [
         "//src/main/java/com/google/summit/ast",
+        "//src/main/java/com/google/summit/serialization",
         "//src/main/java/com/google/summit/symbols",
         "//src/main/java/com/google/summit/translation",
         "@maven//:io_github_apex_dev_tools_apex_parser",
