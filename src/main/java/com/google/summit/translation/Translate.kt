@@ -1675,6 +1675,7 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   override fun visitFieldSpec(ctx: ApexParser.FieldSpecContext) = SoqlFragment.mergeOf(
     *ctx.soslId().map { visitSoslId(it) }.toTypedArray(),
     ctx.fieldList()?.let { visitFieldList(it) },
+    ctx.logicalExpression()?.let { visitLogicalExpression(it) },
     ctx.fieldOrderList()?.let { visitFieldOrderList(it) },
     ctx.limitClause()?.let { visitLimitClause(it) },
     ctx.offsetClause()?.let { visitOffsetClause(it) },

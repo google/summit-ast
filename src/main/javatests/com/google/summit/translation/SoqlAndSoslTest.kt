@@ -17,29 +17,11 @@
 package com.google.summit.translation
 
 import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import com.google.summit.ast.CompilationUnit
-import com.google.summit.ast.Node
-import com.google.summit.ast.expression.ArrayExpression
-import com.google.summit.ast.expression.AssignExpression
-import com.google.summit.ast.expression.BinaryExpression
-import com.google.summit.ast.expression.CallExpression
-import com.google.summit.ast.expression.CastExpression
-import com.google.summit.ast.expression.Expression
-import com.google.summit.ast.expression.FieldExpression
-import com.google.summit.ast.expression.NewExpression
 import com.google.summit.ast.expression.SoqlExpression
 import com.google.summit.ast.expression.SoslExpression
-import com.google.summit.ast.expression.SuperExpression
-import com.google.summit.ast.expression.TernaryExpression
-import com.google.summit.ast.expression.ThisExpression
-import com.google.summit.ast.expression.TypeRefExpression
-import com.google.summit.ast.expression.UnaryExpression
-import com.google.summit.ast.expression.UntranslatedExpression
 import com.google.summit.ast.expression.VariableExpression
-import com.google.summit.ast.traversal.DfsWalker
 import com.google.summit.testing.TranslateHelpers
-import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -80,6 +62,36 @@ class SoqlAndSoslTest {
     assertThat(node).isNotNull()
     assertThat(node!!.query).isEqualTo(query)
     assertThat(node.bindings).hasSize(1)
+  }
+
+  @Test
+  fun soslPrimary_contains_query_with_all_bindings() {
+    val query = """
+      FIND :myString1 IN ALL FIELDS
+      RETURNING
+         Account (Id, Name WHERE Name LIKE :myString2
+                  LIMIT :myInt3),
+         Contact,
+         Opportunity,
+         Lead
+      //WITH DIVISION =:myString4 // that's not supported by apex-parser yet
+      WITH DIVISION = 'ccc'
+      LIMIT :myInt5
+    """.trimIndent()
+
+    val root = parseSoqlOrSoslInCode(query)
+
+    val node = TranslateHelpers.findFirstNodeOfType<SoslExpression>(root)
+    assertThat(node).isNotNull()
+    assertThat(node!!.query).isEqualTo(query)
+    assertThat(node.bindings).hasSize(4)
+    val varExpressions = node.bindings
+        .flatMap { it.getChildren() }
+        .filterIsInstance<VariableExpression>()
+        .map { it.id.string }
+        .toList()
+    assertThat(varExpressions).hasSize(4)
+    assertThat(varExpressions).containsExactly("myString1", "myString2", "myInt3", "myInt5")
   }
 
   @Test
