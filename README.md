@@ -41,8 +41,12 @@ files, builds the AST, and prints basic information. It can be executed by
 running:
 
 ```
-$ bazel run :SummitTool [files | directories ...]
+$ bazel run :SummitTool -- [-json] [files | directories ...]
 ```
 
 Any directories will be recursively walked. The tool attempts to compile any
 files with the extension `.cls` or `.trigger`.
+
+If the optional argument `-json` is given, then the AST is serialized additionally
+as json into a file. The file name will be the original Apex source file with
+the extension `.json` added.

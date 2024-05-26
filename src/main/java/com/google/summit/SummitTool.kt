@@ -17,11 +17,15 @@
 package com.google.summit
 
 import com.google.common.flogger.FluentLogger
+import com.google.summit.ast.CompilationUnit
+import com.google.summit.serialization.Serializer
 import com.google.summit.symbols.SummitResolver
 import java.io.IOException
+import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.*
 import java.util.stream.Stream
 import kotlin.streams.toList
 
@@ -30,6 +34,9 @@ import kotlin.streams.toList
  *
  * Pass arguments that are file paths or directories to search. All files with the `.cls` and
  * `.trigger` extensions will be read.
+ *
+ * If the first argument is `-json`, then the [Serializer] will be used to write the AST
+ * as JSON to a file.
  */
 object SummitTool {
   private val logger = FluentLogger.forEnclosingClass()
@@ -40,11 +47,20 @@ object SummitTool {
     // TODO: using a `FluentLogger` here (in this class specifically) does not seem like
     //   the right thing to do.
     logger.atInfo().log("Summit AST Tool")
-    logger.atInfo().log("Usage: SummitTool <Apex files or search directories>")
+    logger.atInfo().log("Usage: SummitTool [-json] <Apex files or search directories>")
 
     var numFiles = 0
     var numFailures = 0
-    for (arg in args) {
+    var serializer : Serializer? = null;
+    var filesOrDirectories : List<String> = args.toList()
+
+    if (args.firstOrNull() == "-json") {
+      logger.atInfo().log("Serializing parsed Apex sources to JSON")
+      serializer = Serializer(true)
+      filesOrDirectories = args.drop(1)
+    }
+
+    for (arg in filesOrDirectories) {
       logger.atInfo().log("Searching for Apex source at: %s", arg)
 
       // bazel changes the current working directory...
@@ -65,7 +81,22 @@ object SummitTool {
         val paths = stream.toList()
         val allAsts = paths.mapNotNull { path ->
           numFiles++
-          SummitAST.parseAndTranslate(path)
+          var compilationUnit : CompilationUnit? = null
+
+          try {
+            compilationUnit = SummitAST.parseAndTranslate(path)
+
+            if (serializer != null) {
+              val json = serializer.serialize(compilationUnit!!)
+              val jsonFile = path.resolveSibling(path.fileName.toString() + ".json")
+              Files.write(jsonFile, Collections.singleton(json), StandardCharsets.UTF_8)
+              logger.atInfo().log("Serialized into %s", jsonFile)
+            }
+          } catch (e: SummitAST.ParseException) {
+            logger.atWarning().withCause(e).log("Couldn't parse %s", path)
+          }
+
+          compilationUnit
         }
         SummitResolver().resolve(allAsts)
         numFailures = numFiles - allAsts.size
