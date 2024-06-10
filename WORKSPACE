@@ -48,7 +48,7 @@ kt_register_toolchains()
 git_repository(
     name = "vaticle_bazel_distribution",
     remote = "https://github.com/vaticle/bazel-distribution",
-    commit = "e61daa787bc77d97e36df944e7223821cab309ea"
+    commit = "8767cdec452c14274493c576a2955059ff17f2e4"
 )
 
 # Load //common
