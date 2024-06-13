@@ -29,7 +29,12 @@ It is tested and working with the version listed in the `.bazelversion` file.
 
 If you use [Bazelisk to use
 Bazel](https://bazel.build/install/bazelisk), it will download the
-correct version.
+correct version.  Bazelisk can be installed (e.g. for amd64) via:
+```
+$ wget https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64
+$ chmod a+x bazelisk-linux-amd64
+$ ln -s bazelisk-linux-amd64 bazel
+```
 
 ## Running
 
