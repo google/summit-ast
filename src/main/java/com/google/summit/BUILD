@@ -34,6 +34,6 @@ kt_jvm_binary(
     main_class = "com.google.summit.SummitTool",
     deps = [
         ":SummitAST",
-        "@com_github_jetbrains_kotlin//:kotlin-stdlib-jdk8",
+        "@io_bazel_rules_kotlin//kotlin/compiler:kotlin-stdlib",
     ],
 )

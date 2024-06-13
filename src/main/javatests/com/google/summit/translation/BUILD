@@ -9,7 +9,7 @@ kt_jvm_library(
         "//src/main/javatests/com/google/summit/testing",
         "@maven//:junit_junit",
         "@maven//:com_google_truth_truth",
-        "@com_github_jetbrains_kotlin//:kotlin-test",
+        "@io_bazel_rules_kotlin//kotlin/compiler:kotlin-test",
     ],
     runtime_deps = [
         "@maven//:com_google_flogger_flogger_system_backend",

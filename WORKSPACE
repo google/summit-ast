@@ -2,17 +2,30 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 # -------------------------
+# Java toolchain
+# -------------------------
+
+RULES_JAVA_VERSION = "7.6.2"
+RULES_JAVA_SHA = "eb43f35e3498e6bb8253e2c1759f9a48e56a104e462a58f4163d8f900e7ee8d0"
+
+http_archive(
+    name = "rules_java",
+    url = "https://github.com/bazelbuild/rules_java/releases/download/%s/rules_java-%s.tar.gz" % (RULES_JAVA_VERSION, RULES_JAVA_VERSION),
+    sha256 = RULES_JAVA_SHA,
+)
+
+# -------------------------
 # External rules
 # -------------------------
 
-RULES_JVM_EXTERNAL_TAG = "4.2"
-RULES_JVM_EXTERNAL_SHA = "cd1a77b7b02e8e008439ca76fd34f5b07aecb8c752961f9640dea15e9e5ba1ca"
+RULES_JVM_EXTERNAL_TAG = "6.1"
+RULES_JVM_EXTERNAL_SHA = "42a6d48eb2c08089961c715a813304f30dc434df48e371ebdd868fc3636f0e82"
 
 http_archive(
     name = "rules_jvm_external",
     strip_prefix = "rules_jvm_external-%s" % RULES_JVM_EXTERNAL_TAG,
-    sha256 = RULES_JVM_EXTERNAL_SHA,
     url = "https://github.com/bazelbuild/rules_jvm_external/archive/%s.zip" % RULES_JVM_EXTERNAL_TAG,
+    sha256 = RULES_JVM_EXTERNAL_SHA,
 )
 
 load("@rules_jvm_external//:defs.bzl", "maven_install")
@@ -21,15 +34,13 @@ load("@rules_jvm_external//:defs.bzl", "maven_install")
 # Kotlin toolchain
 # -------------------------
 
-rules_kotlin_version = "v1.7.1"
-rules_kotlin_sha = "fd92a98bd8a8f0e1cdcb490b93f5acef1f1727ed992571232d33de42395ca9b3"
+rules_kotlin_version = "1.9.0"
+rules_kotlin_sha = "5766f1e599acf551aa56f49dab9ab9108269b03c557496c54acaf41f98e2b8d6"
 
 http_archive(
     name = "io_bazel_rules_kotlin",
+    urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v%s/rules_kotlin-v%s.tar.gz" % (rules_kotlin_version, rules_kotlin_version)],
     sha256 = rules_kotlin_sha,
-    urls = [
-        "https://github.com/bazelbuild/rules_kotlin/releases/download/%s/rules_kotlin_release.tgz" % rules_kotlin_version,
-    ],
 )
 
 load("@io_bazel_rules_kotlin//kotlin:dependencies.bzl", "kt_download_local_dev_dependencies")
