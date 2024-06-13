@@ -1,4 +1,4 @@
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library", "kt_jvm_test")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_library", "kt_jvm_test")
 
 kt_jvm_library(
     name = "tests",
@@ -15,8 +15,8 @@ kt_jvm_library(
         "//src/main/java/com/google/summit/ast",
         "//src/main/java/com/google/summit/serialization",
         "//src/main/javatests/com/google/summit/testing",
-        "@io_bazel_rules_kotlin//kotlin/compiler:kotlin-stdlib",
-        "@io_bazel_rules_kotlin//kotlin/compiler:kotlin-test",
+        "@rules_kotlin//kotlin/compiler:kotlin-stdlib",
+        "@rules_kotlin//kotlin/compiler:kotlin-test",
         "@maven//:junit_junit",
         "@maven//:com_google_truth_truth",
     ],

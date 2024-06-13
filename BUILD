@@ -13,7 +13,7 @@ alias(
 # Assemble JARs, POM for publishing to Maven central
 #
 
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library")
 load("@vaticle_bazel_distribution//maven:rules.bzl", "assemble_maven")
 
 kt_jvm_library(

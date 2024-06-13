@@ -1,4 +1,4 @@
-load("@io_bazel_rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library")
+load("@rules_kotlin//kotlin:jvm.bzl", "kt_jvm_binary", "kt_jvm_library")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -34,6 +34,6 @@ kt_jvm_binary(
     main_class = "com.google.summit.SummitTool",
     deps = [
         ":SummitAST",
-        "@io_bazel_rules_kotlin//kotlin/compiler:kotlin-stdlib",
+        "@rules_kotlin//kotlin/compiler:kotlin-stdlib",
     ],
 )

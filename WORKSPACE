@@ -38,18 +38,18 @@ rules_kotlin_version = "1.9.0"
 rules_kotlin_sha = "5766f1e599acf551aa56f49dab9ab9108269b03c557496c54acaf41f98e2b8d6"
 
 http_archive(
-    name = "io_bazel_rules_kotlin",
+    name = "rules_kotlin",
     urls = ["https://github.com/bazelbuild/rules_kotlin/releases/download/v%s/rules_kotlin-v%s.tar.gz" % (rules_kotlin_version, rules_kotlin_version)],
     sha256 = rules_kotlin_sha,
 )
 
-load("@io_bazel_rules_kotlin//kotlin:dependencies.bzl", "kt_download_local_dev_dependencies")
+load("@rules_kotlin//kotlin:dependencies.bzl", "kt_download_local_dev_dependencies")
 kt_download_local_dev_dependencies()
 
-load("@io_bazel_rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories")
+load("@rules_kotlin//kotlin:repositories.bzl", "kotlin_repositories")
 kotlin_repositories()
 
-load("@io_bazel_rules_kotlin//kotlin:kotlin.bzl", "kt_register_toolchains")
+load("@rules_kotlin//kotlin:kotlin.bzl", "kt_register_toolchains")
 kt_register_toolchains()
 
 # -------------------------
@@ -59,7 +59,8 @@ kt_register_toolchains()
 git_repository(
     name = "vaticle_bazel_distribution",
     remote = "https://github.com/vaticle/bazel-distribution",
-    commit = "8767cdec452c14274493c576a2955059ff17f2e4"
+    commit = "8767cdec452c14274493c576a2955059ff17f2e4",
+    repo_mapping = {"@io_bazel_rules_kotlin" : "@rules_kotlin"}
 )
 
 # Load //common
