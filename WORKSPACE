@@ -89,7 +89,7 @@ maven_install(
         "com.google.guava:guava:33.2.1-jre",
         "com.google.flogger:flogger-system-backend:0.8",
         "junit:junit:4.13.2",
-        "io.github.apex-dev-tools:apex-parser:4.1.0",
+        "io.github.apex-dev-tools:apex-parser:4.3.1",
         "com.google.truth:truth:1.4.2",
         "com.google.code.gson:gson:2.11.0",
         "org.jetbrains.kotlin:kotlin-reflect:2.0.0",

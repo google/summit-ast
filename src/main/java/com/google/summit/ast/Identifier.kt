@@ -40,7 +40,4 @@ class Identifier(val string: String, loc: SourceLocation) :
 
   /** Returns the identifier string. */
   override fun asCodeString(): String = string
-
-  /** Creates a copy of the object with the same string and source location. */
-  fun copy(): Identifier = Identifier(string, getSourceLocation())
 }

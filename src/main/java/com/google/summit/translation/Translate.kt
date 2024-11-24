@@ -876,16 +876,16 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
     matchExactlyOne(
       ruleBeingChecked = whenValue,
       whenValue.ELSE(),
-      whenValue.id().firstOrNull(),
-      whenValue.whenLiteral().firstOrNull()
+      whenValue.whenLiteral().firstOrNull(),
+      whenValue.typeRef()
     )
 
     val statement = visitBlock(ctx.block())
     return when {
       whenValue.ELSE() != null -> SwitchStatement.WhenElse(statement)
-      whenValue.id().isNotEmpty() -> whenValue.toWhenType(statement)
       whenValue.whenLiteral().isNotEmpty() ->
         SwitchStatement.WhenValue(whenValue.whenLiteral().map { visitWhenLiteral(it) }, statement)
+      whenValue.typeRef() != null -> whenValue.toWhenType(statement)
       else -> throw TranslationException(ctx, "Unreachable case reached")
     }
   }
@@ -897,22 +897,17 @@ class Translate(val file: String, private val tokens: TokenStream) : ApexParserB
   private fun ApexParser.WhenValueContext.toWhenType(
     statement: Statement
   ): SwitchStatement.WhenType {
-    if (this.id().size != 2) {
-      throw TranslationException(this, "When type clauses should have 2 identifiers")
-    }
-    val typeIdentifier = visitId(this.id().first())
-    val nameIdentifier = visitId(this.id().last())
 
     val variableDecl =
       VariableDeclarationGroup.of(
-        nameIdentifier,
-        TypeRef.createFromUnqualifiedName(typeIdentifier),
+        visitId(this.id()),
+        visitTypeRef(this.typeRef()),
         emptyList(),
         initializer = null,
         toSourceLocation(this)
       )
     return SwitchStatement.WhenType(
-      TypeRef.createFromUnqualifiedName(typeIdentifier.copy()),
+      visitTypeRef(this.typeRef()),
       variableDecl,
       statement
     )
